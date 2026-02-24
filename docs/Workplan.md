@@ -22,25 +22,58 @@ This document outlines the initial workplan for the development of the brAIn fra
 **Goal**: Establish the monorepo skeleton, developer environment, and project conventions from which all subsequent phases grow.
 
 ### 0.1 Monorepo Initialization
-- [ ] Init Turborepo workspace; configure `pnpm` workspaces for TypeScript packages and `uv` for Python packages
-- [ ] Add root `.gitignore`, `LICENSE`, `CONTRIBUTING.md`, `CHANGELOG.md`
-- [ ] Configure `turbo.json` with pipeline tasks: `build`, `test`, `lint`, `typecheck`
-- [ ] Add `docker-compose.yml` for local multi-service orchestration (ChromaDB, Ollama, Redis, observability stack)
+- [x] Init Turborepo workspace; configure `pnpm` workspaces for TypeScript packages and `uv` for Python packages
+- [x] Add root `.gitignore`, `LICENSE`, `CONTRIBUTING.md`, `CHANGELOG.md`
+- [x] Configure `turbo.json` with pipeline tasks: `build`, `test`, `lint`, `typecheck`
+- [x] Add `docker-compose.yml` for local multi-service orchestration (ChromaDB, Ollama, Redis, observability stack)
+
+#### 0.1 Verification
+- [x] `pnpm install` completes without errors
+- [x] `turbo run build` exits 0 (no packages yet, pipeline resolves cleanly)
+- [x] `turbo run lint` exits 0
+- [x] `turbo run test` exits 0
+- [x] `docker compose config` validates without errors
+- [x] `pnpm-workspace.yaml` globs cover `infrastructure/*`, `modules/**/*`, `apps/*`, `shared/*`
 
 ### 0.2 Shared Tooling & Conventions
-- [ ] Define root ESLint + Prettier config (TypeScript); define root `ruff` + `mypy` config (Python)
-- [ ] Configure `buf` toolchain for Protobuf/JSON Schema management in `shared/`
-- [ ] Set up pre-commit hooks: lint, typecheck, schema validation
-- [ ] Establish commit message convention and PR template
+- [x] Define root ESLint + Prettier config (TypeScript); define root `ruff` + `mypy` config (Python)
+- [x] Configure `buf` toolchain for Protobuf/JSON Schema management in `shared/`
+- [x] Set up pre-commit hooks: lint, typecheck, schema validation
+- [x] Establish commit message convention and PR template
+
+#### 0.2 Verification
+- [ ] `npx eslint .` exits 0 on root TypeScript files
+- [ ] `npx prettier --check .` exits 0
+- [ ] `uv run ruff check .` exits 0
+- [ ] `uv run mypy .` exits 0 (or reports only expected no-source warnings)
+- [ ] `pre-commit run --all-files` passes all hooks (trailing-whitespace, end-of-file-fixer, check-yaml, check-json, check-toml, prettier, ruff, ruff-format, mypy, validate-frontmatter)
+- [ ] `git log --oneline -1` subject conforms to Conventional Commits (verified by `commitlint`)
+- [ ] `.github/pull_request_template.md` is present and non-empty
+- [x] `cd shared && buf lint` exits 0 (stub `placeholder.proto` satisfies the linter; real schemas authored in Phase 1)
 
 ### 0.3 Observability Stub
-- [ ] Provision `observability/` with OpenTelemetry collector config, Prometheus scrape config, and Grafana datasource definitions
-- [ ] Wire `docker-compose.yml` to bring up the local observability stack
+- [x] Provision `observability/` with OpenTelemetry collector config, Prometheus scrape config, and Grafana datasource definitions
+- [x] Wire `docker-compose.yml` to bring up the local observability stack
+
+#### 0.3 Verification
+- [ ] `docker compose up otel-collector prometheus grafana -d` starts all three services without error
+- [ ] `curl -f http://localhost:4318` (or configured OTLP HTTP port) returns a non-5xx response from the OTel collector
+- [ ] `curl -f http://localhost:9090/-/healthy` returns `Prometheus Server is Healthy`
+- [ ] `curl -f http://localhost:3000/api/health` returns `{"database":"ok","..."}` from Grafana
+- [ ] Grafana Prometheus datasource (`observability/grafana/datasources/default.yaml`) appears as **connected** in the Grafana UI at `http://localhost:3000`
+- [ ] `observability/README.md` documents port assignments and how to bring up the stack
 
 ### 0.4 Seed Knowledge Fixtures
-- [ ] Move or create `resources/static/knowledge/brain-structure.md` with YAML frontmatter (`id`, `version`, `status`, `maps-to-modules`)
-- [ ] Populate `resources/neuroanatomy/` stubs (8 region files) with frontmatter and placeholder content, to be enriched from `raw_data_dumps/Human_Brain__wiki.md`
-- [ ] Validate frontmatter schema for all seed documents
+- [x] Move or create `resources/static/knowledge/brain-structure.md` with YAML frontmatter (`id`, `version`, `status`, `maps-to-modules`)
+- [x] Populate `resources/neuroanatomy/` stubs (8 region files) with frontmatter and placeholder content, to be enriched from `raw_data_dumps/Human_Brain__wiki.md`
+- [x] Validate frontmatter schema for all seed documents
+
+#### 0.4 Verification
+- [ ] `resources/static/knowledge/brain-structure.md` frontmatter contains `id`, `version`, `status`, `seed-collection`, `chunking`, and `maps-to-modules` keys
+- [ ] All 8 region files are present under `resources/neuroanatomy/`: `association-cortices.md`, `cerebellum.md`, `frontal-lobe.md`, `hippocampus.md`, `limbic-system.md`, `prefrontal-cortex.md`, `sensory-cortex.md`, `thalamus.md`
+- [ ] Each region file frontmatter contains `id`, `version`, `status`, `seed-collection`, `source`, and `maps-to-modules` keys
+- [ ] `pre-commit run validate-frontmatter --all-files` exits 0 across all resource files
+- [ ] `resources/README.md` documents the resource directory structure and frontmatter schema
 
 **Deliverables**: runnable `docker-compose up`, passing `turbo run lint`, usable seed knowledge directory, initial test suite configured, documentation templates established.
 

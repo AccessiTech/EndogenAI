@@ -55,6 +55,19 @@ repos:
         additional_dependencies: []
 
   # ---------------------------------------------------------------------------
+  # Protobuf — buf lint + breaking change detection
+  # buf-lint runs against shared/buf.yaml; buf-breaking is commented out until
+  # a stable .proto baseline exists at the end of Phase 1.
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/bufbuild/buf
+    rev: v1.66.0
+    hooks:
+      - id: buf-lint
+        args: ["--config", "shared/buf.yaml"]
+      # - id: buf-breaking
+      #   args: ["--against", ".git#branch=main", "--config", "shared/buf.yaml"]
+
+  # ---------------------------------------------------------------------------
   # JSON Schema validation via ajv
   # ---------------------------------------------------------------------------
   - repo: local

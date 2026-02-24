@@ -1,10 +1,23 @@
+# buf module configuration for the shared/ contract directory.
+# .proto files live in shared/schemas/proto/ (authored in Phase 1).
+# Run `buf lint` to validate; `buf generate` to emit TypeScript + Python types.
+#
+# Docs: https://buf.build/docs/configuration/v2/buf-yaml
 version: v2
+
 modules:
   - path: .
-    name: buf.build/accessitech/endogenai
+
 lint:
   use:
-    - DEFAULT
+    - STANDARD
+  except:
+    # Re-enable once Phase 1 .proto files are authored and directory layout is finalised
+    - PACKAGE_VERSION_SUFFIX
+    - PACKAGE_DIRECTORY_MATCH
+
 breaking:
   use:
     - FILE
+
+deps: []
