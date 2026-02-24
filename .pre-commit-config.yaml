@@ -65,3 +65,5 @@ repos:
         entry: python scripts/validate_frontmatter.py
         files: ^resources/.*\.md$
         pass_filenames: false
+        additional_dependencies:
+          - pyyaml
