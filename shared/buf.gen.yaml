@@ -1,0 +1,26 @@
+# buf code generation config for shared/ contracts.
+# Plugins are commented out until Phase 1 .proto files are authored.
+# Uncomment and pin versions before running `buf generate`.
+#
+# Docs: https://buf.build/docs/configuration/v2/buf-gen-yaml
+version: v2
+
+# managed:
+#   enabled: true
+#   override:
+#     - file_option: go_package_prefix
+#       value: github.com/accessitech/endogenai
+
+# plugins:
+  # TypeScript (ESM, Protobuf-ES) — emit to shared/types/gen/
+  # - remote: buf.build/bufbuild/es:v2.2.0
+  #   out: types/gen
+  #   opt:
+  #     - target=ts
+
+  # Python (betterproto) — emit to each consuming module's gen/ dir
+  # - remote: buf.build/community/nipunn1313-betterproto:v0.1.1
+  #   out: ../modules/gen
+
+inputs:
+  - directory: .

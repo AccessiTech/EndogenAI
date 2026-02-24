@@ -1,0 +1,18 @@
+// Placeholder file to satisfy buf lint until Phase 1 .proto schemas are authored.
+// Replace this file with the actual shared contract definitions in Phase 1.
+//
+// Phase 1 schemas to author here:
+//   - mcp_context.proto
+//   - a2a_message.proto
+//   - a2a_task.proto
+//   - signal.proto
+//   - memory_item.proto
+//   - reward_signal.proto
+
+syntax = "proto3";
+
+// Package will be restructured into versioned sub-directories in Phase 1.
+package endogenai;
+
+option java_package = "com.accessitech.endogenai";
+option java_multiple_files = true;
