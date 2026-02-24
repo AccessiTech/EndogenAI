@@ -1,0 +1,5 @@
+packages:
+  - "infrastructure/*"
+  - "modules/**/*"
+  - "apps/*"
+  - "shared/*"

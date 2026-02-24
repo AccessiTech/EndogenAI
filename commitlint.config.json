@@ -1,0 +1,38 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "scope-enum": [
+      2,
+      "always",
+      [
+        "mcp",
+        "a2a",
+        "adapters",
+        "shared",
+        "sensory-input",
+        "attention-filtering",
+        "perception",
+        "working-memory",
+        "short-term-memory",
+        "long-term-memory",
+        "episodic-memory",
+        "affective",
+        "reasoning",
+        "executive-agent",
+        "agent-runtime",
+        "motor-output",
+        "learning-adaptation",
+        "metacognition",
+        "observability",
+        "resources",
+        "deploy",
+        "security",
+        "apps",
+        "ci",
+        "docs",
+        "repo"
+      ]
+    ],
+    "subject-case": [2, "always", "sentence-case"]
+  }
+}

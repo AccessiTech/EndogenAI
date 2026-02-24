@@ -1,0 +1,44 @@
+# Prometheus Configuration — brAIn
+# Scrapes metrics from the OTel Collector and local services.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: "local"
+    project: "brain"
+
+# Alerting (wire in production — Alertmanager)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ["alertmanager:9093"]
+
+# Rule files (add alert rules here as modules mature)
+rule_files: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # OTel Collector — exported Prometheus metrics from all modules
+  - job_name: "otel-collector"
+    static_configs:
+      - targets: ["otel-collector:8889"]
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: "brain_.*"
+        action: keep
+
+  # ChromaDB — collection sizes and query latencies
+  - job_name: "chromadb"
+    static_configs:
+      - targets: ["chromadb:8000"]
+    metrics_path: "/api/v1/metrics"
+
+  # Redis / Valkey — memory, ops/sec
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis:6379"]
