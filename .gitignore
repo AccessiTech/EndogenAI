@@ -1,0 +1,259 @@
+# =============================================================================
+# brAIn — .gitignore
+# Polyglot: Python (ML modules) · TypeScript/Node.js (MCP/A2A, app layer)
+# Deployment: Docker · Kubernetes
+# =============================================================================
+
+
+# =============================================================================
+# OS & Editor
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+.idea/
+*.iml
+*.iws
+*.ipr
+.fleet/
+
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+
+*.swp
+*.swo
+*~
+
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+wheels/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Package managers / lock artefacts
+pip-log.txt
+pip-delete-this-directory.txt
+.pdm.toml
+.pdm-python
+
+# Type checkers & linters
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# Testing & coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+nosetests.xml
+pytest.xml
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# pyenv
+.python-version
+
+
+# =============================================================================
+# TypeScript / Node.js  (MCP/A2A infra · adapters · application layer)
+# =============================================================================
+node_modules/
+.npm
+.yarn/
+.pnp.*
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.turbo/
+
+# Type-check caches
+*.tsbuildinfo
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime temp
+.cache/
+.parcel-cache/
+
+
+# =============================================================================
+# Logs & Telemetry  (Observability by Design)
+# =============================================================================
+logs/
+*.log
+*.log.*
+telemetry/
+trace-*.json
+metrics-*.json
+
+
+# =============================================================================
+# ML / AI Model Artefacts  (local-first; not committed to VCS)
+# =============================================================================
+# PyTorch / TorchRL / Stable-Baselines3 / RLlib checkpoints
+*.pt
+*.pth
+*.ckpt
+checkpoints/
+runs/           # TensorBoard
+wandb/
+ray_results/    # RLlib / Ray distributed RL
+
+# HuggingFace / sentence-transformers / fastembed model weights
+*.bin
+*.safetensors
+*.gguf
+*.ggml
+models/
+.cache/huggingface/
+.cache/torch/
+
+# BindsNET / neuromorphic artefacts
+*.npy
+*.npz
+
+
+# =============================================================================
+# Vector Stores  (ChromaDB · Qdrant · pgvector data directories)
+# =============================================================================
+# ChromaDB — embedded, zero-infra default
+chroma_db/
+chroma/
+*.chroma
+
+# Qdrant — production; local storage dir
+qdrant_storage/
+qdrant_snapshots/
+
+# Generic local vector index artefacts
+*.index
+*.faiss
+
+
+# =============================================================================
+# Databases & Persistent State  (SQLite · Redis/Valkey · Kuzu · Neo4j)
+# =============================================================================
+# SQLite  (long-term-memory/relational-store)
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Redis / Valkey  (working-memory KV store, session TTL)
+dump.rdb
+appendonly.aof
+
+# Kuzu  (embedded graph DB — long-term-memory/graph-store)
+kuzu_db/
+*.kuzu
+
+# Neo4j  (production graph store)
+neo4j_data/
+
+
+# =============================================================================
+# Infrastructure  (Docker · Kubernetes)
+# =============================================================================
+# Docker local volume mounts / generated compose overrides
+docker-compose.override.yml
+.docker/
+
+# Kubernetes generated secrets / kubeconfig overrides
+kubeconfig
+*.kubeconfig
+k8s-secrets/
+
+
+# =============================================================================
+# Agent Runtime & Orchestration  (Temporal · Prefect)
+# =============================================================================
+# Temporal local server state
+.temporal/
+
+# Prefect local storage
+.prefect/
+prefect.db
+
+
+# =============================================================================
+# Testing & QA artefacts
+# =============================================================================
+test-results/
+allure-results/
+allure-report/
+playwright-report/
+.nyc_output/
+
+
+# =============================================================================
+# Miscellaneous build / temp artefacts
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.orig
+*.patch
+*.diff
