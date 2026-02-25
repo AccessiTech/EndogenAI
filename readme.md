@@ -201,13 +201,14 @@ processing stage.
 
 The MCP framework provides a standardized protocol for communication and interaction between different agentic modules.
 It defines the structure and format of messages, as well as the rules for how modules can request and share
-information. - **Backbone Standard: [`mdn-mcp`](#communication--protocols)**: The framework should adopt
-[**mdn-mcp**](#communication--protocols) as its core communication backbone for all module-to-module context exchange. -
-All agentic modules should implement `mdn-mcp`-compatible interfaces for request/response handling, context propagation,
-capability discovery, and state synchronization. - Any additional protocols (including A2A patterns) should be layered
-on top of `mdn-mcp` to ensure consistent interoperability, easier tooling, and reduced integration complexity across the
-system.
+information.
 
+- **Backbone Standard: [`mdn-mcp`](#communication--protocols)**: The framework should adopt
+  [**mdn-mcp**](#communication--protocols) as its core communication backbone for all module-to-module context exchange.
+- All agentic modules should implement `mdn-mcp`-compatible interfaces for request/response handling, context
+  propagation, capability discovery, and state synchronization.
+- Any additional protocols (including A2A patterns) should be layered on top of `mdn-mcp` to ensure consistent
+  interoperability, easier tooling, and reduced integration complexity across the system.
 ## Agent to Agent Protocol (A2A) Framework
 
 The A2A framework should use the [A2A Project specification](https://github.com/a2aproject/A2A) as the standard for
