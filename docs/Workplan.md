@@ -9,7 +9,7 @@ foundational components.
 ## Guiding Constraints
 
 - **Documentation-first**: all implementation must be accompanied by clear documentation; define documentation standards
-  and templates in Phase 0. See [README — File Directory](../README.md#file-directory) for structure reference.
+  and templates in Phase 0. See [README — File Directory](../readme.md#file-directory) for structure reference.
 - **Endogenous-first**: scaffold from existing system knowledge, not from scratch in isolation.
 - **Local compute first**: Ollama embeddings (`nomic-embed-text`) and local vector stores (ChromaDB) are the default;
   cloud services are opt-in.
