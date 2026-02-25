@@ -20,12 +20,19 @@ def extract_frontmatter(path: Path) -> dict[str, Any] | None:
     match = FRONTMATTER_RE.match(content)
     if not match:
         return None
-    return cast(dict[str, Any], yaml.safe_load(match.group(1)))
+    data = yaml.safe_load(match.group(1))
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: frontmatter must be a YAML mapping, got {type(data).__name__}")
+    return cast(dict[str, Any], data)
 
 
 def validate_file(path: Path) -> list[str]:
     errors: list[str] = []
-    fm = extract_frontmatter(path)
+    try:
+        fm = extract_frontmatter(path)
+    except ValueError as exc:
+        errors.append(str(exc))
+        return errors
     if fm is None:
         errors.append(f"{path}: missing YAML frontmatter block")
         return errors
