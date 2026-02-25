@@ -14,32 +14,11 @@ collaborative.
 
 ## Getting Started
 
-### Prerequisites
+See [docs/guides/getting-started.md](docs/guides/getting-started.md) for prerequisites, installation steps, and bringing
+up the local service stack.
 
-| Tool           | Version | Purpose                               |
-| -------------- | ------- | ------------------------------------- |
-| Node.js        | ≥ 20    | TypeScript modules, MCP/A2A infra     |
-| pnpm           | ≥ 9     | Package manager / monorepo workspaces |
-| Python         | ≥ 3.11  | ML / cognitive modules                |
-| uv             | latest  | Python package management             |
-| Docker         | ≥ 24    | Local service orchestration           |
-| Docker Compose | ≥ 2.20  | Multi-service local stack             |
-
-### Environment Setup
-
-```bash
-# 1. Install Node dependencies
-pnpm install
-
-# 2. Install Python dependencies (per-package, using uv)
-uv sync
-
-# 3. Start local services
-docker compose up -d
-
-# 4. Verify everything is healthy
-docker compose ps
-```
+For the full developer toolchain (linting, type-checking, pre-commit hooks, buf, and commit conventions), see
+[docs/guides/toolchain.md](docs/guides/toolchain.md).
 
 ---
 
@@ -82,18 +61,15 @@ docs(readme): add getting-started section
 
 ### Running Tasks
 
+See the [Toolchain Guide](docs/guides/toolchain.md) for the full command reference, including how to run ESLint,
+Prettier, ruff, mypy, pre-commit, buf, and commitlint individually or all at once.
+
 ```bash
-# Lint all packages
-pnpm run lint
-
-# Type-check all TypeScript packages
-pnpm run typecheck
-
-# Run all tests
-pnpm run test
-
-# Build all packages
-pnpm run build
+# Quick reference — run all checks via Turborepo
+pnpm run lint        # turbo run lint
+pnpm run typecheck   # turbo run typecheck
+pnpm run test        # turbo run test
+pnpm run build       # turbo run build
 ```
 
 ---

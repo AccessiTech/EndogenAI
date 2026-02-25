@@ -70,13 +70,13 @@ phases grow.
 
 #### 0.3 Verification
 
-- [ ] `docker compose up otel-collector prometheus grafana -d` starts all three services without error
-- [ ] `curl -f http://localhost:4318` (or configured OTLP HTTP port) returns a non-5xx response from the OTel collector
-- [ ] `curl -f http://localhost:9090/-/healthy` returns `Prometheus Server is Healthy`
-- [ ] `curl -f http://localhost:3000/api/health` returns `{"database":"ok","..."}` from Grafana
-- [ ] Grafana Prometheus datasource (`observability/grafana/datasources/default.yaml`) appears as **connected** in the
+- [x] `docker compose up otel-collector prometheus grafana -d` starts all three services without error
+- [x] `curl -f http://localhost:4318` (or configured OTLP HTTP port) returns a non-5xx response from the OTel collector
+- [x] `curl -f http://localhost:9090/-/healthy` returns `Prometheus Server is Healthy`
+- [x] `curl -f http://localhost:3000/api/health` returns `{"database":"ok","..."}` from Grafana
+- [x] Grafana Prometheus datasource (`observability/grafana/datasources/default.yaml`) appears as **connected** in the
       Grafana UI at `http://localhost:3000`
-- [ ] `observability/README.md` documents port assignments and how to bring up the stack
+- [x] `observability/README.md` documents port assignments and how to bring up the stack
 
 ### 0.4 Seed Knowledge Fixtures
 

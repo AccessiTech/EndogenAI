@@ -10,7 +10,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 - **Neuromorphic Design**: Every design decision in this framework is grounded in the structures and functions of the
   mammalian brain — modularity, parallel processing, hierarchical organization, and adaptive learning. Biological
   organization is the primary design metaphor, not an analogy applied after the fact.
-
   - Evaluate spiking-neuron and event-driven computation frameworks as candidate substrates for modules where
     biologically-inspired processing patterns are beneficial. Select based on community activity, hardware pathway
     availability, and compatibility with the MCP communication layer:
@@ -24,7 +23,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 - **Agentic Modularity**: Each module embodies a single, well-defined cognitive function — perception, memory,
   decision-making, motor control — mirroring the functional specialization of brain regions. Modules are developed
   independently and integrated seamlessly across the framework.
-
   - Modules may be implemented in different programming languages; all communicate through the standardized protocols
     defined by the MCP framework.
   - Minimize inter-module dependencies: modules exchange only the context required for their defined function,
@@ -49,7 +47,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 - **Local Compute First**: Prioritize local computation and data storage within modules, minimizing dependence on
   external APIs or cloud services. Like the brain, the system should maximize useful cognition per unit of energy by
   keeping processing close to where signals originate.
-
   - Enforce a **local-first execution policy**: perform inference, retrieval, planning, and orchestration on-device or
     host-local by default; escalate to remote services only when a capability is genuinely unavailable locally or
     explicitly required by policy.
@@ -75,7 +72,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 - **Standardized Communication Protocols**: All inter-module communication follows the standards defined by the MCP and
   A2A frameworks. See [Module Context Protocol (MCP) Framework](#module-context-protocol-mcp-framework) and
   [Agent to Agent Protocol (A2A) Framework](#agent-to-agent-protocol-a2a-framework).
-
   - Use [`mdn-mcp`](#communication--protocols) as the primary communication backbone; layer
     [A2A](#communication--protocols) on top for agent-to-agent task coordination and delegation.
   - Support both synchronous and asynchronous communication patterns to accommodate the full range of inter-module
@@ -92,7 +88,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 
 - **Security & Privacy by Design**: Security and privacy are embedded in the architecture from the outset, not
   retrofitted. Each module interface is treated as a potential attack surface and hardened accordingly.
-
   - Enforce module sandboxing, strict capability isolation, and least-privilege access control: no module should access
     resources or context beyond what its defined function requires.
   - Validate and sanitize all inputs at layer boundaries; harden inter-module interfaces against prompt injection, data
@@ -103,7 +98,6 @@ known architecture of the human brain, designed to scaffold and extend themselve
 - **Observability by Design**: The system exposes the information needed to understand, debug, and improve its own
   behavior at runtime — a first-class architectural requirement, not an afterthought. This principle reinforces the
   [Meta-cognition & Monitoring Layer](#group-iv-adaptive-systems-cross-cutting).
-
   - Emit structured telemetry (logs, metrics, traces) from all modules through a consistent, queryable interface.
   - Instrument inter-layer signal flow to enable end-to-end tracing of decisions from sensory input through to effector
     output.
@@ -221,14 +215,12 @@ direct agent-to-agent interaction, task delegation, and multi-agent coordination
 
 - **Primary A2A Standard: `A2A`**: Implement the A2A protocol for structured communication between autonomous modules
   acting as agents.
-
   - Define clear agent identities, advertised capabilities, and supported task schemas.
   - Use A2A message patterns for discovery, negotiation, delegation, progress updates, and result delivery.
   - Support asynchronous execution and long-running task orchestration across distributed modules.
   - Include standardized error handling, retries, and timeout behavior for robust inter-agent workflows.
 
 - **MCP + A2A Interoperability Model**:
-
   - Keep [`mdn-mcp`](#communication--protocols) as the shared context backbone and system-wide state exchange layer.
   - Layer A2A interactions on top for agent-centric coordination and collaborative execution.
   - Provide adapter components so each module can participate in both MCP context exchange and A2A task protocols
@@ -270,6 +262,7 @@ the overall framework.
 ##### `guides/`
 
 - `getting-started.md` — Environment setup and first-run walkthrough
+- `toolchain.md` — Developer toolchain reference: linting, type-checking, pre-commit hooks, buf, and commit conventions
 - `adding-a-module.md` — Step-by-step guide for creating a new cognitive module
 - `deployment.md` — Containerization, Kubernetes, and scaling guidance
 - `security.md` — Security model, sandboxing policies, and least-privilege patterns
