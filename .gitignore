@@ -254,6 +254,12 @@ playwright-report/
 shared/gen/
 
 
+# =============================================================================
+# Raw data dumps  (external content — not source code)
+# =============================================================================
+raw_data_dumps/
+
+
 *.tmp
 *.temp
 *.bak
