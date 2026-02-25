@@ -35,4 +35,5 @@ pnpm build
 
 ## Phase 1 Deliverables
 
-See [Workplan — Phase 1](../docs/Workplan.md#phase-1--shared-contracts--vector-store-adapter) for the full list of schemas and types to be authored here.
+See [Workplan — Phase 1](../docs/Workplan.md#phase-1--shared-contracts--vector-store-adapter) for the full list of
+schemas and types to be authored here.

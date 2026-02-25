@@ -1,12 +1,14 @@
 # Contributing to brAIn / EndogenAI
 
-Thank you for your interest in contributing! This project follows a **documentation-first, endogenous-growth** philosophy — every contribution should expand the system's capacity to generate further components.
+Thank you for your interest in contributing! This project follows a **documentation-first, endogenous-growth**
+philosophy — every contribution should expand the system's capacity to generate further components.
 
 ---
 
 ## Code of Conduct
 
-By participating in this project you agree to uphold our Code of Conduct: be respectful, constructive, and collaborative.
+By participating in this project you agree to uphold our Code of Conduct: be respectful, constructive, and
+collaborative.
 
 ---
 
@@ -14,14 +16,14 @@ By participating in this project you agree to uphold our Code of Conduct: be res
 
 ### Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Node.js | ≥ 20 | TypeScript modules, MCP/A2A infra |
-| pnpm | ≥ 9 | Package manager / monorepo workspaces |
-| Python | ≥ 3.11 | ML / cognitive modules |
-| uv | latest | Python package management |
-| Docker | ≥ 24 | Local service orchestration |
-| Docker Compose | ≥ 2.20 | Multi-service local stack |
+| Tool           | Version | Purpose                               |
+| -------------- | ------- | ------------------------------------- |
+| Node.js        | ≥ 20    | TypeScript modules, MCP/A2A infra     |
+| pnpm           | ≥ 9     | Package manager / monorepo workspaces |
+| Python         | ≥ 3.11  | ML / cognitive modules                |
+| uv             | latest  | Python package management             |
+| Docker         | ≥ 24    | Local service orchestration           |
+| Docker Compose | ≥ 2.20  | Multi-service local stack             |
 
 ### Environment Setup
 
@@ -71,6 +73,7 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`
 Scopes: module or area name (e.g. `mcp`, `a2a`, `memory`, `perception`, `shared`)
 
 Examples:
+
 ```
 feat(a2a): implement agent card endpoint
 fix(memory): correct TTL eviction logic
@@ -98,9 +101,12 @@ pnpm run build
 ## Pull Request Guidelines
 
 1. **One concern per PR**: keep changes focused; avoid mixing features with refactors.
-2. **Tests required**: all new functionality must be covered by unit tests; integration tests for protocol/adapter changes.
-3. **Documentation required**: update or create `README.md` for the affected module; add/update `docs/` entries if the change affects architecture or protocols.
-4. **Schemas first**: if your change requires a new shared contract (JSON Schema / Protobuf), land the schema in `shared/schemas/` before the implementation.
+2. **Tests required**: all new functionality must be covered by unit tests; integration tests for protocol/adapter
+   changes.
+3. **Documentation required**: update or create `README.md` for the affected module; add/update `docs/` entries if the
+   change affects architecture or protocols.
+4. **Schemas first**: if your change requires a new shared contract (JSON Schema / Protobuf), land the schema in
+   `shared/schemas/` before the implementation.
 5. **Pass all CI checks** before requesting review.
 
 ---

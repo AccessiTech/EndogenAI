@@ -7,6 +7,7 @@ Required fields: id, version, status, maps-to-modules
 import re
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 import yaml
 
@@ -14,12 +15,12 @@ REQUIRED_FIELDS = ["id", "version", "status", "maps-to-modules"]
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 
 
-def extract_frontmatter(path: Path) -> dict | None:
+def extract_frontmatter(path: Path) -> dict[str, Any] | None:
     content = path.read_text(encoding="utf-8")
     match = FRONTMATTER_RE.match(content)
     if not match:
         return None
-    return yaml.safe_load(match.group(1))
+    return cast(dict[str, Any], yaml.safe_load(match.group(1)))
 
 
 def validate_file(path: Path) -> list[str]:

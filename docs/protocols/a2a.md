@@ -9,11 +9,13 @@ last-reviewed: 2026-02-24
 
 > **Status: stub** — This document will be expanded during Phase 2 (A2A Infrastructure).
 
-Guide covering A2A agent identity, skill schemas, task lifecycle, and interoperability model within the EndogenAI framework.
+Guide covering A2A agent identity, skill schemas, task lifecycle, and interoperability model within the EndogenAI
+framework.
 
 ## Overview
 
-The A2A (Agent-to-Agent) protocol enables structured communication between autonomous modules acting as agents. It governs agent identity, capability advertisement, and task delegation.
+The A2A (Agent-to-Agent) protocol enables structured communication between autonomous modules acting as agents. It
+governs agent identity, capability advertisement, and task delegation.
 
 ## Agent Identity
 

@@ -4,7 +4,6 @@
 # Override with docker-compose.override.yml for local customisation (gitignored)
 
 services:
-
   # ---------------------------------------------------------------------------
   # Vector Store — ChromaDB (local default)
   # ---------------------------------------------------------------------------
@@ -66,9 +65,9 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     restart: unless-stopped
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "8888:8888"   # Collector metrics
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8888:8888" # Collector metrics
     volumes:
       - ./observability/otel-collector.yaml:/etc/otel/config.yaml:ro
     command: ["--config=/etc/otel/config.yaml"]

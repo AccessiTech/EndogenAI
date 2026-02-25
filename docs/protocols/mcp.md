@@ -13,7 +13,8 @@ Guide covering MCP message formats, context propagation, and capability discover
 
 ## Overview
 
-The MCP framework provides a standardized protocol for communication and interaction between cognitive modules. It defines message structure, context propagation rules, and how modules register and discover capabilities.
+The MCP framework provides a standardized protocol for communication and interaction between cognitive modules. It
+defines message structure, context propagation rules, and how modules register and discover capabilities.
 
 ## Message Formats
 

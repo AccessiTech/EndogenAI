@@ -26,11 +26,13 @@ tags:
 
 Maps to: `modules/group-iii-executive-output/executive-agent`
 
-The **Frontal Lobe** (specifically the prefrontal and anterior regions) provides the neuroanatomical reference for the brAIn **Executive / Agent Layer** — the seat of identity, persistent goals, values, and high-level reasoning strategy.
+The **Frontal Lobe** (specifically the prefrontal and anterior regions) provides the neuroanatomical reference for the
+brAIn **Executive / Agent Layer** — the seat of identity, persistent goals, values, and high-level reasoning strategy.
 
 ## Function
 
-The frontal lobe is the largest lobe of the human brain, occupying the entire anterior portion. It is the primary substrate for what makes humans distinctively human:
+The frontal lobe is the largest lobe of the human brain, occupying the entire anterior portion. It is the primary
+substrate for what makes humans distinctively human:
 
 - **Executive functions**: planning, organizing, initiating, monitoring, and controlling complex behavior
 - **Working memory**: active maintenance of information for immediate use (DLPFC)
@@ -41,6 +43,7 @@ The frontal lobe is the largest lobe of the human brain, occupying the entire an
 - **Language production**: Broca's area (left IFG) governs speech generation
 
 Key subregions and their module implications:
+
 - **Prefrontal Cortex**: executive control, goal stacks, value evaluation
 - **Anterior Cingulate Cortex**: conflict detection, error monitoring, policy violation flagging
 - **Frontal Eye Fields**: top-down attention direction
@@ -63,11 +66,16 @@ Key subregions and their module implications:
 
 ## Key Design Notes
 
-- **Agent identity**: the Executive / Agent Layer holds a persistent self-model — the agent's identity, role, capabilities, and behavioral constraints.
-- **Persistent goal stack**: goals survive across sessions; implement priority ordering with lifecycle management (creation, activation, completion, suspension, abandonment).
-- **Policy engine**: value evaluation must gate all actions against defined policies before dispatch — analogous to frontal inhibitory control.
-- **Top-down modulation dispatch**: this layer sends attention directives, goal priors, and policy constraints downward to all other layers.
-- **Social cognition hooks**: the self-model should include representations of user context and expected interactional norms.
+- **Agent identity**: the Executive / Agent Layer holds a persistent self-model — the agent's identity, role,
+  capabilities, and behavioral constraints.
+- **Persistent goal stack**: goals survive across sessions; implement priority ordering with lifecycle management
+  (creation, activation, completion, suspension, abandonment).
+- **Policy engine**: value evaluation must gate all actions against defined policies before dispatch — analogous to
+  frontal inhibitory control.
+- **Top-down modulation dispatch**: this layer sends attention directives, goal priors, and policy constraints downward
+  to all other layers.
+- **Social cognition hooks**: the self-model should include representations of user context and expected interactional
+  norms.
 - **Vector store**: embed goals, values, policies, and identity state into `brain.executive-agent`.
 
 ## References

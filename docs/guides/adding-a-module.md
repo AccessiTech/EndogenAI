@@ -13,7 +13,8 @@ Step-by-step guide for creating a new cognitive module within the EndogenAI fram
 
 ## Overview
 
-Each cognitive module follows a consistent structure and must implement the MCP and A2A interfaces. Modules are organized under `modules/` grouped by cognitive layer.
+Each cognitive module follows a consistent structure and must implement the MCP and A2A interfaces. Modules are
+organized under `modules/` grouped by cognitive layer.
 
 ## Module Structure
 

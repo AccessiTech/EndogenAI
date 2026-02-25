@@ -1,6 +1,7 @@
 # Resources
 
-Static knowledge resources for the brAIn framework. These files are the **morphogenetic seed** — the initial encoding from which all module analogies, interfaces, and conventions are derived.
+Static knowledge resources for the brAIn framework. These files are the **morphogenetic seed** — the initial encoding
+from which all module analogies, interfaces, and conventions are derived.
 
 ## Directory Structure
 
@@ -22,7 +23,9 @@ resources/
 
 ## `static/knowledge/`
 
-Long-term static knowledge documents. These are loaded at boot time by the Long-Term Memory module (`modules/group-ii-cognitive-processing/memory/long-term-memory/`) and chunked/embedded into the `brain.long-term-memory` vector collection using LlamaIndex.
+Long-term static knowledge documents. These are loaded at boot time by the Long-Term Memory module
+(`modules/group-ii-cognitive-processing/memory/long-term-memory/`) and chunked/embedded into the
+`brain.long-term-memory` vector collection using LlamaIndex.
 
 Each document must include YAML frontmatter with at minimum:
 

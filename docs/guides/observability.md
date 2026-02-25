@@ -14,6 +14,7 @@ Telemetry setup, distributed tracing, and Grafana dashboard usage for the Endoge
 ## Overview
 
 The observability stack consists of:
+
 - **OpenTelemetry Collector** — receives traces, metrics, and logs from all modules
 - **Prometheus** — time-series metrics storage and alerting
 - **Grafana** — dashboards for module health, signal flow latency, and memory collection sizes

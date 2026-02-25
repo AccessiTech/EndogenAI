@@ -13,12 +13,15 @@ Full architectural overview of the EndogenAI framework, including layer descript
 
 ## Overview
 
-EndogenAI is organized into layered groups that mirror the brain's bottom-up signal processing, bidirectional cognitive feedback, and adaptive learning. MCP and A2A are **cross-cutting infrastructure** — they are not sequential layers but rather a communication backbone that spans all groups.
+EndogenAI is organized into layered groups that mirror the brain's bottom-up signal processing, bidirectional cognitive
+feedback, and adaptive learning. MCP and A2A are **cross-cutting infrastructure** — they are not sequential layers but
+rather a communication backbone that spans all groups.
 
 ## Layers
 
 - **Group I — Signal Processing**: Sensory input, attention & filtering, perception
-- **Group II — Cognitive Processing**: Working memory, short-term memory, long-term memory, episodic memory, affective/motivational layer, decision-making & reasoning
+- **Group II — Cognitive Processing**: Working memory, short-term memory, long-term memory, episodic memory,
+  affective/motivational layer, decision-making & reasoning
 - **Group III — Executive & Output**: Executive agent, agent runtime, motor/output/effector
 - **Group IV — Adaptive Systems**: Learning & adaptation, meta-cognition & monitoring
 
