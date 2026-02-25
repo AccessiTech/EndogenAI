@@ -29,8 +29,8 @@ buf lint
 # Generate code from Protobuf definitions
 buf generate
 
-# TypeScript build
-pnpm build
+# TypeScript build (available in Phase 1 once codegen is wired up)
+# pnpm build
 ```
 
 ## Phase 1 Deliverables
