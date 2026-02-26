@@ -198,6 +198,91 @@ When proceeding under ambiguity, **document the assumption inline** (code commen
 
 ---
 
+## Development Scripts
+
+This repository is designed to grow **endogenously** — scripts encode system knowledge locally so that repetitive or
+exploratory work does not need to be re-discovered in every agent session. Prefer writing a reusable script over
+performing the same work interactively with an AI agent multiple times.
+
+### When to write a script (instead of doing it interactively)
+
+| Situation | Write a script when… |
+|-----------|----------------------|
+| You've done the same multi-step task twice | The third time, encode it as a script |
+| A task requires reading many files to build context | Pre-compute and cache the output |
+| Validation logic can be expressed as code | It should be, so CI can enforce it too |
+| You're generating boilerplate from a template | A generator script is more reliable than prompting |
+| The task could break something if done wrong | A script can include guard-rails and dry-run modes |
+
+### Script conventions
+
+- **Location**: `scripts/` at the repo root for cross-cutting tools; `<package>/scripts/` for package-local tools.
+- **Language**: Python for logic-heavy scripts (`uv run python scripts/my_script.py`); shell (`.sh`) for simple glue.
+- **Invocation**: always run Python scripts via `uv run` from the relevant package directory, or from the root if the
+  script has no package dependency.
+- **Committed, not throwaway**: scripts are first-class repo artifacts — commit them, document their purpose at the top
+  of the file, and keep them passing in CI.
+- **Dry-run mode**: any script that writes or deletes files should support a `--dry-run` flag.
+
+### Script categories
+
+#### Scaffolding
+Generate new module / package boilerplate from a template rather than authoring from scratch:
+
+```bash
+uv run python scripts/scaffold_module.py --name perception --group group-i-signal-processing
+```
+
+Scaffolding scripts should derive their templates from existing modules and `AGENTS.md` conventions, embodying the
+endogenous-first principle.
+
+#### Validation
+Re-run any validation that the pre-commit hooks perform, on demand:
+
+```bash
+uv run python scripts/validate_frontmatter.py resources/
+cd shared && buf lint
+```
+
+These are already encoded — extend `scripts/validate_frontmatter.py` rather than adding a new one-off script.
+
+#### Code generation
+Derive TypeScript types, Python dataclasses, or Protobuf stubs directly from existing JSON Schemas in
+`shared/schemas/` — no manual transcription:
+
+```bash
+uv run python scripts/codegen_types.py --schema shared/schemas/memory-item.schema.json --out shared/types/
+```
+
+#### Health checks
+Verify the local stack is fully up before running integration tests — avoids spending tokens diagnosing a
+test failure that is actually a missing service:
+
+```bash
+bash scripts/healthcheck.sh   # exits 0 only when ChromaDB, Ollama, and OTel are reachable
+```
+
+#### Seed ingestion
+Chunk and load morphogenetic seed documents into the vector store without manual steps:
+
+```bash
+uv run python scripts/ingest_seed.py --source resources/static/knowledge/ --collection brain.knowledge
+```
+
+### Guidelines for agents
+
+1. **Check `scripts/` first** — before implementing a multi-step task interactively, check whether a script already
+   exists for it.
+2. **Extend, don't duplicate** — if a script partially covers your need, extend it rather than creating a second one
+   that overlaps.
+3. **Propose new scripts proactively** — if you perform a multi-step investigation or transformation that took
+   significant context to execute, encapsulate it as a script and commit it so future sessions start with that
+   knowledge already encoded.
+4. **Document at the top** — every script must open with a docstring or comment block describing its purpose, inputs,
+   outputs, and usage example.
+
+---
+
 ## Key References
 
 | Resource | Purpose |
