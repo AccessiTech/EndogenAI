@@ -150,7 +150,7 @@ async def chroma_adapter(
     )
     # Replace real embedder with mock
     adapter._embedder = MockEmbeddingClient()  # type: ignore[assignment]
-    adapter._vector_size = MockEmbeddingClient.DIMENSIONS  # not on ChromaAdapter but harmless
+    adapter._vector_size = MockEmbeddingClient.DIMENSIONS  # type: ignore[attr-defined]  # not on ChromaAdapter but harmless
     await adapter.connect()
     yield adapter
     await adapter.close()

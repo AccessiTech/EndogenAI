@@ -32,7 +32,7 @@ Usage::
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import structlog
 
@@ -135,7 +135,7 @@ class QdrantAdapter(VectorStoreAdapter):
             prefer_grpc=cfg.use_grpc,
             https=cfg.https,
             api_key=cfg.api_key,
-            timeout=cfg.timeout / 1000,
+            timeout=int(cfg.timeout / 1000),
         )
 
         logger.info(
@@ -222,7 +222,7 @@ class QdrantAdapter(VectorStoreAdapter):
                 FieldCondition(key=k, match=MatchValue(value=v))
                 for k, v in request.where.items()
             ]
-            qdrant_filter = Filter(must=must_conditions)
+            qdrant_filter = Filter(must=cast(list[Any], must_conditions))
 
         try:
             hits = await client.search(
@@ -265,7 +265,7 @@ class QdrantAdapter(VectorStoreAdapter):
         try:
             await client.delete(
                 collection_name=request.collection_name,
-                points_selector=PointIdsList(points=request.ids),
+                points_selector=PointIdsList(points=cast(list[Any], request.ids)),
                 wait=True,
             )
         except Exception as exc:

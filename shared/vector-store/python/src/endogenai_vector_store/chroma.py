@@ -219,8 +219,8 @@ class ChromaAdapter(VectorStoreAdapter):
             await collection.upsert(
                 ids=ids,
                 documents=documents,
-                embeddings=embeddings,
-                metadatas=metadatas,
+                embeddings=cast(Any, embeddings),
+                metadatas=cast(Any, metadatas),
             )
         except Exception as exc:
             raise AdapterError(
@@ -268,17 +268,21 @@ class ChromaAdapter(VectorStoreAdapter):
         results: list[QueryResult] = []
         if raw["ids"] and raw["ids"][0]:
             ids_list = raw["ids"][0]
-            docs_list = raw["documents"][0] if raw.get("documents") else [""] * len(ids_list)
-            meta_list = raw["metadatas"][0] if raw.get("metadatas") else [{}] * len(ids_list)
-            emb_list = raw["embeddings"][0] if raw.get("embeddings") else [None] * len(ids_list)
-            dist_list = raw["distances"][0] if raw.get("distances") else [1.0] * len(ids_list)
+            raw_docs = raw.get("documents")
+            raw_metas = raw.get("metadatas")
+            raw_embs = raw.get("embeddings")
+            raw_dists = raw.get("distances")
+            docs_list: list[str] = raw_docs[0] if raw_docs is not None else [""] * len(ids_list)
+            meta_list: list[Any] = raw_metas[0] if raw_metas is not None else [{}] * len(ids_list)
+            emb_list: list[Any] = cast(list[Any], raw_embs[0]) if raw_embs is not None else [None] * len(ids_list)
+            dist_list: list[Any] = raw_dists[0] if raw_dists is not None else [1.0] * len(ids_list)
 
             for doc_id, doc, meta, emb, dist in zip(
                 ids_list, docs_list, meta_list, emb_list, dist_list, strict=True
             ):
                 # Chroma returns L2 distance; convert to cosine similarity-like score
                 score = max(0.0, 1.0 - dist / 2.0)
-                item = _chroma_hit_to_item(doc_id, doc, meta or {}, emb)
+                item = _chroma_hit_to_item(doc_id, doc, dict(meta) if meta else {}, cast(list[float] | None, emb))
                 results.append(QueryResult(item=item, score=score))
 
         logger.debug(
