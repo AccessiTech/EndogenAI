@@ -65,15 +65,28 @@ Specification documents that define system-wide conventions all modules must fol
 
 ## Vector Store (`shared/vector-store/`)
 
-_Phase 1.4 — adapter interface, configuration schemas, and ChromaDB/Qdrant implementations coming next._
+Unified vector store abstraction with ChromaDB (default), Qdrant (production), and pgvector backends. All 15 `brain.*`
+collections are pre-registered. Embeddings are generated locally via Ollama.
+
+| File / Directory                                                            | Description                                              |
+| --------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [`adapter.interface.json`](vector-store/adapter.interface.json)             | Language-agnostic 6-operation interface contract         |
+| [`collection-registry.json`](vector-store/collection-registry.json)         | All 15 `brain.*` collections with layer + type metadata  |
+| [`embedding.config.schema.json`](vector-store/embedding.config.schema.json) | Embedding provider config (Ollama / OpenAI / Cohere)     |
+| [`chroma.config.schema.json`](vector-store/chroma.config.schema.json)       | ChromaDB backend config (http + embedded modes)          |
+| [`qdrant.config.schema.json`](vector-store/qdrant.config.schema.json)       | Qdrant backend config (REST + gRPC, Cloud support)       |
+| [`pgvector.config.schema.json`](vector-store/pgvector.config.schema.json)   | pgvector backend config (HNSW / IVFFlat index types)     |
+| [`python/`](vector-store/python/)                                           | Python adapter — `endogenai-vector-store` uv package     |
+| [`typescript/`](vector-store/typescript/)                                   | TypeScript adapter — `@accessitech/vector-store` package |
+| [`README.md`](vector-store/README.md)                                       | Full usage guide, env vars, collection table             |
 
 ## Phase Status
 
-| Section                  | Status         |
-| ------------------------ | -------------- |
-| 1.1 Shared Schemas       | ✅ Complete    |
-| 1.2 Shared Types         | ✅ Complete    |
-| 1.3 Shared Utils         | ✅ Complete    |
-| 1.4 Vector Store Adapter | 🔲 In progress |
+| Section                  | Status      |
+| ------------------------ | ----------- |
+| 1.1 Shared Schemas       | ✅ Complete |
+| 1.2 Shared Types         | ✅ Complete |
+| 1.3 Shared Utils         | ✅ Complete |
+| 1.4 Vector Store Adapter | ✅ Complete |
 
 See [Workplan — Phase 1](../docs/Workplan.md#phase-1--shared-contracts--vector-store-adapter) for full detail.

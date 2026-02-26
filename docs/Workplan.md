@@ -128,14 +128,14 @@ consumed by every cognitive module.
 
 ### 1.4 Vector Store Adapter (`shared/vector-store/`)
 
-- [ ] Author `adapter.interface.json` — language-agnostic interface contract: `upsert`, `query`, `delete`,
+- [x] Author `adapter.interface.json` — language-agnostic interface contract: `upsert`, `query`, `delete`,
       `create-collection`, `drop-collection`, `list-collections`
-- [ ] Author `collection-registry.json` — canonical registry of all `brain.<module-name>` collections
-- [ ] Author `chroma.config.schema.json`, `qdrant.config.schema.json`, `pgvector.config.schema.json`
-- [ ] Author `embedding.config.schema.json` — provider, model, base URL, dimensions, fallback policy
-- [ ] Implement Python adapter (ChromaDB default; Qdrant production) conforming to `adapter.interface.json`
-- [ ] Implement TypeScript adapter (ChromaDB default) conforming to `adapter.interface.json`
-- [ ] Write `README.md` — adapter pattern, collection namespacing, backend selection, Ollama integration
+- [x] Author `collection-registry.json` — canonical registry of all `brain.<module-name>` collections
+- [x] Author `chroma.config.schema.json`, `qdrant.config.schema.json`, `pgvector.config.schema.json`
+- [x] Author `embedding.config.schema.json` — provider, model, base URL, dimensions, fallback policy
+- [x] Implement Python adapter (ChromaDB default; Qdrant production) conforming to `adapter.interface.json`
+- [x] Implement TypeScript adapter (ChromaDB default) conforming to `adapter.interface.json`
+- [x] Write `README.md` — adapter pattern, collection namespacing, backend selection, Ollama integration
 
 **Deliverables**: validated schemas, working ChromaDB adapter with unit tests via Testcontainers,
 `collection-registry.json` pre-populated with all module collection names.
