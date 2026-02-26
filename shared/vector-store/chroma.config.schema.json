@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/chroma.config.schema.json",
+  "title": "ChromaConfig",
+  "description": "Configuration schema for the ChromaDB vector store adapter. ChromaDB is the default backend for all EndogenAI modules — embedded local mode requires zero additional infrastructure. The docker-compose.yml provisions a persistent ChromaDB service on port 8000.",
+  "type": "object",
+  "required": ["mode"],
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["http", "embedded"],
+      "default": "http",
+      "description": "Connection mode. 'http' connects to an external ChromaDB server (docker-compose default). 'embedded' runs an in-process ChromaDB instance (useful for tests and CI)."
+    },
+    "host": {
+      "type": "string",
+      "default": "localhost",
+      "description": "Hostname or IP of the ChromaDB HTTP server. Only used when mode='http'."
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "default": 8000,
+      "description": "Port of the ChromaDB HTTP server. Only used when mode='http'."
+    },
+    "ssl": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to use HTTPS. Set to true in staging/production. Only used when mode='http'."
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Optional HTTP headers sent with every ChromaDB request (e.g. Authorization for ChromaDB Cloud)."
+    },
+    "persistDirectory": {
+      "type": "string",
+      "description": "Filesystem path for the embedded ChromaDB persist directory. Only used when mode='embedded'. Defaults to a temp dir in tests.",
+      "examples": ["./.chroma", "/data/chroma"]
+    },
+    "tenant": {
+      "type": "string",
+      "default": "default_tenant",
+      "description": "ChromaDB tenant name. Uses the default tenant unless multi-tenancy is configured."
+    },
+    "database": {
+      "type": "string",
+      "default": "default_database",
+      "description": "ChromaDB database name within the tenant."
+    },
+    "embedding": {
+      "$ref": "embedding.config.schema.json",
+      "description": "Embedding provider configuration. Defaults to Ollama nomic-embed-text."
+    },
+    "envOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Environment variable names that override specific config values at runtime.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "default": "CHROMA_HOST",
+          "description": "Env var whose value overrides host."
+        },
+        "port": {
+          "type": "string",
+          "default": "CHROMA_PORT",
+          "description": "Env var (integer string) whose value overrides port."
+        },
+        "authToken": {
+          "type": "string",
+          "default": "CHROMA_AUTH_TOKEN",
+          "description": "Env var containing bearer token for ChromaDB Cloud."
+        }
+      }
+    }
+  }
+}
