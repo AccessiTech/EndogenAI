@@ -3,3 +3,4 @@ packages:
   - "modules/**/*"
   - "apps/*"
   - "shared/*"
+  - "shared/vector-store/*"

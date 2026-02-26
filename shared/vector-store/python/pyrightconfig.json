@@ -1,0 +1,6 @@
+{
+  "pythonPath": "/Users/conor/Sites/EndogenAI/shared/vector-store/python/.venv/bin/python",
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "strict",
+  "include": ["src", "tests"]
+}
