@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/a2a-message.schema.json",
+  "title": "A2AMessage",
+  "description": "A2A message envelope for agent-to-agent communication within the EndogenAI framework. Aligned with the A2A Project specification (https://github.com/a2aproject/A2A).",
+  "type": "object",
+  "required": ["id", "role", "parts", "timestamp"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this message (UUID v4)."
+    },
+    "role": {
+      "type": "string",
+      "enum": ["user", "agent", "system"],
+      "description": "The originating role of this message."
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Ordered sequence of content parts that make up the message body.",
+      "items": {
+        "$ref": "#/$defs/Part"
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of when this message was created."
+    },
+    "taskId": {
+      "type": "string",
+      "description": "Optional. Associates this message with a specific A2A task."
+    },
+    "sender": {
+      "$ref": "#/$defs/AgentRef",
+      "description": "Optional. Identity of the sending agent. Omit for messages originating from the application layer."
+    },
+    "recipient": {
+      "$ref": "#/$defs/AgentRef",
+      "description": "Optional. Identity of the target agent. Omit for broadcast messages."
+    },
+    "traceContext": {
+      "type": "object",
+      "required": ["traceparent"],
+      "additionalProperties": false,
+      "description": "W3C Trace Context for distributed tracing.",
+      "properties": {
+        "traceparent": {
+          "type": "string",
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "description": "W3C traceparent header value."
+        },
+        "tracestate": {
+          "type": "string",
+          "description": "Optional W3C tracestate header for vendor-specific metadata."
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string key-value pairs for agent-specific annotations."
+    }
+  },
+  "$defs": {
+    "AgentRef": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "description": "Reference to a specific agent instance.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Canonical agent / module identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name for the agent."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional base URL for the agent's A2A endpoint."
+        }
+      }
+    },
+    "Part": {
+      "type": "object",
+      "required": ["type"],
+      "description": "A single content unit within a message.",
+      "oneOf": [
+        { "$ref": "#/$defs/TextPart" },
+        { "$ref": "#/$defs/DataPart" },
+        { "$ref": "#/$defs/FilePart" },
+        { "$ref": "#/$defs/FunctionCallPart" },
+        { "$ref": "#/$defs/FunctionResultPart" }
+      ]
+    },
+    "TextPart": {
+      "type": "object",
+      "required": ["type", "text"],
+      "additionalProperties": false,
+      "description": "Plain text or markdown content.",
+      "properties": {
+        "type": { "type": "string", "enum": ["text"] },
+        "text": { "type": "string", "description": "The text content." },
+        "mimeType": {
+          "type": "string",
+          "default": "text/plain",
+          "description": "MIME type of the text. Use 'text/markdown' for markdown content."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "DataPart": {
+      "type": "object",
+      "required": ["type", "data"],
+      "additionalProperties": false,
+      "description": "Structured JSON data.",
+      "properties": {
+        "type": { "type": "string", "enum": ["data"] },
+        "data": {
+          "description": "Structured JSON data payload."
+        },
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URI reference to the JSON Schema that validates the data field."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "FilePart": {
+      "type": "object",
+      "required": ["type", "file"],
+      "additionalProperties": false,
+      "description": "A file reference (inline base64 or external URI).",
+      "properties": {
+        "type": { "type": "string", "enum": ["file"] },
+        "file": {
+          "type": "object",
+          "required": ["mimeType"],
+          "additionalProperties": false,
+          "properties": {
+            "mimeType": { "type": "string", "description": "MIME type of the file." },
+            "name": { "type": "string", "description": "Optional filename." },
+            "uri": {
+              "type": "string",
+              "format": "uri",
+              "description": "External URI; mutually exclusive with bytes."
+            },
+            "bytes": {
+              "type": "string",
+              "description": "Base64-encoded file content; mutually exclusive with uri."
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "FunctionCallPart": {
+      "type": "object",
+      "required": ["type", "functionCall"],
+      "additionalProperties": false,
+      "description": "A tool / function invocation request from an agent.",
+      "properties": {
+        "type": { "type": "string", "enum": ["function_call"] },
+        "functionCall": {
+          "type": "object",
+          "required": ["id", "name"],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique call ID used to correlate with the result."
+            },
+            "name": { "type": "string", "description": "Name of the function to invoke." },
+            "args": {
+              "type": "object",
+              "description": "Key-value arguments for the function."
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "FunctionResultPart": {
+      "type": "object",
+      "required": ["type", "functionResult"],
+      "additionalProperties": false,
+      "description": "The result of a tool / function invocation.",
+      "properties": {
+        "type": { "type": "string", "enum": ["function_result"] },
+        "functionResult": {
+          "type": "object",
+          "required": ["id", "name"],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Matches the FunctionCallPart.functionCall.id."
+            },
+            "name": { "type": "string", "description": "Name of the invoked function." },
+            "response": {
+              "description": "The function's return value (any JSON type)."
+            },
+            "error": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "code": { "type": "string" },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

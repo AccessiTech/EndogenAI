@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/a2a-task.schema.json",
+  "title": "A2ATask",
+  "description": "A2A task lifecycle schema. Represents a discrete unit of work delegated between agents. Aligned with the A2A Project specification (https://github.com/a2aproject/A2A).",
+  "type": "object",
+  "required": ["id", "status", "createdAt", "updatedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique task identifier (UUID v4)."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional. Scopes this task to a cognitive session."
+    },
+    "status": {
+      "$ref": "#/$defs/TaskStatus"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the task was created."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of the last status change."
+    },
+    "assignedAgent": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "description": "The agent currently responsible for executing the task.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "requester": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "description": "The agent or user that submitted the task.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "Ordered sequence of A2A messages exchanged for this task.",
+      "items": {
+        "$ref": "a2a-message.schema.json"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Output artifacts produced by the task (only populated once status is 'completed').",
+      "items": {
+        "$ref": "#/$defs/Artifact"
+      }
+    },
+    "error": {
+      "$ref": "#/$defs/TaskError",
+      "description": "Populated when status is 'failed'."
+    },
+    "inputRequest": {
+      "type": "object",
+      "description": "Describes what additional input is needed when status is 'input-required'.",
+      "required": ["message"],
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of the required input."
+        },
+        "inputSchema": {
+          "type": "object",
+          "description": "Optional JSON Schema describing the expected input structure."
+        }
+      }
+    },
+    "traceContext": {
+      "type": "object",
+      "required": ["traceparent"],
+      "additionalProperties": false,
+      "description": "W3C Trace Context propagated for the full lifetime of the task.",
+      "properties": {
+        "traceparent": {
+          "type": "string",
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+        },
+        "tracestate": { "type": "string" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string key-value pairs for task-specific annotations."
+    }
+  },
+  "$defs": {
+    "TaskStatus": {
+      "type": "object",
+      "required": ["state"],
+      "additionalProperties": false,
+      "description": "Current lifecycle state of the task, along with an optional descriptive message.",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["submitted", "working", "input-required", "completed", "failed", "canceled"],
+          "description": "Lifecycle state of the task. Allowed transitions: submitted → working → {input-required → working | completed | failed | canceled}."
+        },
+        "message": {
+          "description": "Optional status message providing context for the current state. May be a string or a structured A2AMessage.",
+          "oneOf": [{ "type": "string" }, { "$ref": "a2a-message.schema.json" }]
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp when this status was set."
+        }
+      }
+    },
+    "Artifact": {
+      "type": "object",
+      "required": ["id", "name", "parts"],
+      "additionalProperties": false,
+      "description": "A discrete output artifact produced by a completed task.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique artifact identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the artifact."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the artifact's content or purpose."
+        },
+        "parts": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Content parts that make up this artifact (same structure as A2AMessage.parts).",
+          "items": {
+            "$ref": "a2a-message.schema.json#/$defs/Part"
+          }
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based ordering index for multi-artifact responses."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "TaskError": {
+      "type": "object",
+      "required": ["code", "message"],
+      "additionalProperties": false,
+      "description": "Structured error information for a failed task.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Machine-readable error code (e.g. 'timeout', 'unauthorized', 'invalid-input', 'internal-error').",
+          "examples": [
+            "timeout",
+            "unauthorized",
+            "invalid-input",
+            "internal-error",
+            "agent-unavailable"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error description."
+        },
+        "retryable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the caller may safely retry the task."
+        },
+        "details": {
+          "type": "object",
+          "description": "Optional structured details for programmatic error handling."
+        }
+      }
+    }
+  }
+}
