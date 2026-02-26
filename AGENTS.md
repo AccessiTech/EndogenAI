@@ -107,6 +107,97 @@ Every module must:
 
 ---
 
+## Repository Map
+
+```
+shared/
+  schemas/          # Canonical JSON Schema / Protobuf contracts — land here first
+  types/            # Shared type definitions (signal, memory-item, reward-signal)
+  utils/            # Logging, tracing, validation specs
+  vector-store/     # Backend-agnostic vector store adapter (Python + TypeScript)
+
+infrastructure/     # MCP server, A2A agent coordination, adapter bridges (Phase 2+)
+
+modules/            # Cognitive modules, grouped by brain-layer analogy
+  group-i-signal-processing/
+  group-ii-cognitive-processing/
+  group-iii-executive-output/
+  group-iv-adaptive-systems/
+
+apps/               # End-user application surfaces (Phase 5+)
+
+resources/
+  static/knowledge/ # Morphogenetic seed documents — source of endogenous scaffolding
+  neuroanatomy/     # Brain-region reference stubs
+
+docs/               # Architecture, guides, protocol specs
+observability/      # OTel collector, Prometheus, Grafana configs
+```
+
+---
+
+## Environment Bootstrap
+
+Bring up the full local stack before running integration tests:
+
+```bash
+# 1. Install JS/TS dependencies
+pnpm install
+
+# 2. Start backing services (ChromaDB, Ollama, observability stack)
+docker compose up -d
+
+# 3. Sync each Python sub-package you're working in
+cd shared/vector-store/python && uv sync && cd -
+
+# 4. Verify
+pnpm run lint && pnpm run typecheck
+cd shared/vector-store/python && uv run ruff check . && uv run mypy src/
+```
+
+> Ollama must be running at `http://localhost:11434` for embedding tests. Pull the default model:
+> `ollama pull nomic-embed-text`
+
+---
+
+## Guardrails
+
+**Never do these without explicit instruction:**
+
+- Edit `pnpm-lock.yaml` or `uv.lock` by hand — always use `pnpm install` / `uv sync`
+- Modify files under `.venv/`, `node_modules/`, or `dist/`
+- Commit secrets, API keys, or credentials of any kind
+- Run `docker compose down -v` (destroys volumes) in a shared or production context
+- Delete or rename `shared/schemas/` files that are already imported by other packages
+- `git push --force` to `main`
+
+**Prefer caution over assumption for:**
+
+- Any change that touches more than one sub-package boundary
+- Schema changes (downstream consumers may break)
+- Dependency version bumps (run the full check suite first)
+
+---
+
+## When to Ask vs. Proceed
+
+**Default posture: stop and ask before any ambiguous or irreversible action.**
+
+Ask when:
+- Requirements or acceptance criteria are unclear
+- A change would delete, rename, or restructure existing files
+- A schema change could break other sub-packages
+- The correct approach involves a genuine trade-off the user should decide
+
+Proceed when:
+- The task is unambiguous and reversible
+- A best-practice default exists and is well-established in this codebase
+- The action can be undone with `git revert` or a follow-up commit
+
+When proceeding under ambiguity, **document the assumption inline** (code comment or commit message body) so it can be reviewed and corrected.
+
+---
+
 ## Key References
 
 | Resource | Purpose |
