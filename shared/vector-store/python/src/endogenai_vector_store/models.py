@@ -13,7 +13,7 @@ Key design decisions:
 from __future__ import annotations
 
 import re
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -30,26 +30,26 @@ COLLECTION_NAME_RE = re.compile(r"^brain\.[a-z][a-z0-9-]*$")
 # ---------------------------------------------------------------------------
 
 
-class EmbeddingProvider(str, Enum):
+class EmbeddingProvider(StrEnum):
     OLLAMA = "ollama"
     OPENAI = "openai"
     COHERE = "cohere"
     HUGGINGFACE = "huggingface"
 
 
-class ChromaMode(str, Enum):
+class ChromaMode(StrEnum):
     HTTP = "http"
     EMBEDDED = "embedded"
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     WORKING = "working"
     SHORT_TERM = "short-term"
     LONG_TERM = "long-term"
     EPISODIC = "episodic"
 
 
-class Layer(str, Enum):
+class Layer(StrEnum):
     SENSORY = "sensory"
     SUBCORTICAL = "subcortical"
     LIMBIC = "limbic"

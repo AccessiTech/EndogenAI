@@ -41,14 +41,14 @@ class VectorStoreAdapter(ABC):
     # Lifecycle
     # ------------------------------------------------------------------
 
-    async def connect(self) -> None:
+    async def connect(self) -> None:  # noqa: B027
         """Optional: establish a connection / warm up the client.
 
         Called once at startup. Default is a no-op; override if your backend
         needs an explicit connection step (e.g. connection pool warm-up).
         """
 
-    async def close(self) -> None:
+    async def close(self) -> None:  # noqa: B027
         """Optional: release resources held by this adapter.
 
         Called at shutdown. Default is a no-op; override if your backend
@@ -105,7 +105,7 @@ class VectorStoreAdapter(ABC):
         )
         return resp.created
 
-    async def __aenter__(self) -> "VectorStoreAdapter":
+    async def __aenter__(self) -> VectorStoreAdapter:
         await self.connect()
         return self
 

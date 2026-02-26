@@ -14,16 +14,11 @@ Usage::
 
 from __future__ import annotations
 
-import asyncio
-import logging
-from typing import TYPE_CHECKING
+from typing import Any
 
 import httpx
 import structlog
 from tenacity import retry, stop_after_attempt, wait_exponential
-
-if TYPE_CHECKING:
-    pass
 
 from endogenai_vector_store.models import EmbeddingConfig, EmbeddingProvider
 
@@ -68,7 +63,7 @@ class EmbeddingClient:
             await self._http.aclose()
             self._http = None
 
-    async def __aenter__(self) -> "EmbeddingClient":
+    async def __aenter__(self) -> EmbeddingClient:
         await self.connect()
         return self
 
@@ -151,7 +146,7 @@ class EmbeddingClient:
 
         # Single-text fallback: Ollama may return a flat list for single inputs
         if isinstance(embeddings[0], float):
-            embeddings = [embeddings]  # type: ignore[assignment]
+            embeddings = [embeddings]  # noqa: PGH003
 
         return embeddings
 
@@ -172,7 +167,7 @@ class EmbeddingClient:
             )
 
         data = resp.json()
-        items: list[dict] = sorted(data["data"], key=lambda x: x["index"])
+        items: list[dict[str, Any]] = sorted(data["data"], key=lambda x: x["index"])
         return [item["embedding"] for item in items]
 
 

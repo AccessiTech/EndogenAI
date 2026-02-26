@@ -50,10 +50,10 @@ from endogenai_vector_store.models import (
     ListCollectionsResponse,
     MemoryItem,
     MemoryType,
+    QdrantConfig,
     QueryRequest,
     QueryResponse,
     QueryResult,
-    QdrantConfig,
     UpsertRequest,
     UpsertResponse,
 )
@@ -211,7 +211,7 @@ class QdrantAdapter(VectorStoreAdapter):
         return UpsertResponse(upserted_ids=ids)
 
     async def query(self, request: QueryRequest) -> QueryResponse:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
         client = self._assert_connected()
         query_vector = await self._embedder.embed_one(request.query_text)
@@ -222,12 +222,14 @@ class QdrantAdapter(VectorStoreAdapter):
                 FieldCondition(key=k, match=MatchValue(value=v))
                 for k, v in request.where.items()
             ]
-            qdrant_filter = Filter(must=cast(list[Any], must_conditions))
+            qdrant_filter = Filter(must=cast("list[Any]", must_conditions))
 
         try:
-            hits = await client.search(
+            # qdrant-client >= 1.10: search() removed; use query_points() instead.
+            raw = await client.query_points(
                 collection_name=request.collection_name,
-                query_vector=(_VECTOR_NAME, query_vector),
+                query=query_vector,
+                using=_VECTOR_NAME,
                 limit=request.n_results,
                 query_filter=qdrant_filter,
                 with_payload=True,
@@ -235,7 +237,7 @@ class QdrantAdapter(VectorStoreAdapter):
             )
         except Exception as exc:
             raise AdapterError(
-                f"Qdrant search failed: {exc}", backend="qdrant", retryable=True
+                f"Qdrant query failed: {exc}", backend="qdrant", retryable=True
             ) from exc
 
         results = [
@@ -243,11 +245,11 @@ class QdrantAdapter(VectorStoreAdapter):
                 item=_payload_to_item(
                     str(hit.id),
                     hit.payload or {},
-                    hit.vector.get(_VECTOR_NAME, []) if isinstance(hit.vector, dict) else [],  # type: ignore[union-attr]
+                    hit.vector.get(_VECTOR_NAME, []) if isinstance(hit.vector, dict) else [],
                 ),
                 score=hit.score,
             )
-            for hit in hits
+            for hit in raw.points
         ]
 
         logger.debug(
@@ -265,7 +267,7 @@ class QdrantAdapter(VectorStoreAdapter):
         try:
             await client.delete(
                 collection_name=request.collection_name,
-                points_selector=PointIdsList(points=cast(list[Any], request.ids)),
+                points_selector=PointIdsList(points=cast("list[Any]", request.ids)),
                 wait=True,
             )
         except Exception as exc:

@@ -25,8 +25,6 @@ from __future__ import annotations
 
 import asyncio
 import datetime
-import uuid
-from functools import lru_cache
 from typing import Any, cast
 
 import chromadb
@@ -57,6 +55,28 @@ from endogenai_vector_store.models import (
 )
 
 logger: structlog.BoundLogger = structlog.get_logger(__name__)
+
+
+class _SyncToAsyncProxy:
+    """Wraps a synchronous chromadb.ClientAPI as an async-compatible proxy.
+
+    Required for ChromaMode.EMBEDDED: chromadb >= 1.x removed AsyncEphemeralClient
+    and only exposes a sync EphemeralClient. All calls are dispatched to a thread
+    pool via asyncio.to_thread so the adapter's async interface is preserved.
+    """
+
+    def __init__(self, client: Any) -> None:
+        self._client = client
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._client, name)
+        if callable(attr):
+            async def _wrapper(*args: Any, **kwargs: Any) -> Any:
+                return await asyncio.to_thread(attr, *args, **kwargs)
+
+            return _wrapper
+        return attr
+
 
 _EXCLUDE_FROM_METADATA = {"embedding", "content", "collection_name", "id"}
 
@@ -105,7 +125,7 @@ def _chroma_hit_to_item(
         type=MemoryType(metadata.get("type", "working")),
         source_module=metadata.get("source_module", ""),
         importance_score=float(metadata.get("importance_score", 0.5)),
-        created_at=metadata.get("created_at", datetime.datetime.utcnow().isoformat()),
+        created_at=metadata.get("created_at", datetime.datetime.now(datetime.UTC).isoformat()),
         updated_at=metadata.get("updated_at"),
         expires_at=metadata.get("expires_at"),
         access_count=int(metadata.get("access_count", 0)),
@@ -129,7 +149,7 @@ class ChromaAdapter(VectorStoreAdapter):
     ) -> None:
         self._config = config or ChromaConfig()
         self._embedding_config = embedding_config or EmbeddingConfig()
-        self._client: chromadb.AsyncClientAPI | None = None
+        self._client: Any = None  # chromadb.AsyncClientAPI or _SyncToAsyncProxy
         self._embedder = EmbeddingClient(self._embedding_config)
 
     # ------------------------------------------------------------------
@@ -141,14 +161,15 @@ class ChromaAdapter(VectorStoreAdapter):
         cfg = self._config
 
         if cfg.mode == ChromaMode.EMBEDDED:
+            # chromadb >= 1.x removed AsyncEphemeralClient; wrap sync EphemeralClient.
             settings = Settings(
-                is_persistent=True,
-                persist_directory=cfg.persist_directory or "/tmp/chroma-test",
+                is_persistent=bool(cfg.persist_directory),
+                persist_directory=cfg.persist_directory or "/tmp/chroma-test",  # noqa: S108
                 anonymized_telemetry=False,
             )
-            self._client = await chromadb.AsyncEphemeralClient(settings=settings)  # type: ignore[assignment]
+            self._client = _SyncToAsyncProxy(chromadb.EphemeralClient(settings=settings))
         else:
-            self._client = await chromadb.AsyncHttpClient(  # type: ignore[assignment]
+            self._client = await chromadb.AsyncHttpClient(
                 host=cfg.host,
                 port=cfg.port,
                 ssl=cfg.ssl,
@@ -173,7 +194,7 @@ class ChromaAdapter(VectorStoreAdapter):
     # Helpers
     # ------------------------------------------------------------------
 
-    def _assert_connected(self) -> chromadb.AsyncClientAPI:
+    def _assert_connected(self) -> Any:
         if self._client is None:
             raise AdapterError(
                 "ChromaAdapter is not connected — call connect() or use as async context manager.",
@@ -219,8 +240,8 @@ class ChromaAdapter(VectorStoreAdapter):
             await collection.upsert(
                 ids=ids,
                 documents=documents,
-                embeddings=cast(Any, embeddings),
-                metadatas=cast(Any, metadatas),
+                embeddings=cast("Any", embeddings),
+                metadatas=cast("Any", metadatas),
             )
         except Exception as exc:
             raise AdapterError(
@@ -274,7 +295,7 @@ class ChromaAdapter(VectorStoreAdapter):
             raw_dists = raw.get("distances")
             docs_list: list[str] = raw_docs[0] if raw_docs is not None else [""] * len(ids_list)
             meta_list: list[Any] = raw_metas[0] if raw_metas is not None else [{}] * len(ids_list)
-            emb_list: list[Any] = cast(list[Any], raw_embs[0]) if raw_embs is not None else [None] * len(ids_list)
+            emb_list: list[Any] = cast("list[Any]", raw_embs[0]) if raw_embs is not None else [None] * len(ids_list)
             dist_list: list[Any] = raw_dists[0] if raw_dists is not None else [1.0] * len(ids_list)
 
             for doc_id, doc, meta, emb, dist in zip(
@@ -282,7 +303,7 @@ class ChromaAdapter(VectorStoreAdapter):
             ):
                 # Chroma returns L2 distance; convert to cosine similarity-like score
                 score = max(0.0, 1.0 - dist / 2.0)
-                item = _chroma_hit_to_item(doc_id, doc, dict(meta) if meta else {}, cast(list[float] | None, emb))
+                item = _chroma_hit_to_item(doc_id, doc, dict(meta) if meta else {}, cast("list[float] | None", emb))
                 results.append(QueryResult(item=item, score=score))
 
         logger.debug(

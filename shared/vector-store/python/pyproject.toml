@@ -20,8 +20,8 @@ dependencies = [
 qdrant = ["qdrant-client>=1.9"]
 pgvector = ["asyncpg>=0.29", "pgvector>=0.3"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
   "pytest>=8.2",
   "pytest-asyncio>=0.23",
   "testcontainers[chromadb]>=4.7",

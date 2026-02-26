@@ -21,12 +21,10 @@ import uuid
 
 import pytest
 
-from endogenai_vector_store.interface import AdapterError
 from endogenai_vector_store.models import (
     CreateCollectionRequest,
     DeleteRequest,
     DropCollectionRequest,
-    MemoryType,
     QueryRequest,
     UpsertRequest,
 )
@@ -144,7 +142,7 @@ async def test_upsert_overwrites_existing(chroma_adapter):
     import datetime
 
     updated = item.model_copy(
-        update={"content": "Updated content", "updated_at": datetime.datetime.utcnow().isoformat()}
+        update={"content": "Updated content", "updated_at": datetime.datetime.now(datetime.UTC).isoformat()}
     )
     resp = await chroma_adapter.upsert(
         UpsertRequest(collection_name=TEST_COLLECTION, items=[updated])

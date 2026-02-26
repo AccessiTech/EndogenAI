@@ -20,10 +20,9 @@ Testcontainers strategy:
 
 from __future__ import annotations
 
-import asyncio
 import os
 import uuid
-from collections.abc import AsyncGenerator, Generator
+from typing import TYPE_CHECKING
 
 import pytest
 import pytest_asyncio
@@ -37,6 +36,9 @@ from endogenai_vector_store.models import (
     MemoryType,
     QdrantConfig,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Generator
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -61,7 +63,7 @@ def _make_item(
         type=memory_type,
         source_module=source_module,
         importance_score=importance,
-        created_at=datetime.datetime.utcnow().isoformat(),
+        created_at=datetime.datetime.now(datetime.UTC).isoformat(),
     )
 
 
@@ -119,9 +121,9 @@ class MockEmbeddingClient:
 @pytest.fixture(scope="session")
 def chroma_container() -> Generator[tuple[str, int], None, None]:
     """Start a ChromaDB Testcontainer and yield (host, port)."""
-    from testcontainers.chromadb import ChromaDbContainer  # type: ignore[import-untyped]
+    from testcontainers.chroma import ChromaContainer  # type: ignore[import-untyped]
 
-    with ChromaDbContainer("chromadb/chroma:latest") as container:
+    with ChromaContainer("chromadb/chroma:latest") as container:
         host = container.get_container_host_ip()
         port = int(container.get_exposed_port(8000))
         yield host, port
