@@ -1,0 +1,280 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/adapter.interface.json",
+  "title": "VectorStoreAdapterInterface",
+  "description": "Language-agnostic interface contract for all EndogenAI vector store adapters. Python and TypeScript implementations MUST expose all six operations defined here with the exact request/response shapes specified. Embeddings are generated internally by the adapter using the configured embedding model — callers never provide raw vectors.",
+  "type": "object",
+  "required": ["interface", "version", "operations"],
+  "additionalProperties": false,
+  "properties": {
+    "interface": {
+      "type": "string",
+      "const": "VectorStoreAdapter",
+      "description": "Discriminator string identifying this as the canonical adapter interface."
+    },
+    "version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "operations": {
+      "type": "object",
+      "required": [
+        "upsert",
+        "query",
+        "delete",
+        "create-collection",
+        "drop-collection",
+        "list-collections"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "upsert": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "Insert or update one or more MemoryItem records in a collection. The adapter generates embeddings for the `content` field of each item using the configured embedding model. If an item with the same `id` already exists it is overwritten.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": ["collectionName", "items"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": {
+                  "type": "string",
+                  "pattern": "^brain\\.[a-z][a-z0-9-]*$",
+                  "description": "Target collection name (must follow brain.<module-name> convention)."
+                },
+                "items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Array of MemoryItem objects to upsert.",
+                  "items": { "$ref": "../../types/memory-item.schema.json" }
+                }
+              }
+            },
+            "response": {
+              "type": "object",
+              "required": ["upsertedIds"],
+              "additionalProperties": false,
+              "properties": {
+                "upsertedIds": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "IDs of all successfully upserted records."
+                }
+              }
+            }
+          }
+        },
+        "query": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "Semantic similarity search over a collection. The adapter embeds `queryText` using the configured embedding model and returns the top-N most similar MemoryItems.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": ["collectionName", "queryText"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": {
+                  "type": "string",
+                  "pattern": "^brain\\.[a-z][a-z0-9-]*$"
+                },
+                "queryText": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Natural-language query text. The adapter embeds this before searching."
+                },
+                "nResults": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100,
+                  "default": 10,
+                  "description": "Maximum number of results to return."
+                },
+                "where": {
+                  "type": "object",
+                  "description": "Optional metadata filter. Key-value pairs applied as equality filters against MemoryItem.metadata fields before vector search.",
+                  "additionalProperties": true
+                },
+                "whereDocument": {
+                  "type": "string",
+                  "description": "Optional full-text filter applied to MemoryItem.content before vector search. Backend-dependent support (ChromaDB: supported; Qdrant: use payload filter instead)."
+                }
+              }
+            },
+            "response": {
+              "type": "object",
+              "required": ["results"],
+              "additionalProperties": false,
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "description": "Ordered array of query results, most similar first.",
+                  "items": {
+                    "type": "object",
+                    "required": ["item", "score"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "item": { "$ref": "../../types/memory-item.schema.json" },
+                      "score": {
+                        "type": "number",
+                        "description": "Cosine similarity score in [0, 1]. Higher is more similar."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "Delete one or more MemoryItem records from a collection by ID.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": ["collectionName", "ids"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": {
+                  "type": "string",
+                  "pattern": "^brain\\.[a-z][a-z0-9-]*$"
+                },
+                "ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "format": "uuid" },
+                  "description": "Array of MemoryItem.id values to delete."
+                }
+              }
+            },
+            "response": {
+              "type": "object",
+              "required": ["deletedIds"],
+              "additionalProperties": false,
+              "properties": {
+                "deletedIds": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "IDs of records that were deleted. IDs not found in the collection are silently ignored."
+                }
+              }
+            }
+          }
+        },
+        "create-collection": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "Create a new named collection. Idempotent — if the collection already exists, no error is raised.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": ["collectionName"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": {
+                  "type": "string",
+                  "pattern": "^brain\\.[a-z][a-z0-9-]*$",
+                  "description": "Must be present in collection-registry.json."
+                },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" },
+                  "description": "Optional collection-level metadata (e.g. module owner, description)."
+                }
+              }
+            },
+            "response": {
+              "type": "object",
+              "required": ["collectionName", "created"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": { "type": "string" },
+                "created": {
+                  "type": "boolean",
+                  "description": "True if a new collection was created; false if it already existed."
+                }
+              }
+            }
+          }
+        },
+        "drop-collection": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "Permanently delete a collection and all its records. Irreversible.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "required": ["collectionName"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": {
+                  "type": "string",
+                  "pattern": "^brain\\.[a-z][a-z0-9-]*$"
+                }
+              }
+            },
+            "response": {
+              "type": "object",
+              "required": ["collectionName", "dropped"],
+              "additionalProperties": false,
+              "properties": {
+                "collectionName": { "type": "string" },
+                "dropped": {
+                  "type": "boolean",
+                  "description": "True if the collection existed and was dropped; false if it did not exist."
+                }
+              }
+            }
+          }
+        },
+        "list-collections": {
+          "$ref": "#/$defs/OperationSpec",
+          "description": "List all collections present in the backend. Used at boot time to verify provisioning against collection-registry.json.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "description": "No request parameters required."
+            },
+            "response": {
+              "type": "object",
+              "required": ["collections"],
+              "additionalProperties": false,
+              "properties": {
+                "collections": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": { "type": "string" },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of records in the collection. May be omitted if the backend does not support it efficiently."
+                      },
+                      "metadata": {
+                        "type": "object",
+                        "additionalProperties": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "OperationSpec": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string" },
+        "request": { "type": "object" },
+        "response": { "type": "object" }
+      }
+    }
+  }
+}

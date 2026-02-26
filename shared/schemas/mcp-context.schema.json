@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/mcp-context.schema.json",
+  "title": "MCPContext",
+  "description": "MCP context envelope for all module-to-module communication within the EndogenAI framework. Every message exchanged over the MCP backbone must conform to this schema.",
+  "type": "object",
+  "required": ["id", "version", "timestamp", "source", "payload", "contentType"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this context message (UUID v4)."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the MCP context schema in use (e.g. '0.1.0').",
+      "default": "0.1.0"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of when this context was created."
+    },
+    "source": {
+      "$ref": "#/$defs/ModuleRef",
+      "description": "Identity of the module that produced this context."
+    },
+    "destination": {
+      "$ref": "#/$defs/ModuleRef",
+      "description": "Optional target module. Omit for broadcast / capability-registry-routed messages."
+    },
+    "traceContext": {
+      "$ref": "#/$defs/TraceContext",
+      "description": "W3C TraceContext headers for distributed tracing. Propagated unchanged across all module hops."
+    },
+    "contentType": {
+      "type": "string",
+      "description": "MIME-type-like descriptor for the payload format (e.g. 'application/json', 'text/plain', 'signal/text', 'signal/image').",
+      "examples": [
+        "application/json",
+        "text/plain",
+        "signal/text",
+        "signal/image",
+        "signal/audio",
+        "memory/item",
+        "reward/signal"
+      ]
+    },
+    "payload": {
+      "description": "The content of the message. Structure is determined by contentType. Use application/json for structured data.",
+      "oneOf": [
+        { "type": "object" },
+        { "type": "string" },
+        { "type": "array" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "null" }
+      ]
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. Links this context to a parent context or request, enabling request/response correlation."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional. Scopes this context to a cognitive session (maps to short-term memory TTL scope)."
+    },
+    "taskId": {
+      "type": "string",
+      "description": "Optional. Associates this context with an active A2A task."
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "default": 5,
+      "description": "Routing priority hint for the Attention & Filtering layer. 0 = lowest, 10 = highest."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string key-value pairs for module-specific annotations. Do not carry security or routing data here."
+    }
+  },
+  "$defs": {
+    "ModuleRef": {
+      "type": "object",
+      "required": ["moduleId", "layer"],
+      "additionalProperties": false,
+      "description": "Reference to a specific EndogenAI module.",
+      "properties": {
+        "moduleId": {
+          "type": "string",
+          "description": "Canonical module identifier (e.g. 'sensory-input', 'working-memory', 'decision-making')."
+        },
+        "layer": {
+          "type": "string",
+          "enum": [
+            "sensory-input",
+            "attention-filtering",
+            "perception",
+            "memory",
+            "affective",
+            "decision-making",
+            "executive",
+            "agent-execution",
+            "motor-output",
+            "learning-adaptation",
+            "metacognition",
+            "application",
+            "infrastructure"
+          ],
+          "description": "Architectural layer the module belongs to (maps to the groups in the README)."
+        },
+        "instanceId": {
+          "type": "string",
+          "description": "Optional. Disambiguates multiple instances of the same module running in parallel."
+        }
+      }
+    },
+    "TraceContext": {
+      "type": "object",
+      "required": ["traceparent"],
+      "additionalProperties": false,
+      "description": "W3C Trace Context (https://www.w3.org/TR/trace-context/).",
+      "properties": {
+        "traceparent": {
+          "type": "string",
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$",
+          "description": "W3C traceparent header value: version-traceId-parentId-flags."
+        },
+        "tracestate": {
+          "type": "string",
+          "description": "Optional W3C tracestate header for vendor-specific trace metadata."
+        }
+      }
+    }
+  }
+}

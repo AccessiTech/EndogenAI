@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/pgvector.config.schema.json",
+  "title": "PgvectorConfig",
+  "description": "Configuration schema for the pgvector vector store adapter. Use this backend for Postgres-native deployments where vector search and relational queries must share the same database. Requires PostgreSQL ≥ 15 with the pgvector extension installed.",
+  "type": "object",
+  "required": ["connectionString"],
+  "additionalProperties": false,
+  "properties": {
+    "connectionString": {
+      "type": "string",
+      "description": "PostgreSQL connection string. Supply via PGVECTOR_CONNECTION_STRING env var — do not hardcode credentials.",
+      "examples": ["postgresql://user:password@localhost:5432/endogenai"]
+    },
+    "schema": {
+      "type": "string",
+      "default": "brain",
+      "description": "PostgreSQL schema name. All vector store tables are created under this schema. Matches the 'brain.' collection naming convention."
+    },
+    "tablePrefix": {
+      "type": "string",
+      "default": "",
+      "description": "Optional prefix for table names within the schema (e.g. 'v_'). Normally left empty — collection names are used directly as table names."
+    },
+    "vectorSize": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Embedding vector dimensionality. Must match EmbeddingConfig.dimensions. Required at collection creation time."
+    },
+    "indexType": {
+      "type": "string",
+      "enum": ["ivfflat", "hnsw"],
+      "default": "hnsw",
+      "description": "pgvector index type. 'hnsw' (default) offers better recall at query time. 'ivfflat' is faster to build for very large collections."
+    },
+    "distanceOperator": {
+      "type": "string",
+      "enum": ["cosine", "l2", "inner_product"],
+      "default": "cosine",
+      "description": "Distance operator for similarity search. 'cosine' aligns with ChromaDB and Qdrant defaults."
+    },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Connection pool settings.",
+      "properties": {
+        "minConnections": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "maxConnections": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10
+        },
+        "idleTimeoutMs": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 30000
+        }
+      }
+    },
+    "embedding": {
+      "$ref": "embedding.config.schema.json",
+      "description": "Embedding provider configuration. Defaults to Ollama nomic-embed-text."
+    },
+    "envOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Environment variable names that override specific config values at runtime.",
+      "properties": {
+        "connectionString": {
+          "type": "string",
+          "default": "PGVECTOR_CONNECTION_STRING"
+        }
+      }
+    }
+  }
+}

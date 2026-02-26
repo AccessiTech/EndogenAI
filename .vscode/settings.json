@@ -1,0 +1,15 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "npx prettier": true,
+        "uv": true,
+        "git add": true,
+        "git commit": true,
+        "pnpm": true,
+        "buf": true
+    },
+    "python.analysis.extraPaths": [
+        "shared/vector-store/python/src",
+        "shared/vector-store/python/.venv/lib/python3.12/site-packages"
+    ],
+    "python.analysis.ignore": ["shared/vector-store/python/.venv/**"]
+}

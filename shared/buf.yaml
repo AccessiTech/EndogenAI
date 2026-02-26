@@ -7,6 +7,9 @@ version: v2
 
 modules:
   - path: .
+    excludes:
+      # Exclude Python virtual environments from proto scanning
+      - vector-store/python/.venv
 
 lint:
   use:

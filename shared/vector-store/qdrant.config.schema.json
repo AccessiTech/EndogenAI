@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/qdrant.config.schema.json",
+  "title": "QdrantConfig",
+  "description": "Configuration schema for the Qdrant vector store adapter. Qdrant is the recommended production backend — high-performance, filterable, and supports payload indexing. Add qdrant to docker-compose.yml for local production-parity testing.",
+  "type": "object",
+  "required": ["host"],
+  "additionalProperties": false,
+  "properties": {
+    "host": {
+      "type": "string",
+      "default": "localhost",
+      "description": "Hostname or IP of the Qdrant gRPC/HTTP server."
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "default": 6333,
+      "description": "Qdrant HTTP REST port."
+    },
+    "grpcPort": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "default": 6334,
+      "description": "Qdrant gRPC port. Used by the Python adapter for higher-throughput operations."
+    },
+    "useGrpc": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to prefer gRPC over HTTP REST. Recommended for production (lower serialization overhead)."
+    },
+    "https": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to use TLS. Set to true in staging/production with a valid certificate."
+    },
+    "apiKey": {
+      "type": "string",
+      "description": "Optional API key for Qdrant Cloud or a self-hosted instance with API key auth enabled. Supply via QDRANT_API_KEY env var — do not hardcode."
+    },
+    "collectionConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Default collection creation parameters applied to all collections unless overridden per-collection in collection-registry.json.",
+      "properties": {
+        "vectorSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Embedding vector dimensionality. Must match EmbeddingConfig.dimensions. Derived automatically if omitted."
+        },
+        "distance": {
+          "type": "string",
+          "enum": ["Cosine", "Euclid", "Dot"],
+          "default": "Cosine",
+          "description": "Distance metric used for similarity search."
+        },
+        "onDisk": {
+          "type": "boolean",
+          "default": false,
+          "description": "Store vectors on disk instead of RAM. Reduces memory usage for large collections at the cost of latency."
+        },
+        "quantization": {
+          "type": "string",
+          "enum": ["none", "scalar", "product"],
+          "default": "none",
+          "description": "Vector quantization strategy for memory-efficient storage."
+        }
+      }
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1000,
+      "default": 10000,
+      "description": "Request timeout in milliseconds."
+    },
+    "embedding": {
+      "$ref": "embedding.config.schema.json",
+      "description": "Embedding provider configuration. Defaults to Ollama nomic-embed-text."
+    },
+    "envOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Environment variable names that override specific config values at runtime.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "default": "QDRANT_HOST"
+        },
+        "port": {
+          "type": "string",
+          "default": "QDRANT_PORT"
+        },
+        "apiKey": {
+          "type": "string",
+          "default": "QDRANT_API_KEY"
+        }
+      }
+    }
+  }
+}

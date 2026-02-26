@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/types/signal.schema.json",
+  "title": "Signal",
+  "description": "Common signal envelope passed between layers in the EndogenAI framework. Signals flow bottom-up (Input → Perception → Cognition → Action) for stimulus-driven processing and top-down for goal-directed modulation. All inter-layer data transfer MUST use this envelope.",
+  "type": "object",
+  "required": ["id", "type", "modality", "source", "timestamp", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique signal identifier (UUID v4)."
+    },
+    "type": {
+      "type": "string",
+      "description": "Signal type descriptor. Combines modality and semantic intent (e.g. 'text.input', 'image.frame', 'audio.chunk', 'api.event', 'sensor.reading', 'attention.directive', 'reward.signal').",
+      "examples": [
+        "text.input",
+        "text.output",
+        "image.frame",
+        "audio.chunk",
+        "api.event",
+        "sensor.reading",
+        "attention.directive",
+        "reward.signal",
+        "memory.retrieval-request",
+        "memory.retrieval-response",
+        "decision.plan",
+        "motor.command"
+      ]
+    },
+    "modality": {
+      "type": "string",
+      "enum": ["text", "image", "audio", "sensor", "api-event", "internal", "control"],
+      "description": "The primary sensory or data modality of this signal. 'internal' is used for inter-layer coordination signals; 'control' for top-down modulation directives."
+    },
+    "source": {
+      "type": "object",
+      "required": ["moduleId", "layer"],
+      "additionalProperties": false,
+      "description": "The originating module.",
+      "properties": {
+        "moduleId": { "type": "string", "description": "Canonical module identifier." },
+        "layer": {
+          "type": "string",
+          "enum": [
+            "sensory-input",
+            "attention-filtering",
+            "perception",
+            "memory",
+            "affective",
+            "decision-making",
+            "executive",
+            "agent-execution",
+            "motor-output",
+            "learning-adaptation",
+            "metacognition",
+            "application",
+            "infrastructure"
+          ]
+        },
+        "instanceId": { "type": "string" }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of signal creation. Assigned by the Sensory / Input layer on first ingestion; preserved across all transformations."
+    },
+    "ingestedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of when the Sensory / Input layer first received the raw signal. Useful for latency measurement."
+    },
+    "payload": {
+      "description": "The signal content. Structure is governed by the 'type' and 'modality' fields. Text signals carry a string; image signals carry a base64 string or URI; structured signals carry an object.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "object" },
+        { "type": "array" },
+        { "type": "number" },
+        { "type": "null" }
+      ]
+    },
+    "encoding": {
+      "type": "string",
+      "description": "Optional encoding descriptor for binary payloads (e.g. 'base64', 'utf-8').",
+      "examples": ["utf-8", "base64", "pcm-16khz-mono"]
+    },
+    "traceContext": {
+      "type": "object",
+      "required": ["traceparent"],
+      "additionalProperties": false,
+      "description": "W3C Trace Context. Established at ingestion; propagated through all layers without modification.",
+      "properties": {
+        "traceparent": {
+          "type": "string",
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+        },
+        "tracestate": { "type": "string" }
+      }
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional. Scopes this signal to a cognitive session."
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. Links response signals back to their originating request signal."
+    },
+    "parentSignalId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. References the signal from which this one was derived (e.g. a perception feature signal derived from a raw sensory signal)."
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "default": 5,
+      "description": "Attention priority. Higher values are processed first by the Attention & Filtering layer. Top-down attention modulation may raise this value."
+    },
+    "ttl": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional time-to-live in milliseconds. Signals not processed within this window SHOULD be dropped by the Attention & Filtering layer."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string annotations. Do not carry routing, security, or PII data here."
+    }
+  }
+}

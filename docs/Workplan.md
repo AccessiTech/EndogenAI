@@ -110,32 +110,32 @@ consumed by every cognitive module.
 
 ### 1.1 Shared Schemas (`shared/schemas/`)
 
-- [ ] Author `mcp-context.schema.json` — MCP context object schema
-- [ ] Author `a2a-message.schema.json` — A2A message envelope schema
-- [ ] Author `a2a-task.schema.json` — A2A task lifecycle schema
+- [x] Author `mcp-context.schema.json` — MCP context object schema
+- [x] Author `a2a-message.schema.json` — A2A message envelope schema
+- [x] Author `a2a-task.schema.json` — A2A task lifecycle schema
 
 ### 1.2 Shared Types (`shared/types/`)
 
-- [ ] Author `signal.schema.json` — common signal envelope
-- [ ] Author `memory-item.schema.json` — unified memory record structure
-- [ ] Author `reward-signal.schema.json` — reward / affective weighting structure
+- [x] Author `signal.schema.json` — common signal envelope
+- [x] Author `memory-item.schema.json` — unified memory record structure
+- [x] Author `reward-signal.schema.json` — reward / affective weighting structure
 
 ### 1.3 Shared Utils (`shared/utils/`)
 
-- [ ] Write `logging.md` — structured log format spec (JSON, required fields, severity levels)
-- [ ] Write `tracing.md` — distributed trace context propagation spec (W3C TraceContext)
-- [ ] Write `validation.md` — input sanitization and boundary validation patterns
+- [x] Write `logging.md` — structured log format spec (JSON, required fields, severity levels)
+- [x] Write `tracing.md` — distributed trace context propagation spec (W3C TraceContext)
+- [x] Write `validation.md` — input sanitization and boundary validation patterns
 
 ### 1.4 Vector Store Adapter (`shared/vector-store/`)
 
-- [ ] Author `adapter.interface.json` — language-agnostic interface contract: `upsert`, `query`, `delete`,
+- [x] Author `adapter.interface.json` — language-agnostic interface contract: `upsert`, `query`, `delete`,
       `create-collection`, `drop-collection`, `list-collections`
-- [ ] Author `collection-registry.json` — canonical registry of all `brain.<module-name>` collections
-- [ ] Author `chroma.config.schema.json`, `qdrant.config.schema.json`, `pgvector.config.schema.json`
-- [ ] Author `embedding.config.schema.json` — provider, model, base URL, dimensions, fallback policy
-- [ ] Implement Python adapter (ChromaDB default; Qdrant production) conforming to `adapter.interface.json`
-- [ ] Implement TypeScript adapter (ChromaDB default) conforming to `adapter.interface.json`
-- [ ] Write `README.md` — adapter pattern, collection namespacing, backend selection, Ollama integration
+- [x] Author `collection-registry.json` — canonical registry of all `brain.<module-name>` collections
+- [x] Author `chroma.config.schema.json`, `qdrant.config.schema.json`, `pgvector.config.schema.json`
+- [x] Author `embedding.config.schema.json` — provider, model, base URL, dimensions, fallback policy
+- [x] Implement Python adapter (ChromaDB default; Qdrant production) conforming to `adapter.interface.json`
+- [x] Implement TypeScript adapter (ChromaDB default) conforming to `adapter.interface.json`
+- [x] Write `README.md` — adapter pattern, collection namespacing, backend selection, Ollama integration
 
 **Deliverables**: validated schemas, working ChromaDB adapter with unit tests via Testcontainers,
 `collection-registry.json` pre-populated with all module collection names.

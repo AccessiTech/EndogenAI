@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/embedding.config.schema.json",
+  "title": "EmbeddingConfig",
+  "description": "Configuration schema for the embedding provider used by all vector store adapters. Each module that uses the vector store adapter supplies an embedding.config.json conforming to this schema. The default is Ollama with nomic-embed-text (local, zero-cost).",
+  "type": "object",
+  "required": ["provider", "model"],
+  "additionalProperties": false,
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": ["ollama", "openai", "cohere", "huggingface"],
+      "default": "ollama",
+      "description": "Embedding provider. 'ollama' is the default (local compute first). All non-ollama providers route through LiteLLM."
+    },
+    "model": {
+      "type": "string",
+      "default": "nomic-embed-text",
+      "description": "Embedding model name. Must be available on the configured provider.",
+      "examples": [
+        "nomic-embed-text",
+        "mxbai-embed-large",
+        "text-embedding-3-small",
+        "text-embedding-3-large",
+        "embed-english-v3.0"
+      ]
+    },
+    "baseUrl": {
+      "type": "string",
+      "format": "uri",
+      "default": "http://localhost:11434",
+      "description": "Base URL for the embedding provider API. Defaults to Ollama's local HTTP endpoint. Override via OLLAMA_HOST env var."
+    },
+    "dimensions": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Expected embedding vector dimensionality. Used to validate adapter configuration at startup. If omitted, the adapter queries the provider to determine dimensions.",
+      "examples": [768, 1024, 1536, 3072]
+    },
+    "batchSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 512,
+      "default": 32,
+      "description": "Number of documents to embed per API call. Tune for provider rate limits and local memory constraints."
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "default": 30000,
+      "description": "Request timeout in milliseconds for a single embedding call."
+    },
+    "fallback": {
+      "type": "object",
+      "required": ["provider", "model"],
+      "additionalProperties": false,
+      "description": "Optional fallback embedding provider, activated when the primary provider is unavailable.",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["ollama", "openai", "cohere", "huggingface"]
+        },
+        "model": { "type": "string" },
+        "baseUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "envOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Environment variable names that override specific config values at runtime.",
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "default": "OLLAMA_HOST",
+          "description": "Env var whose value overrides baseUrl."
+        },
+        "model": {
+          "type": "string",
+          "default": "ENDOGEN_EMBEDDING_MODEL",
+          "description": "Env var whose value overrides model."
+        },
+        "apiKey": {
+          "type": "string",
+          "default": "ENDOGEN_EMBEDDING_API_KEY",
+          "description": "Env var containing API key for non-Ollama providers."
+        }
+      }
+    }
+  }
+}

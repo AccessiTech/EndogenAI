@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/types/reward-signal.schema.json",
+  "title": "RewardSignal",
+  "description": "Reward / affective weighting structure used by the Affective / Motivational Layer and the Learning & Adaptation Layer. Encodes the emotional or motivational feedback that modulates memory consolidation, decision-making priorities, and skill acquisition. Analogous to dopaminergic and limbic signaling in the mammalian brain.",
+  "type": "object",
+  "required": ["id", "timestamp", "sourceModule", "value", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this reward signal (UUID v4)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of when the reward signal was generated."
+    },
+    "sourceModule": {
+      "type": "string",
+      "description": "Canonical identifier of the module that generated this reward signal (e.g. 'affective', 'metacognition', 'user-feedback')."
+    },
+    "targetModule": {
+      "type": "string",
+      "description": "Optional. Canonical identifier of the module that should act on this signal. If absent, the signal is broadcast to all subscribed modules."
+    },
+    "value": {
+      "type": "number",
+      "minimum": -1.0,
+      "maximum": 1.0,
+      "description": "Scalar reward value. Positive values represent reward / reinforcement; negative values represent penalty / inhibition; 0.0 is neutral. Range [-1.0, 1.0]."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "reward",
+        "penalty",
+        "neutral",
+        "novelty",
+        "urgency",
+        "curiosity",
+        "satisfaction",
+        "frustration",
+        "confidence-boost",
+        "confidence-drop"
+      ],
+      "description": "Semantic category of the reward signal. 'reward' and 'penalty' are the primary reinforcement types; others capture affective nuance that biases attention and decision-making."
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "user-explicit",
+        "user-implicit",
+        "task-success",
+        "task-failure",
+        "goal-achieved",
+        "goal-abandoned",
+        "prediction-error",
+        "novelty-detection",
+        "constraint-violation",
+        "idle-timeout",
+        "self-evaluation"
+      ],
+      "description": "What caused this reward signal to be generated."
+    },
+    "associatedSignalId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. UUID of the Signal that triggered this reward."
+    },
+    "associatedTaskId": {
+      "type": "string",
+      "description": "Optional. A2A task associated with this reward signal."
+    },
+    "associatedMemoryItemId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. Memory record whose importance should be updated in response to this reward."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional. Session scope."
+    },
+    "decay": {
+      "type": "object",
+      "description": "Optional temporal decay parameters. Governs how the effective value of this signal diminishes over time — key for biologically-plausible temporal difference learning.",
+      "required": ["halfLifeMs"],
+      "additionalProperties": false,
+      "properties": {
+        "halfLifeMs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Half-life in milliseconds: the time after which the effective value is halved. Models the diminishing relevance of older rewards."
+        },
+        "model": {
+          "type": "string",
+          "enum": ["exponential", "linear", "step"],
+          "default": "exponential",
+          "description": "Decay model to apply."
+        }
+      }
+    },
+    "traceContext": {
+      "type": "object",
+      "required": ["traceparent"],
+      "additionalProperties": false,
+      "properties": {
+        "traceparent": {
+          "type": "string",
+          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+        },
+        "tracestate": { "type": "string" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string annotations."
+    }
+  }
+}

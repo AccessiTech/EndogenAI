@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/types/memory-item.schema.json",
+  "title": "MemoryItem",
+  "description": "Unified memory record structure used across all memory timescales (working, short-term, long-term, episodic). All memory modules MUST read and write records in this format. The vector store adapter uses this schema as the canonical document structure.",
+  "type": "object",
+  "required": ["id", "collectionName", "type", "content", "createdAt", "updatedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique memory record identifier (UUID v4)."
+    },
+    "collectionName": {
+      "type": "string",
+      "pattern": "^brain\\.[a-z][a-z0-9-]*$",
+      "description": "Target vector store collection. Must follow the 'brain.<module-name>' naming convention (e.g. 'brain.working-memory', 'brain.long-term-memory', 'brain.episodic-memory', 'brain.perception').",
+      "examples": [
+        "brain.working-memory",
+        "brain.short-term-memory",
+        "brain.long-term-memory",
+        "brain.episodic-memory",
+        "brain.perception",
+        "brain.knowledge"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["working", "short-term", "long-term", "episodic"],
+      "description": "Memory timescale classification. Governs TTL policies, embedding strategy, and consolidation routing."
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Primary textual content of the memory record. This is the string that is embedded by the vector store adapter using the configured embedding model."
+    },
+    "contentType": {
+      "type": "string",
+      "default": "text/plain",
+      "description": "MIME type of the content field.",
+      "examples": ["text/plain", "text/markdown", "application/json"]
+    },
+    "structuredData": {
+      "type": "object",
+      "description": "Optional. Structured companion payload for the content field. Stored alongside the embedding as filterable metadata in the vector store."
+    },
+    "embedding": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Optional. The embedding vector for this record. Populated by the vector store adapter at upsert time using the configured embedding model (default: nomic-embed-text via Ollama). Do NOT populate this field manually."
+    },
+    "embeddingModel": {
+      "type": "string",
+      "description": "Optional. Identifies the model that generated the embedding (e.g. 'nomic-embed-text'). Read-only; set by the adapter.",
+      "examples": ["nomic-embed-text", "text-embedding-3-small"]
+    },
+    "sourceSignalId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. The UUID of the Signal that led to the creation of this memory record."
+    },
+    "sourceTaskId": {
+      "type": "string",
+      "description": "Optional. The A2A task that produced this record."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional. Scopes this record to a cognitive session. Required for short-term memory records."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of record creation."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of the last modification."
+    },
+    "ttl": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional. Time-to-live in seconds from createdAt. Enforced by the short-term memory module. Absent or null means the record does not expire."
+    },
+    "importance": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 0.5,
+      "description": "Importance score used by the consolidation pipeline to prioritize which working / short-term memories are promoted to long-term or episodic memory. 0.0 = discard, 1.0 = highest priority."
+    },
+    "accessCount": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of times this record has been retrieved. Used as a signal for importance re-evaluation."
+    },
+    "lastAccessedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of the most recent retrieval."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Optional free-form tags for faceted retrieval and filtering."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Arbitrary string key-value pairs stored as filterable metadata in the vector store."
+    }
+  }
+}
