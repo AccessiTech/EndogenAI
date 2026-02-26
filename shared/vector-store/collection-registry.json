@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/vector-store/collection-registry.json",
+  "title": "CollectionRegistry",
+  "description": "Authoritative registry of every vector store collection used by EndogenAI. Collections follow the brain.<module-name> naming convention. The vector store adapter bootstrap process reads this file to provision all missing collections at startup. Do NOT create ad-hoc collections — add them here first.",
+  "version": "0.1.0",
+  "updatedAt": "2025-07-14",
+  "collections": [
+    {
+      "name": "brain.sensory-input",
+      "moduleId": "sensory-input",
+      "layer": "sensory",
+      "description": "Raw multi-modal perceptual events buffered before downstream processing. Short-lived; TTL-pruned aggressively.",
+      "memoryType": "working",
+      "notes": "Items here are transient. Access count and TTL fields on MemoryItem are strongly enforced."
+    },
+    {
+      "name": "brain.attention-filtering",
+      "moduleId": "attention-filtering",
+      "layer": "subcortical",
+      "description": "Salience-scored summaries of sensory events that passed attention gating. Inputs to perception.",
+      "memoryType": "working",
+      "notes": "Stores intermediate attentional focus records. Cleared each processing cycle unless promoted."
+    },
+    {
+      "name": "brain.perception",
+      "moduleId": "perception",
+      "layer": "sensory",
+      "description": "Integrated perceptual representations after multi-modal fusion. Semantically richer than raw sensory input.",
+      "memoryType": "short-term",
+      "notes": "Embeddings encode fused perceptual meaning, not raw bytes."
+    },
+    {
+      "name": "brain.working-memory",
+      "moduleId": "working-memory",
+      "layer": "prefrontal",
+      "description": "Current context window — task state, active goals, conversation turns held in immediate focus.",
+      "memoryType": "working",
+      "notes": "Capacity-constrained. Items compete on importanceScore; lowest importance is evicted first."
+    },
+    {
+      "name": "brain.short-term-memory",
+      "moduleId": "short-term-memory",
+      "layer": "memory",
+      "description": "Recent experiential records spanning the current session. Survives working-memory eviction but is eventually consolidated into long-term.",
+      "memoryType": "short-term",
+      "notes": "Consolidation to brain.long-term-memory is triggered by learning-adaptation module."
+    },
+    {
+      "name": "brain.long-term-memory",
+      "moduleId": "long-term-memory",
+      "layer": "memory",
+      "description": "Persistent world model. Semantically indexed facts, learned associations, and consolidated episodic memories.",
+      "memoryType": "long-term",
+      "notes": "Primary retrieval source for reasoning. Importance threshold for storage: ≥ 0.5."
+    },
+    {
+      "name": "brain.episodic-memory",
+      "moduleId": "episodic-memory",
+      "layer": "memory",
+      "description": "Autobiographical event records with temporal ordering. Enables experiential recall and counterfactual simulation.",
+      "memoryType": "episodic",
+      "notes": "Each item should carry a sessionId and taskId in its sourceRef metadata to enable timeline reconstruction."
+    },
+    {
+      "name": "brain.affective",
+      "moduleId": "affective",
+      "layer": "limbic",
+      "description": "Emotional context and reward signal history. Used to modulate motor-output tone and reinforce learning.",
+      "memoryType": "short-term",
+      "notes": "Reward signals from reward-signal.schema.json should be stored here alongside their triggering event ID."
+    },
+    {
+      "name": "brain.reasoning",
+      "moduleId": "reasoning",
+      "layer": "prefrontal",
+      "description": "Intermediate and final reasoning traces. Stores chain-of-thought fragments, hypotheses, and conclusions.",
+      "memoryType": "working",
+      "notes": "High churn. Items are typically short-lived unless flagged as reusable by the reasoning module."
+    },
+    {
+      "name": "brain.executive-agent",
+      "moduleId": "executive-agent",
+      "layer": "prefrontal",
+      "description": "Task decompositions, sub-task states, and inter-agent delegation records produced by the executive planner.",
+      "memoryType": "working",
+      "notes": "Stores A2ATask objects and their outcomes as MemoryItems for retrospective planning."
+    },
+    {
+      "name": "brain.agent-runtime",
+      "moduleId": "agent-runtime",
+      "layer": "motor",
+      "description": "Agent execution metadata: tool call logs, action traces, and runtime telemetry.",
+      "memoryType": "short-term",
+      "notes": "Do not store PII in this collection. Tool call arguments must be sanitized per validation.md before upsert."
+    },
+    {
+      "name": "brain.motor-output",
+      "moduleId": "motor-output",
+      "layer": "motor",
+      "description": "Records of actions taken: API calls, UI events, text outputs, and any effector operations.",
+      "memoryType": "episodic",
+      "notes": "Acts as an action log. Enables causal tracing from decision to outcome."
+    },
+    {
+      "name": "brain.learning-adaptation",
+      "moduleId": "learning-adaptation",
+      "layer": "subcortical",
+      "description": "Learning signals and adaptation records: fine-tuning triggers, skill acquisition events, and policy updates.",
+      "memoryType": "long-term",
+      "notes": "Items here drive consolidation triggers for other collections. Importance scores here influence retention across the brain."
+    },
+    {
+      "name": "brain.metacognition",
+      "moduleId": "metacognition",
+      "layer": "prefrontal",
+      "description": "Self-monitoring records: confidence calibration, error post-mortems, and capability assessments.",
+      "memoryType": "long-term",
+      "notes": "Used by the reasoning module to self-regulate. Stores both successes and failure patterns."
+    },
+    {
+      "name": "brain.knowledge",
+      "moduleId": "knowledge",
+      "layer": "memory",
+      "description": "Seed knowledge base seeded from resources/static/knowledge/. Read-heavy, write-rarely. Immutable facts about the domain.",
+      "memoryType": "long-term",
+      "notes": "Seeded at init from resources/static/knowledge/brain-structure.md and related docs. Items added here should carry version metadata."
+    }
+  ],
+  "collectionCount": 15,
+  "layerMapping": {
+    "sensory": ["brain.sensory-input", "brain.perception"],
+    "subcortical": ["brain.attention-filtering", "brain.learning-adaptation"],
+    "limbic": ["brain.affective"],
+    "memory": [
+      "brain.short-term-memory",
+      "brain.long-term-memory",
+      "brain.episodic-memory",
+      "brain.knowledge"
+    ],
+    "prefrontal": [
+      "brain.working-memory",
+      "brain.reasoning",
+      "brain.executive-agent",
+      "brain.metacognition"
+    ],
+    "motor": ["brain.agent-runtime", "brain.motor-output"]
+  }
+}
