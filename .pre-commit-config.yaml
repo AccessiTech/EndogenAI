@@ -52,7 +52,21 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        additional_dependencies: []
+        additional_dependencies:
+          - types-PyYAML
+
+  # ---------------------------------------------------------------------------
+  # Protobuf — buf lint + breaking change detection
+  # buf-lint runs against shared/buf.yaml; buf-breaking is commented out until
+  # a stable .proto baseline exists at the end of Phase 1.
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/bufbuild/buf
+    rev: v1.66.0
+    hooks:
+      - id: buf-lint
+        args: ["--config", "shared/buf.yaml"]
+      # - id: buf-breaking
+      #   args: ["--against", ".git#branch=main", "--config", "shared/buf.yaml"]
 
   # ---------------------------------------------------------------------------
   # JSON Schema validation via ajv
@@ -61,7 +75,9 @@ repos:
     hooks:
       - id: validate-frontmatter
         name: Validate knowledge document frontmatter
-        language: system
-        entry: echo "Frontmatter validation — wire in Phase 1"
-        files: ^resources/
+        language: python
+        entry: python scripts/validate_frontmatter.py
+        files: ^resources/.*\.md$
         pass_filenames: false
+        additional_dependencies:
+          - pyyaml

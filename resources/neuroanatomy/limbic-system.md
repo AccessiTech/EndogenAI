@@ -26,14 +26,18 @@ tags:
 
 Maps to: `modules/group-ii-cognitive-processing/affective`
 
-The **Limbic System** provides the neuroanatomical reference for the brAIn **Affective / Motivational Layer** — the generator of reward signals, emotional weighting, and drive modulation.
+The **Limbic System** provides the neuroanatomical reference for the brAIn **Affective / Motivational Layer** — the
+generator of reward signals, emotional weighting, and drive modulation.
 
 ## Function
 
-The limbic system is a set of brain structures that support emotion, behavior, motivation, and long-term memory. Its key constituents and functions include:
+The limbic system is a set of brain structures that support emotion, behavior, motivation, and long-term memory. Its key
+constituents and functions include:
 
-- **Amygdala**: emotional processing (especially fear and reward); rapid threat detection; emotional tagging of memories; modulates hippocampal encoding strength
-- **Hypothalamus**: homeostasis, circadian rhythm, autonomic regulation, endocrine control — the "drive generator" (hunger, thirst, arousal, sex)
+- **Amygdala**: emotional processing (especially fear and reward); rapid threat detection; emotional tagging of
+  memories; modulates hippocampal encoding strength
+- **Hypothalamus**: homeostasis, circadian rhythm, autonomic regulation, endocrine control — the "drive generator"
+  (hunger, thirst, arousal, sex)
 - **Nucleus Accumbens** (ventral striatum): reward, motivation, reinforcement learning — the "pleasure center"
 - **Anterior Cingulate Cortex (ACC)**: error detection, conflict monitoring, emotional regulation, pain processing
 - **Orbitofrontal Cortex (OFC)**: reward evaluation, decision-making under uncertainty, impulse control
@@ -55,10 +59,14 @@ The limbic system is a set of brain structures that support emotion, behavior, m
 
 ## Key Design Notes
 
-- **Reward signal generation**: the Affective / Motivational Layer must generate reward signals and urgency scores that modulate memory consolidation and decision-making — analogous to dopaminergic reward prediction error.
-- **Emotional weighting**: all memory items and reasoning steps should carry an affective valence score so they can be prioritized appropriately.
-- **Drive-based prioritization**: implement configurable "drive" variables (urgency, novelty, threat) that bias goal selection in the Executive Layer.
-- **Top-down regulation interface**: the Executive / Agent Layer should be able to attenuate or amplify affective signals (emotional self-regulation).
+- **Reward signal generation**: the Affective / Motivational Layer must generate reward signals and urgency scores that
+  modulate memory consolidation and decision-making — analogous to dopaminergic reward prediction error.
+- **Emotional weighting**: all memory items and reasoning steps should carry an affective valence score so they can be
+  prioritized appropriately.
+- **Drive-based prioritization**: implement configurable "drive" variables (urgency, novelty, threat) that bias goal
+  selection in the Executive Layer.
+- **Top-down regulation interface**: the Executive / Agent Layer should be able to attenuate or amplify affective
+  signals (emotional self-regulation).
 - **Vector store**: embed reward signal history and emotional state snapshots into `brain.affective`.
 
 ## References

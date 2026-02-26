@@ -24,13 +24,16 @@ tags:
 
 Maps to: `modules/group-i-signal-processing/sensory-input`
 
-The **Sensory Cortex** provides the neuroanatomical reference for the brAIn **Sensory / Input Layer** — the system's interface with the external environment.
+The **Sensory Cortex** provides the neuroanatomical reference for the brAIn **Sensory / Input Layer** — the system's
+interface with the external environment.
 
 ## Function
 
-The sensory cortex comprises all cortical regions dedicated to receiving and performing initial processing of sensory signals from the body and environment:
+The sensory cortex comprises all cortical regions dedicated to receiving and performing initial processing of sensory
+signals from the body and environment:
 
-- **Somatosensory Cortex** (postcentral gyrus, parietal lobe): touch, pressure, pain, vibration, temperature, proprioception
+- **Somatosensory Cortex** (postcentral gyrus, parietal lobe): touch, pressure, pain, vibration, temperature,
+  proprioception
 - **Visual Cortex** (occipital lobe): processes retinal signals into spatial and feature representations
 - **Auditory Cortex** (temporal lobe / insular cortex): processes sound frequency, rhythm, and speech
 - **Gustatory Cortex**: taste signals relayed via thalamus
@@ -50,10 +53,13 @@ The sensory cortex comprises all cortical regions dedicated to receiving and per
 
 ## Key Design Notes
 
-- **No semantic interpretation at this layer**: the Sensory / Input Layer normalizes, timestamps, and forwards signals — it does not assign meaning.
-- **Modality-agnostic interface**: support text, image, audio, API events, and sensor streams via a unified signal envelope (see `shared/schemas/signal.schema.json`).
+- **No semantic interpretation at this layer**: the Sensory / Input Layer normalizes, timestamps, and forwards signals —
+  it does not assign meaning.
+- **Modality-agnostic interface**: support text, image, audio, API events, and sensor streams via a unified signal
+  envelope (see `shared/schemas/signal.schema.json`).
 - **Receptive field mapping**: signals should carry metadata about their source modality and channel.
-- **Low-level filtering only**: salience scoring and gating happen in the Attention & Filtering Layer (thalamus analogy) — not here.
+- **Low-level filtering only**: salience scoring and gating happen in the Attention & Filtering Layer (thalamus analogy)
+  — not here.
 
 ## References
 

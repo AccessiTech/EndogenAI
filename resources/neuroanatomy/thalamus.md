@@ -25,18 +25,24 @@ tags:
 
 Maps to: `modules/group-i-signal-processing/attention-filtering`
 
-The **Thalamus** provides the neuroanatomical reference for the brAIn **Attention & Filtering Layer** — the gating and routing hub for all incoming signals.
+The **Thalamus** provides the neuroanatomical reference for the brAIn **Attention & Filtering Layer** — the gating and
+routing hub for all incoming signals.
 
 ## Function
 
-The thalamus is the principal subcortical relay center for nearly all sensory and motor signals traveling to and from the cerebral cortex:
+The thalamus is the principal subcortical relay center for nearly all sensory and motor signals traveling to and from
+the cerebral cortex:
 
-- **Sensory relay**: receives input from all sensory modalities (except olfaction) and routes signals to appropriate cortical areas
-- **Attentional gating**: regulates signal transmission based on arousal state and attention — suppresses irrelevant signals and amplifies salient ones
+- **Sensory relay**: receives input from all sensory modalities (except olfaction) and routes signals to appropriate
+  cortical areas
+- **Attentional gating**: regulates signal transmission based on arousal state and attention — suppresses irrelevant
+  signals and amplifies salient ones
 - **Consciousness regulation**: modulates cortical arousal and the sleep–wake cycle
-- **Bidirectional coupling**: receives substantial feedback projections from the cortex, enabling top-down modulation of incoming signals
+- **Bidirectional coupling**: receives substantial feedback projections from the cortex, enabling top-down modulation of
+  incoming signals
 
 Key nuclei:
+
 - **Lateral Geniculate Nucleus (LGN)**: visual relay
 - **Medial Geniculate Nucleus (MGN)**: auditory relay
 - **Ventral Posterior Nucleus**: somatosensory relay
@@ -58,10 +64,14 @@ Key nuclei:
 
 ## Key Design Notes
 
-- **Salience scoring**: the Attention & Filtering Layer must score incoming signals for relevance given current goals — analogous to thalamic gating.
-- **Top-down modulation interface**: the Executive / Agent Layer dispatches attention directives downward; this layer must expose a control interface for receiving and applying those directives.
-- **Noise suppression**: signals that fall below a configurable salience threshold should be discarded or deprioritized before reaching higher layers.
-- **Routing table**: like the thalamus's nucleus-specific projections, the layer should route signals to the appropriate downstream module based on modality and content type.
+- **Salience scoring**: the Attention & Filtering Layer must score incoming signals for relevance given current goals —
+  analogous to thalamic gating.
+- **Top-down modulation interface**: the Executive / Agent Layer dispatches attention directives downward; this layer
+  must expose a control interface for receiving and applying those directives.
+- **Noise suppression**: signals that fall below a configurable salience threshold should be discarded or deprioritized
+  before reaching higher layers.
+- **Routing table**: like the thalamus's nucleus-specific projections, the layer should route signals to the appropriate
+  downstream module based on modality and content type.
 
 ## References
 

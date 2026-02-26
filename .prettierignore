@@ -1,0 +1,11 @@
+# Dependency lock files
+pnpm-lock.yaml
+
+# Raw data dumps (external content — do not reformat)
+raw_data_dumps/
+
+# Build / cache outputs
+**/dist/
+**/build/
+**/.turbo/
+**/node_modules/
