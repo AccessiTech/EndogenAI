@@ -2,17 +2,14 @@
 name: Plan
 description: Survey the workplan and codebase, then produce a scoped implementation plan before any code is written.
 tools:
-  - codebase
-  - fetch
+  - search/codebase
+  - web/fetch
   - search
-  - problems
+  - read/problems
 handoffs:
   - label: Start Implementation
-    agent: implement
-    prompt: >
-      The plan above has been reviewed and approved. Implement it now,
-      following all constraints in AGENTS.md — schemas first, uv run for
-      Python, incremental commits, tests alongside each deliverable.
+    agent: Implement
+    prompt: "The plan above has been reviewed and approved. Implement it now, following all constraints in AGENTS.md — schemas first, uv run for Python, incremental commits, tests alongside each deliverable."
     send: false
 ---
 
@@ -28,7 +25,7 @@ implementation plan.
 3. Read the relevant section of [`readme.md`](../../readme.md) File Directory
    for the target area (module, schema, infra).
 4. Search the codebase to confirm what already exists and what is missing.
-5. Check `#tool:problems` for any existing compile or lint errors that must
+5. Check `#tool:read/problems` for any existing compile or lint errors that must
    be resolved first.
 
 ## Plan format

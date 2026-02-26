@@ -3,17 +3,14 @@ name: Scaffold Module
 description: Generate a new cognitive module from endogenous project knowledge. Provide the module name and cognitive group.
 argument-hint: "<module-name> in <group-i|ii|iii|iv>"
 tools:
-  - codebase
-  - editFiles
-  - fetch
+  - search/codebase
+  - edit/editFiles
+  - web/fetch
   - search
 handoffs:
   - label: Implement Module
-    agent: implement
-    prompt: >
-      The module scaffold above has been reviewed. Please implement the src/
-      and tests/ bodies following the plan in AGENTS.md and the module
-      contracts in CONTRIBUTING.md.
+    agent: Implement
+    prompt: "The module scaffold above has been reviewed. Please implement the src/ and tests/ bodies following the plan in AGENTS.md and the module contracts in CONTRIBUTING.md."
     send: false
 ---
 
@@ -28,7 +25,7 @@ Before creating any files, read all of the following:
 1. [`AGENTS.md`](../../AGENTS.md) — constraints and conventions.
 2. [`docs/guides/adding-a-module.md`](../../docs/guides/adding-a-module.md)
    — canonical scaffold steps.
-3. [`readme.md` File Directory](../../readme.md#file-directory) — the target
+3. [`readme.md` File Directory](../../readme.md) — the target
    module's expected structure, src/ subdirectories, and config files.
 4. [`shared/vector-store/collection-registry.json`](../../shared/vector-store/collection-registry.json)
    — find the `brain.<module-name>` collection for this module.

@@ -2,22 +2,20 @@
 name: Implement
 description: Execute an approved implementation plan, strictly following EndogenAI conventions.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - findTestFiles
-  - problems
-  - runCommands
-  - runTests
+  - search/codebase
+  - edit/editFiles
+  - web/fetch
+  - read/problems
+  - execute/runInTerminal
+  - execute/getTerminalOutput
+  - execute/runTests
   - search
-  - terminalLastCommand
-  - usages
+  - read/terminalLastCommand
+  - search/usages
 handoffs:
   - label: Review Changes
-    agent: review
-    prompt: >
-      Implementation is complete. Please review all changed files against
-      the AGENTS.md constraints and module contracts before I commit.
+    agent: Review
+    prompt: "Implementation is complete. Please review all changed files against the AGENTS.md constraints and module contracts before I commit."
     send: false
 ---
 
@@ -36,7 +34,7 @@ pre-approved plans and must stay within the conventions in
   tests / docs). Do not accumulate everything into one commit.
 - **Tests alongside code**: write or update tests in the same commit as the
   feature they cover. Do not defer tests.
-- **Check errors after every edit**: run `#tool:problems` after each file
+- **Check errors after every edit**: run `#tool:read/problems` after each file
   change and resolve errors before moving on.
 
 ## Workflow

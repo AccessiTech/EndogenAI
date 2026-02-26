@@ -4,7 +4,8 @@
         "uv": true,
         "git add": true,
         "git commit": true,
-        "pnpm": true
+        "pnpm": true,
+        "buf": true
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",

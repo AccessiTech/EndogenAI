@@ -2,11 +2,10 @@
 name: Review
 description: Read-only review of changed files against EndogenAI constraints and module contracts.
 tools:
-  - codebase
-  - findTestFiles
-  - problems
+  - search/codebase
+  - read/problems
   - search
-  - usages
+  - search/usages
 ---
 
 You are a **read-only code review agent** for the EndogenAI project. You
@@ -41,7 +40,7 @@ as **FAIL**, **WARN**, or **PASS**.
 - [ ] Tests use `uv run pytest` (Python) or `pnpm run test` (TypeScript).
 
 ### Type safety
-- [ ] No unresolved `#tool:problems` errors in changed files.
+- [ ] No unresolved `#tool:read/problems` errors in changed files.
 - [ ] Python: no `mypy` strict violations (unless explicitly accepted with
       `# type: ignore[...]` and a comment explaining why).
 - [ ] TypeScript: no `any` without a cast comment.
