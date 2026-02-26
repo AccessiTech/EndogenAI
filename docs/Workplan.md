@@ -110,21 +110,21 @@ consumed by every cognitive module.
 
 ### 1.1 Shared Schemas (`shared/schemas/`)
 
-- [ ] Author `mcp-context.schema.json` — MCP context object schema
-- [ ] Author `a2a-message.schema.json` — A2A message envelope schema
-- [ ] Author `a2a-task.schema.json` — A2A task lifecycle schema
+- [x] Author `mcp-context.schema.json` — MCP context object schema
+- [x] Author `a2a-message.schema.json` — A2A message envelope schema
+- [x] Author `a2a-task.schema.json` — A2A task lifecycle schema
 
 ### 1.2 Shared Types (`shared/types/`)
 
-- [ ] Author `signal.schema.json` — common signal envelope
-- [ ] Author `memory-item.schema.json` — unified memory record structure
-- [ ] Author `reward-signal.schema.json` — reward / affective weighting structure
+- [x] Author `signal.schema.json` — common signal envelope
+- [x] Author `memory-item.schema.json` — unified memory record structure
+- [x] Author `reward-signal.schema.json` — reward / affective weighting structure
 
 ### 1.3 Shared Utils (`shared/utils/`)
 
-- [ ] Write `logging.md` — structured log format spec (JSON, required fields, severity levels)
-- [ ] Write `tracing.md` — distributed trace context propagation spec (W3C TraceContext)
-- [ ] Write `validation.md` — input sanitization and boundary validation patterns
+- [x] Write `logging.md` — structured log format spec (JSON, required fields, severity levels)
+- [x] Write `tracing.md` — distributed trace context propagation spec (W3C TraceContext)
+- [x] Write `validation.md` — input sanitization and boundary validation patterns
 
 ### 1.4 Vector Store Adapter (`shared/vector-store/`)
 
