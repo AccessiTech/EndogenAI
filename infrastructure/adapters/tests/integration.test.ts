@@ -5,7 +5,7 @@
  *   A2A task send → MCP context publish → MCP handler → MCP reply → A2A task completion
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import { CapabilityRegistry, StateSynchronizer, ContextBroker } from '@accessitech/mcp';
 import { TaskOrchestrator } from '@accessitech/a2a';

@@ -1,14 +1,14 @@
 ---
 id: protocol-mcp
-version: 0.1.0
-status: draft
+version: 0.2.0
+status: stable
 last-reviewed: 2026-02-26
 ---
 
 # MCP (Module Context Protocol) Integration Guide
 
-> **Status: draft** — Message format and context propagation rules are defined (Phase 1). Server implementation and
-> capability registry will be documented in Phase 2 (`infrastructure/mcp/`).
+> **Status: stable** \u2014 Full server implementation is live in `infrastructure/mcp/`. See
+> [`infrastructure/mcp/README.md`](../../infrastructure/mcp/README.md) for usage.
 
 Guide covering MCP message formats, context propagation, and capability discovery within the EndogenAI framework.
 
@@ -112,13 +112,11 @@ Emit MCPContext       Create child span      Create child span
 
 ## Capability Discovery
 
-_The capability registry implementation is deferred to Phase 2 (`infrastructure/mcp/`). The patterns below define the
-expected contract that all modules must expose._
-
 Each module advertises its MCP capabilities via a `capabilities` block in its `agent-card.json` (see
-[A2A Protocol Guide](a2a.md)). The MCP broker (Phase 2) reads these cards at startup to build the routing table.
+[A2A Protocol Guide](a2a.md)). The `CapabilityRegistry` (see Phase 2 Implementation below) reads these cards at
+startup to build the routing table.
 
-Capability advertisement shape (to be formalised in Phase 2):
+Capability advertisement shape:
 
 ```json
 {
@@ -129,6 +127,52 @@ Capability advertisement shape (to be formalised in Phase 2):
   }
 }
 ```
+
+---
+
+## Phase 2 Implementation
+
+The `infrastructure/mcp/` package (`@accessitech/mcp`) provides the complete MCP infrastructure:
+
+| Export | Description |
+| --- | --- |
+| `createMCPServer(agentCard)` | Returns an `{ server, broker, registry, sync, close }` bundle. Registers four tools and one resource on the MCP SDK server. |
+| `ContextBroker` | Routes `MCPContext` messages — `route()` for directed delivery, `broadcast()` for fan-out, `buildReply()` for correlated responses. |
+| `CapabilityRegistry` | Map-backed capability store. `register()`, `deregister()`, `getByContentType()`, `list()`. |
+| `StateSynchronizer` | Tracks `ModuleState` with heartbeat timestamps. `updateState()`, `getState()`, `pruneStale()`, `listAll()`. |
+| `validateMCPContext()` / `isMCPContext()` | Ajv-based validation against `mcp-context.schema.json`. |
+
+### MCP Server Tools
+
+| Tool name | Description |
+| --- | --- |
+| `register_capability` | Register a module capability (contentType, layer, name). |
+| `deregister_capability` | Remove a capability by id. |
+| `publish_context` | Publish an `MCPContext` object through the broker. |
+| `list_states` | List current module states tracked by the synchronizer. |
+
+### MCP Server Resources
+
+| Resource URI | Description |
+| --- | --- |
+| `mcp://capabilities/{moduleId}` | Returns all capabilities registered by the specified module. |
+
+### Quick start
+
+```typescript
+import { createMCPServer } from '@accessitech/mcp';
+
+const agentCard = { id: 'my-module', name: 'My Module', version: '0.1.0', description: '...', url: 'http://my-module:8080', skills: [] };
+const { server, broker, registry, sync, close } = createMCPServer(agentCard);
+
+// route an MCPContext
+await broker.route(context);
+
+// register a capability
+registry.register({ id: 'cap-1', moduleId: 'my-module', name: 'text-in', contentType: 'signal/text', layer: 'sensory-input' });
+```
+
+See [`infrastructure/mcp/README.md`](../../infrastructure/mcp/README.md) for the full API reference.
 
 ---
 

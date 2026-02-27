@@ -13,7 +13,6 @@ import { validateA2AMessage } from './validate.js';
 import { TERMINAL_STATES } from './types.js';
 import type {
   A2ATask,
-  A2AMessage,
   Artifact,
   TaskError,
   AgentRef,
