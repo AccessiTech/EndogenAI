@@ -87,7 +87,16 @@ export class MCPToA2ABridge {
       priority: 5,
     };
 
-    await this.broker.publish(context);
+    try {
+      await this.broker.publish(context);
+    } catch (error) {
+      // Ensure the task does not remain stuck in a "working" state if publication fails.
+      const currentTask = this.orchestrator.get(task.id);
+      if (currentTask && !TERMINAL_STATES.has(currentTask.status.state)) {
+        this.orchestrator.fail(task.id);
+      }
+      throw error;
+    }
 
     return {
       taskId: task.id,
