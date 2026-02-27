@@ -11,7 +11,7 @@ tools:
 handoffs:
   - label: Review Agent
     agent: Review
-    prompt: "The new agent file has been scaffolded. Please review it against AGENTS.md constraints and the VS Code custom agents spec before committing."
+    prompt: "The new agent file has been scaffolded. Please review it against AGENTS.md constraints and the VS Code custom agents spec."
     send: false
   - label: Commit with GitHub Agent
     agent: GitHub
