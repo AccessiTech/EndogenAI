@@ -25,6 +25,12 @@ export interface BridgeConfig {
 
   /** Content type to use when wrapping A2A message payloads in MCPContext. */
   contentType?: string;
+
+  /**
+   * MCP context schema version string to stamp on published contexts.
+   * Defaults to '0.1.0'.
+   */
+  contextVersion?: string;
 }
 
 /** Result of a round-trip send operation through the bridge. */

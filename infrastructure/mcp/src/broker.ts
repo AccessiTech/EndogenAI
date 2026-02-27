@@ -55,15 +55,22 @@ export class ContextBroker {
       const destHandlers = this.handlers.get(destination) ?? [];
       await Promise.all(destHandlers.map((h) => h(context)));
     } else {
-      // Broadcast — deliver to all broadcast subscribers
-      await Promise.all(this.broadcastHandlers.map((h) => h(context)));
+      // Broadcast — deliver to all relevant subscribers, de-duplicating handlers
+      const uniqueHandlers = new Set<MCPContextHandler>();
 
-      // Also route to capability-matched modules
+      for (const handler of this.broadcastHandlers) {
+        uniqueHandlers.add(handler);
+      }
+
       const matched = this.registry.findByAcceptedContentType(context.contentType);
       for (const cap of matched) {
         const capHandlers = this.handlers.get(cap.moduleId) ?? [];
-        await Promise.all(capHandlers.map((h) => h(context)));
+        for (const handler of capHandlers) {
+          uniqueHandlers.add(handler);
+        }
       }
+
+      await Promise.all(Array.from(uniqueHandlers).map((h) => h(context)));
     }
   }
 

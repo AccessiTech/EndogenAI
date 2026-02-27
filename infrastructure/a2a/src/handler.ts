@@ -13,7 +13,7 @@
  */
 
 import type { TaskOrchestrator } from './orchestrator.js';
-import type { A2ARequest, A2AResponse } from './types.js';
+import type { AgentRef, TraceContext, A2ARequest, A2AResponse } from './types.js';
 
 /** JSON-RPC error codes */
 export const A2A_ERROR_CODES = {
@@ -57,10 +57,10 @@ export class A2ARequestHandler {
         case 'tasks/send': {
           const task = this.orchestrator.submit({
             initialMessage: params['message'],
-            requester: params['requester'] as never,
-            assignedAgent: params['assignedAgent'] as never,
+            requester: params['requester'] as AgentRef | undefined,
+            assignedAgent: params['assignedAgent'] as AgentRef | undefined,
             sessionId: params['sessionId'] as string | undefined,
-            traceContext: params['traceContext'] as never,
+            traceContext: params['traceContext'] as TraceContext | undefined,
             metadata: params['metadata'] as Record<string, string> | undefined,
           });
           return this.successResponse(id, task);

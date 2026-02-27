@@ -18,6 +18,18 @@ import type { AgentCard } from './types.js';
 export interface A2AServerConfig {
   port?: number;
   agentCard: AgentCard;
+  /**
+   * CORS origin value for the Access-Control-Allow-Origin header.
+   * Defaults to '*'. Set to a specific origin (or comma-separated list)
+   * to restrict cross-origin access in production deployments.
+   */
+  corsOrigin?: string;
+  /**
+   * Maximum allowed request body size in bytes.
+   * Requests exceeding this limit receive a 413 response.
+   * Defaults to 1 MiB (1_048_576 bytes).
+   */
+  maxBodySize?: number;
 }
 
 export interface A2AServerInstance {
@@ -37,10 +49,12 @@ export function createA2AServer(config: A2AServerConfig): A2AServerInstance {
   const orchestrator = new TaskOrchestrator();
   const handler = new A2ARequestHandler(orchestrator);
   const { agentCard } = config;
+  const corsOrigin = config.corsOrigin ?? '*';
+  const maxBodySize = config.maxBodySize ?? 1_048_576; // 1 MiB
 
   const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     // CORS preflight
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -60,10 +74,25 @@ export function createA2AServer(config: A2AServerConfig): A2AServerInstance {
     // JSON-RPC A2A endpoint
     if (req.method === 'POST' && req.url === '/') {
       let body = '';
+      let bodySize = 0;
+      let bodyTooLarge = false;
       req.on('data', (chunk: Buffer) => {
+        bodySize += chunk.length;
+        if (bodySize > maxBodySize) {
+          if (!bodyTooLarge) {
+            bodyTooLarge = true;
+            res.writeHead(413, { 'Content-Type': 'application/json' });
+            res.end(
+              JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Payload too large' } }),
+            );
+            req.resume(); // drain remaining data without buffering
+          }
+          return;
+        }
         body += chunk.toString();
       });
       req.on('end', async () => {
+        if (bodyTooLarge) return; // 413 already sent
         let parsed: unknown;
         try {
           parsed = JSON.parse(body);
