@@ -100,6 +100,7 @@ the module stack is operational._
 ## References
 
 - [Toolchain Guide](toolchain.md) — linting, type-checking, pre-commit, buf, commitlint
+- [Agent Fleet Guide](agents.md) — VS Code Copilot agents: what each does, when to use it, typical workflows
 - [Architecture Overview](../architecture.md)
 - [Observability Guide](observability.md) — Grafana dashboards and telemetry
 - [Deployment Guide](deployment.md)

@@ -367,6 +367,7 @@ For a new agent: **Scaffold Agent → (approve scaffold) → Review → commit**
 |----------|---------|
 | [`docs/Workplan.md`](docs/Workplan.md) | Phase-by-phase implementation roadmap |
 | [`docs/architecture.md`](docs/architecture.md) | Full architectural overview and signal-flow diagrams |
+| [`docs/guides/agents.md`](docs/guides/agents.md) | Human-readable agent fleet guide: what each agent does, postures, typical workflows |
 | [`docs/guides/adding-a-module.md`](docs/guides/adding-a-module.md) | Step-by-step module scaffolding guide |
 | [`docs/guides/toolchain.md`](docs/guides/toolchain.md) | Full toolchain command reference |
 | [`shared/vector-store/README.md`](shared/vector-store/README.md) | Vector store adapter pattern and collection registry |
