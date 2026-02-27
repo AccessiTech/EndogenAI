@@ -219,12 +219,15 @@ discrete tasks and are individually invokeable. All sub-agents read `docs/AGENTS
       flags stale descriptions, wrong paths, and outdated API references
 - [ ] Author `scripts/docs/scaffold_doc.py` — generates documentation scaffolds from module structure and
       `shared/schemas/`; `--dry-run` mode prints output without writing; `--module` flag scopes to one module
+- [ ] Author `scripts/docs/tests/test_scaffold_doc.py` — unit tests for scaffold logic and `--dry-run` flag
 - [ ] Author `scripts/docs/scan_missing_docs.py` — walks workspace and reports all modules/files missing required
       documentation; exits non-zero when gaps are found; `--dry-run` flag for CI use
+- [ ] Author `scripts/docs/tests/test_scan_missing_docs.py` — unit tests for gap detection and exit codes
 
 #### 3.2 Verification
 
 - [ ] `uv run python scripts/docs/scan_missing_docs.py --dry-run` exits 0 on the current workspace
+- [ ] `uv run pytest scripts/docs/tests/ -v` exits 0
 - [ ] `docs-scaffold.agent.md` can generate a complete README stub for a hypothetical module without hallucinating
       file paths or API names
 - [ ] All docs agents appear in `.github/agents/README.md` with correct posture and handoff targets
@@ -244,12 +247,17 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
       Testcontainers use for integration tests, flags excessive mocking of internal collaborators
 - [ ] Author `scripts/testing/scaffold_tests.py` — generates test file stubs from source file interfaces;
       `--dry-run` mode; `--file` flag to scope to one source file
+- [ ] Author `scripts/testing/tests/test_scaffold_tests.py` — unit tests for stub generation logic and `--dry-run`
+      flag
 - [ ] Author `scripts/testing/scan_coverage_gaps.py` — runs coverage tooling and reports all untested symbols by
       module; exits non-zero if any module is below its declared threshold; `--dry-run` flag for CI use
+- [ ] Author `scripts/testing/tests/test_scan_coverage_gaps.py` — unit tests for gap detection and threshold
+      enforcement
 
 #### 3.3 Verification
 
 - [ ] `uv run python scripts/testing/scan_coverage_gaps.py --dry-run` exits 0 on the current codebase
+- [ ] `uv run pytest scripts/testing/tests/ -v` exits 0
 - [ ] `test-scaffold.agent.md` can generate a test skeleton for `infrastructure/mcp/src/broker.ts` referencing
       correct import paths
 - [ ] All testing agents appear in `.github/agents/README.md`
@@ -265,11 +273,14 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
       `shared/schemas/CHANGELOG.md`
 - [ ] Author `scripts/schema/validate_all_schemas.py` — validates all JSON Schema files; checks required keys
       (`$schema`, `$id`, `title`, `type`); exits non-zero on any violation; `--dry-run` flag
+- [ ] Author `scripts/schema/tests/test_validate_all_schemas.py` — unit tests for required-key validation and exit
+      codes
 
 #### 3.4 Verification
 
 - [ ] `uv run python scripts/schema/validate_all_schemas.py` exits 0 on current `shared/schemas/` and
       `shared/types/`
+- [ ] `uv run pytest scripts/schema/tests/ -v` exits 0
 - [ ] All schema agents appear in `.github/agents/README.md`
 
 ### 3.5 Executive Planner Agent (`.github/agents/`)
