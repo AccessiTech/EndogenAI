@@ -348,8 +348,10 @@ Copilot chat agents dropdown automatically.
 | **Review** | read-only | Pre-commit gate — verify changes against constraints and module contracts |
 | **GitHub** | terminal + read | Git/PR workflows — branching, committing, opening and merging PRs |
 | **Executive Debugger** | full tools | Diagnose and fix runtime or test failures |
+| **Executive Planner** | read + edit | Reconcile `docs/Workplan.md` against codebase; recommend next agent |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 | **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
+| **Phase-3 Executive** | full tools | Phase-3 specific orchestration and delivery tasks |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 

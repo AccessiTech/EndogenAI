@@ -183,25 +183,25 @@ guidance without contradicting root constraints.
 
 ### 3.1 Agent Conventions & Recursive `AGENTS.md` Hierarchy
 
-- [ ] Author `docs/AGENTS.md` — documentation-specific agent guidance: target audiences, frontmatter requirements,
+- [x] Author `docs/AGENTS.md` — documentation-specific agent guidance: target audiences, frontmatter requirements,
       link and cross-reference conventions
-- [ ] Author `modules/AGENTS.md` — module development conventions: per-group constraints, `agent-card.json` contract,
+- [x] Author `modules/AGENTS.md` — module development conventions: per-group constraints, `agent-card.json` contract,
       MCP/A2A wiring checklist
-- [ ] Author `infrastructure/AGENTS.md` — infra-specific patterns: MCP/A2A conformance gates, adapter boundary rules,
+- [x] Author `infrastructure/AGENTS.md` — infra-specific patterns: MCP/A2A conformance gates, adapter boundary rules,
       TypeScript-only constraint for this directory
-- [ ] Author `shared/AGENTS.md` — contract/schema authoring rules: `buf lint` gate, JSON Schema meta-schema
+- [x] Author `shared/AGENTS.md` — contract/schema authoring rules: `buf lint` gate, JSON Schema meta-schema
       compliance, no hand-editing of lockfiles
-- [ ] Author `.github/agents/AGENTS.md` — agent development conventions: frontmatter schema, tool selection rationale,
+- [x] Author `.github/agents/AGENTS.md` — agent development conventions: frontmatter schema, tool selection rationale,
       handoff graph patterns, mandatory script coupling
-- [ ] Author `.github/agents/README.md` — agent catalog: name, posture, trigger conditions, handoff graph, and
+- [x] Author `.github/agents/README.md` — agent catalog: name, posture, trigger conditions, handoff graph, and
       supporting scripts for every agent currently in the fleet
 
 #### 3.1 Verification
 
-- [ ] Every nested `AGENTS.md` opens with a cross-reference to root `AGENTS.md` and only narrows (never contradicts)
+- [x] Every nested `AGENTS.md` opens with a cross-reference to root `AGENTS.md` and only narrows (never contradicts)
       its constraints
-- [ ] `.github/agents/README.md` lists all agents with posture, trigger, and handoff targets
-- [ ] `pre-commit run validate-frontmatter --all-files` continues to exit 0 after all new files are added
+- [x] `.github/agents/README.md` lists all agents with posture, trigger, and handoff targets
+- [x] `pre-commit run validate-frontmatter --all-files` continues to exit 0 after all new files are added
 
 ### 3.2 Documentation Agent Fleet (`.github/agents/`)
 
@@ -292,7 +292,7 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
 
 - [ ] `executive-planner.agent.md` appears in VS Code Copilot agents dropdown
 - [ ] Agent successfully runs the reconciliation workflow without modifying non-Workplan files
-- [ ] `AGENTS.md` VS Code Custom Agents table updated to include Executive Planner
+- [x] `AGENTS.md` VS Code Custom Agents table updated to include Executive Planner
 
 **Deliverables**: recursive `AGENTS.md` hierarchy established; documentation, testing, and schema agent fleets
 operational with supporting scripts; Executive Planner tracking project state; all agents catalogued in
