@@ -1,0 +1,19 @@
+{
+  "id": "mcp-a2a-bridge",
+  "name": "MCP-A2A Adapter Bridge",
+  "version": "0.1.0",
+  "description": "Adapter bridge enabling modules to participate in both MCP context exchange and A2A task delegation without duplicated logic.",
+  "url": "http://mcp-a2a-bridge:8082",
+  "skills": [
+    {
+      "id": "sendAndRoute",
+      "name": "Send and Route",
+      "description": "Submit an A2A task and route its initial message through the MCP context broker."
+    }
+  ],
+  "mcp": {
+    "accepts": ["application/json"],
+    "emits": ["application/json"],
+    "version": "0.1.0"
+  }
+}

@@ -1,14 +1,16 @@
 ---
 id: protocol-a2a
-version: 0.1.0
-status: draft
+version: 0.2.0
+status: stable
 last-reviewed: 2026-02-26
 ---
 
 # A2A Protocol Guide
 
-> **Status: draft** — Message envelope, task lifecycle, and agent identity schemas are defined (Phase 1). Server
-> implementation, agent card endpoint, and task orchestrator will be documented in Phase 2 (`infrastructure/a2a/`).
+> **Status: stable** \u2014 Full server implementation is live in `infrastructure/a2a/`. See
+> [`infrastructure/a2a/README.md`](../../infrastructure/a2a/README.md) for usage.
+>
+> **Specification Version**: A2A v0.3.0 (commit `2d3dc909972d9680b974e0fc9a1354c1ba8f519d`)
 
 Guide covering A2A agent identity, message parts, task lifecycle, and the MCP + A2A interoperability model.
 
@@ -48,8 +50,8 @@ Each agent is identified by an `AgentRef`:
 
 ### `agent-card.json`
 
-Each module exposes a static `agent-card.json` file that is the source of truth for the agent's identity and
-capabilities. The structure is finalised in Phase 2; the required minimum is:
+Each module exposes a static `agent-card.json` file at `/.well-known/agent-card.json`. It is the source of truth for
+the agent's identity and capabilities. The required minimum is:
 
 ```json
 {
@@ -176,6 +178,47 @@ Failed tasks carry a `TaskError` object with `code`, `message`, `retryable`, and
 - Modules that only exchange signals (perception, memory reads) use MCP alone.
 - Modules that act as autonomous agents (Executive, Decision-Making) use A2A for task delegation and use MCP for context
   propagation around those tasks.
+
+---
+
+## Phase 2 Implementation
+
+The `infrastructure/a2a/` package (`@accessitech/a2a`) provides the complete A2A infrastructure.
+
+**Specification Version:** A2A v0.3.0 — commit `2d3dc909972d9680b974e0fc9a1354c1ba8f519d` (2025-07-30)
+
+| Export | Description |
+| --- | --- |
+| `createA2AServer(agentCard, options?)` | Creates an HTTP server with `GET /.well-known/agent-card.json` and `POST /` (JSON-RPC). Returns `{ server, handler, orchestrator, listen, close }`. |
+| `TaskOrchestrator` | Manages task lifecycle: `submit()`, `startWork()`, `addMessage()`, `requestInput()`, `complete()`, `fail()`, `cancel()`. Enforces terminal-state guard. |
+| `A2ARequestHandler` | JSON-RPC dispatcher for `tasks/send`, `tasks/get`, `tasks/cancel`, `tasks/addMessage`. |
+| `validateA2AMessage()` / `validateA2ATask()` | Ajv-based validation against the canonical schemas. |
+
+### JSON-RPC Methods
+
+| Method | Description |
+| --- | --- |
+| `tasks/send` | Submit a new task (auto-transitions to `working`). |
+| `tasks/get` | Retrieve current task state and message history. |
+| `tasks/cancel` | Cancel a non-terminal task. |
+| `tasks/addMessage` | Append a message to an existing task. |
+
+### Quick start
+
+```typescript
+import { createA2AServer } from '@accessitech/a2a';
+
+const agentCard = { id: 'memory', name: 'Memory Agent', version: '0.1.0', description: '...', url: 'http://memory:8080', skills: [] };
+const { listen, close } = createA2AServer(agentCard);
+
+const { port } = await listen(); // binds to a random port unless options.port is specified
+console.log(`A2A server listening on port ${port}`);
+```
+
+See [`infrastructure/a2a/README.md`](../../infrastructure/a2a/README.md) for the full API reference.
+
+The `infrastructure/adapters/` package (`@accessitech/adapters`) provides the `MCPToA2ABridge` that connects both
+protocols — see [`infrastructure/adapters/README.md`](../../infrastructure/adapters/README.md).
 
 ---
 

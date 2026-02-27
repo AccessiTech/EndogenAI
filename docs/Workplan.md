@@ -149,26 +149,26 @@ through.
 
 ### 2.1 MCP Infrastructure (`infrastructure/mcp/`)
 
-- [ ] Scaffold TypeScript package using `@modelcontextprotocol/sdk`
-- [ ] Implement MCP server, context broker, and capability registry
-- [ ] Implement state synchronization primitives
-- [ ] Write unit and integration tests
-- [ ] Author `README.md` and `docs/protocols/mcp.md`
+- [x] Scaffold TypeScript package using `@modelcontextprotocol/sdk`
+- [x] Implement MCP server, context broker, and capability registry
+- [x] Implement state synchronization primitives
+- [x] Write unit and integration tests
+- [x] Author `README.md` and `docs/protocols/mcp.md`
 
 ### 2.2 A2A Infrastructure (`infrastructure/a2a/`)
 
-- [ ] Scaffold TypeScript + Python packages aligned to the
+- [x] Scaffold TypeScript + Python packages aligned to the
       [A2A Project specification](https://github.com/a2aproject/A2A)
-- [ ] Implement A2A server, request handler, agent card endpoint (`/.well-known/agent-card.json`), and task orchestrator
-- [ ] Add conformance test suite; version-lock A2A dependency
-- [ ] Author `README.md` and `docs/protocols/a2a.md`
+- [x] Implement A2A server, request handler, agent card endpoint (`/.well-known/agent-card.json`), and task orchestrator
+- [x] Add conformance test suite; version-lock A2A dependency
+- [x] Author `README.md` and `docs/protocols/a2a.md`
 
 ### 2.3 MCP + A2A Adapter (`infrastructure/adapters/`)
 
-- [ ] Implement adapter bridge enabling modules to participate in both MCP context exchange and A2A task protocols
+- [x] Implement adapter bridge enabling modules to participate in both MCP context exchange and A2A task protocols
       without duplicated logic
-- [ ] Write integration tests covering round-trip context propagation and agent task delegation
-- [ ] Author `README.md`
+- [x] Write integration tests covering round-trip context propagation and agent task delegation
+- [x] Author `README.md`
 
 **Deliverables**: locally runnable MCP + A2A stack, all conformance tests passing, adapter verified end-to-end.
 
