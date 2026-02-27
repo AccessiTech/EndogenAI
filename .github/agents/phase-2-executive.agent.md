@@ -172,28 +172,28 @@ Run these before declaring Phase 2 complete:
 
 ```bash
 # TypeScript — MCP infrastructure
-cd infrastructure/mcp
-pnpm run lint
-pnpm run typecheck
-pnpm run test
+(cd infrastructure/mcp && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test)
 
 # TypeScript + Python — A2A infrastructure
-cd infrastructure/a2a
-pnpm run lint
-pnpm run typecheck
-pnpm run test
-# (if Python package present)
-uv run ruff check .
-uv run mypy src/
-uv run pytest -v
+(cd infrastructure/a2a && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test && \
+  # (if Python package present)
+  uv run ruff check . && \
+  uv run mypy src/ && \
+  uv run pytest -v)
 
 # TypeScript — adapter bridge
-cd infrastructure/adapters
-pnpm run lint
-pnpm run typecheck
-pnpm run test
+(cd infrastructure/adapters && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test)
 
-# Full repo checks
+# Full repo checks (from repo root)
 pnpm run lint
 pnpm run typecheck
 ```
