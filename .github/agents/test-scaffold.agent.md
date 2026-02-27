@@ -6,6 +6,9 @@ argument-hint: "[--file <source-file>]"
 tools:
   - search/codebase
   - edit/editFiles
+  - execute/runInTerminal
+  - execute/getTerminalOutput
+  - execute/runTests
   - search
   - search/usages
 handoffs:

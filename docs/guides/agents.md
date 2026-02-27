@@ -81,6 +81,20 @@ Docs Accuracy Review      — cross-check paths and API names
 Review → GitHub
 ```
 
+### Running a test coverage pass
+
+```
+Test Executive      — runs uv run pytest + pnpm run test, then scan_coverage_gaps.py
+        ↓ (gaps found)
+Test Scaffold       — generate stubs for uncovered source files
+        ↓
+Test Coverage       — re-run coverage; enforce 80% threshold per module
+        ↓
+Test Review         — assert quality, Testcontainers hygiene, mocking discipline
+        ↓
+Review → GitHub
+```
+
 ### Diagnosing a failing test or runtime error
 
 ```
@@ -174,6 +188,35 @@ match potentially broken code — flags divergences instead.
 
 ---
 
+### Testing agent fleet
+
+An executive → sub-agent hierarchy for the full testing lifecycle. Coverage tooling: **pytest-cov** (Python) and
+**@vitest/coverage-v8** (TypeScript). Default threshold: **80%** lines, functions, and branches per package.
+Invoke **Test Executive** to run the full pipeline; invoke sub-agents individually for targeted passes.
+
+**Test Executive** (`test-executive.agent.md`) — full execution  
+Orchestrates the complete testing lifecycle: runs `uv run pytest` and `pnpm run test` for a baseline, then runs
+`scripts/testing/scan_coverage_gaps.py` to identify modules below threshold. Delegates stub generation to Test
+Scaffold, quality review to Test Review, and hands off to Review when all tests pass and all thresholds are met.
+
+**Test Scaffold** (`test-scaffold.agent.md`) — read + create  
+Generates vitest (`describe`/`it`) and pytest (`class Test…`/`def test_…`) stubs for source files with no test
+counterpart. Backed by [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py). Derives all
+symbol names from actual source file exports — never invents function signatures. Always runs `--dry-run` first.
+Use `--file infrastructure/mcp/src/broker.ts` to scope to a single file.
+
+**Test Coverage** (`test-coverage.agent.md`) — full execution  
+Runs `pytest --cov` and `vitest --coverage` for all registered packages. Reports which packages are below the 80%
+threshold and provides the exact `uv add --dev pytest-cov` / `pnpm add -D @vitest/coverage-v8` setup commands for
+any package not yet wired. Backed by [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py).
+
+**Test Review** (`test-review.agent.md`) — read-only  
+Audits the test suite for quality issues: checks that no `expect(true).toBe(false)` / `assert False` placeholder
+stubs remain, validates Testcontainers use for integration tests, flags excessive mocking of internal collaborators.
+Produces a PASS / WARN / FAIL report with file and line references.
+
+---
+
 ### Phase executive agents
 
 Each phase executive drives all deliverables for its phase to the milestone gate, then hands off to Review. They are
@@ -218,7 +261,8 @@ aware of the full roadmap but will not author deliverables belonging to another 
 
 **Detour**: Review raises FAILs → back to Implement / Executive for fixes → re-Review.  
 **Debug path**: Implement or Executive → Executive Debugger → back to Implement / Executive.  
-**Docs path**: Docs Executive → sub-agents → Review → GitHub (see [Documentation pass](#documentation-agent-fleet) above).
+**Docs path**: Docs Executive → sub-agents → Review → GitHub (see [Documentation pass](#documentation-agent-fleet) above).  
+**Testing path**: Test Executive → sub-agents → Review → GitHub (see [Testing pass](#testing-agent-fleet) above).
 
 ---
 
@@ -230,8 +274,11 @@ To confirm the agent fleet is healthy before starting a session:
 # Confirm all required docs are present
 uv run python scripts/docs/scan_missing_docs.py --dry-run
 
-# Run the full script test suite
-uv run pytest scripts/docs/tests/ -v
+# Confirm coverage tooling is wired for all packages
+uv run python scripts/testing/scan_coverage_gaps.py --dry-run
+
+# Run the full script test suite (docs + testing scripts)
+uv run pytest scripts/docs/tests/ scripts/testing/tests/ -v
 
 # Confirm frontmatter on resource files is valid
 uv run pre-commit run validate-frontmatter --all-files
@@ -255,8 +302,8 @@ The script found a missing README or required section. Run it locally with `--dr
 invoke **Docs Scaffold** to generate the missing files.
 
 **A backing script is missing**  
-Scripts listed in the Supporting Scripts table (`.github/agents/README.md`) that don't yet exist are Phase 3.3 and
-3.4 deliverables — see `docs/Workplan.md` for status.
+`scripts/schema/validate_all_schemas.py` is a Phase 3.4 deliverable — not yet implemented. See
+`docs/Workplan.md` §3.4 for status.
 
 ---
 
@@ -268,3 +315,5 @@ Scripts listed in the Supporting Scripts table (`.github/agents/README.md`) that
 - [`AGENTS.md`](../../AGENTS.md) — root constraints that all agents inherit
 - [`scripts/docs/scaffold_doc.py`](../../scripts/docs/scaffold_doc.py) — documentation scaffold script
 - [`scripts/docs/scan_missing_docs.py`](../../scripts/docs/scan_missing_docs.py) — documentation gap scanner
+- [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py) — test stub generator
+- [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — coverage gap scanner
