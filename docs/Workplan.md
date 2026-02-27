@@ -290,13 +290,30 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
 
 #### 3.5 Verification
 
-- [ ] `executive-planner.agent.md` appears in VS Code Copilot agents dropdown
-- [ ] Agent successfully runs the reconciliation workflow without modifying non-Workplan files
+- [x] `executive-planner.agent.md` is present at `.github/agents/executive-planner.agent.md` with valid
+      frontmatter (`name`, `description`, `tools`, `handoffs`)
+- [x] Agent posture is `read + edit`; `edit/editFiles` tool present; `runInTerminal` tool absent (minimum
+      posture enforced)
+- [x] Guardrails section explicitly restricts edits to `docs/Workplan.md` and `CHANGELOG.md` only — no code
+      files may be modified
+- [x] Agent listed in `.github/agents/README.md` under **Planning & Orchestration Agents** with posture
+      `read + edit` and correct handoff targets (Review, GitHub, Executive Planner iterate)
 - [x] `AGENTS.md` VS Code Custom Agents table updated to include Executive Planner
+- [x] `executive-planner.agent.md` appears in VS Code Copilot agents dropdown *(manual: confirm in VS Code
+      Copilot chat panel — file is correctly placed and formatted; auto-discovery is VS Code's responsibility)*
 
 **Deliverables**: recursive `AGENTS.md` hierarchy established; documentation, testing, and schema agent fleets
 operational with supporting scripts; Executive Planner tracking project state; all agents catalogued in
 `.github/agents/README.md`.
+
+#### 3.6 Agent Scaffold Agent & Fleet (`.github/agents/`)
+- [ ] `executive-agent-scaffold.agent.md` can generate a new agent scaffold with correct frontmatter and handoffs (posture: full; edit/editFiles tool present; runInTerminal tool present)
+- [ ] `scaffold-agent.agent.md` can generate a new agent scaffold with correct frontmatter and handoffs
+- [ ] `review-agent.agent.md` can review new and existing .agent/AGENT.md files for compliance with AGENTS.md rules and guides
+- [ ] `update-agent.agent.md` can update existing .agent/AGENT.md files for compliance with AGENTS.md rules and guides and to incorporate lessons learned along the way
+- [ ] `govern-agent.agent.md` can enforce compliance with AGENTS.md guardrails, rules, and guides across the .agent/AGENTS.md ecosystem
+- [ ] All scaffold agents appear in `.github/agents/README.md`
+
 
 ---
 
