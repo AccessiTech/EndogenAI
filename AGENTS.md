@@ -298,6 +298,7 @@ Copilot chat agents dropdown automatically.
 | **GitHub** | terminal + read | Git/PR workflows — branching, committing, opening and merging PRs |
 | **Executive Debugger** | full tools | Diagnose and fix runtime or test failures |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
+| **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 
