@@ -1,0 +1,34 @@
+{
+  "id": "a2a-server",
+  "name": "EndogenAI A2A Server",
+  "version": "0.1.0",
+  "description": "A2A task orchestration server for the EndogenAI agent coordination layer. Aligned with A2A specification v0.3.0.",
+  "url": "http://a2a-server:8081",
+  "skills": [
+    {
+      "id": "tasks/send",
+      "name": "Send Task",
+      "description": "Submit a new task with an optional initial message."
+    },
+    {
+      "id": "tasks/get",
+      "name": "Get Task",
+      "description": "Retrieve a task and its full message history by ID."
+    },
+    {
+      "id": "tasks/cancel",
+      "name": "Cancel Task",
+      "description": "Cancel a running task."
+    },
+    {
+      "id": "tasks/addMessage",
+      "name": "Add Message",
+      "description": "Append a message to an active task's history."
+    }
+  ],
+  "mcp": {
+    "accepts": ["application/json"],
+    "emits": ["application/json"],
+    "version": "0.1.0"
+  }
+}
