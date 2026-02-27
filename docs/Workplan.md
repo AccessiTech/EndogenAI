@@ -208,29 +208,29 @@ guidance without contradicting root constraints.
 Uses an Executive → sub-agent hierarchy: the Executive orchestrates and produces a gap report; sub-agents own
 discrete tasks and are individually invokeable. All sub-agents read `docs/AGENTS.md` for context before acting.
 
-- [ ] Author `docs-executive.agent.md` — orchestrates all documentation work; delegates to scaffold / completeness /
+- [x] Author `docs-executive.agent.md` — orchestrates all documentation work; delegates to scaffold / completeness /
       accuracy sub-agents; produces a documentation gap report; handoffs to Review and GitHub
-- [ ] Author `docs-scaffold.agent.md` — generates initial documentation (READMEs, JSDoc stubs, architecture diagram
+- [x] Author `docs-scaffold.agent.md` — generates initial documentation (READMEs, JSDoc stubs, architecture diagram
       outlines) from module structure, schemas, and seed knowledge; driven by `scripts/docs/scaffold_doc.py`
-- [ ] Author `docs-completeness-review.agent.md` — audits the workspace for missing required documentation sections
+- [x] Author `docs-completeness-review.agent.md` — audits the workspace for missing required documentation sections
       (README, interface docstrings, `agent-card.json` descriptions); driven by
       `scripts/docs/scan_missing_docs.py`; exits non-zero on gaps
-- [ ] Author `docs-accuracy-review.agent.md` — cross-references existing documentation against current implementation;
+- [x] Author `docs-accuracy-review.agent.md` — cross-references existing documentation against current implementation;
       flags stale descriptions, wrong paths, and outdated API references
-- [ ] Author `scripts/docs/scaffold_doc.py` — generates documentation scaffolds from module structure and
+- [x] Author `scripts/docs/scaffold_doc.py` — generates documentation scaffolds from module structure and
       `shared/schemas/`; `--dry-run` mode prints output without writing; `--module` flag scopes to one module
-- [ ] Author `scripts/docs/tests/test_scaffold_doc.py` — unit tests for scaffold logic and `--dry-run` flag
-- [ ] Author `scripts/docs/scan_missing_docs.py` — walks workspace and reports all modules/files missing required
+- [x] Author `scripts/docs/tests/test_scaffold_doc.py` — unit tests for scaffold logic and `--dry-run` flag
+- [x] Author `scripts/docs/scan_missing_docs.py` — walks workspace and reports all modules/files missing required
       documentation; exits non-zero when gaps are found; `--dry-run` flag for CI use
-- [ ] Author `scripts/docs/tests/test_scan_missing_docs.py` — unit tests for gap detection and exit codes
+- [x] Author `scripts/docs/tests/test_scan_missing_docs.py` — unit tests for gap detection and exit codes
 
 #### 3.2 Verification
 
-- [ ] `uv run python scripts/docs/scan_missing_docs.py --dry-run` exits 0 on the current workspace
-- [ ] `uv run pytest scripts/docs/tests/ -v` exits 0
-- [ ] `docs-scaffold.agent.md` can generate a complete README stub for a hypothetical module without hallucinating
+- [x] `uv run python scripts/docs/scan_missing_docs.py --dry-run` exits 0 on the current workspace
+- [x] `uv run pytest scripts/docs/tests/ -v` exits 0
+- [x] `docs-scaffold.agent.md` can generate a complete README stub for a hypothetical module without hallucinating
       file paths or API names
-- [ ] All docs agents appear in `.github/agents/README.md` with correct posture and handoff targets
+- [x] All docs agents appear in `.github/agents/README.md` with correct posture and handoff targets
 
 ### 3.3 Testing Agent Fleet (`.github/agents/`)
 
