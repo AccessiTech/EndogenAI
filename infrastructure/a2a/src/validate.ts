@@ -1,54 +1,24 @@
 /**
  * Schema validation for A2AMessage and A2ATask.
- * Derived from shared/schemas/a2a-message.schema.json and a2a-task.schema.json.
+ * Compiles the canonical shared/schemas/ files — single source of truth.
+ * a2a-task.schema.json references a2a-message.schema.json via $ref so both
+ * schemas are registered with Ajv before compilation.
  */
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import type { A2AMessage, A2ATask } from './types.js';
+import a2aMessageSchema from '../../../shared/schemas/a2a-message.schema.json';
+import a2aTaskSchema from '../../../shared/schemas/a2a-task.schema.json';
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 
-/** Inline schema derived from shared/schemas/a2a-message.schema.json */
-const a2aMessageSchema = {
-  type: 'object',
-  required: ['id', 'role', 'parts', 'timestamp'],
-  properties: {
-    id: { type: 'string', format: 'uuid' },
-    role: { type: 'string', enum: ['user', 'agent', 'system'] },
-    parts: { type: 'array', minItems: 1, items: { type: 'object' } },
-    timestamp: { type: 'string', format: 'date-time' },
-    taskId: { type: 'string' },
-    sender: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
-    recipient: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
-    metadata: { type: 'object', additionalProperties: { type: 'string' } },
-  },
-};
+// Register a2a-message schema so the $ref inside a2a-task.schema.json resolves.
+ajv.addSchema(a2aMessageSchema as object, 'a2a-message.schema.json');
 
-/** Inline schema derived from shared/schemas/a2a-task.schema.json */
-const a2aTaskSchema = {
-  type: 'object',
-  required: ['id', 'status', 'createdAt', 'updatedAt'],
-  properties: {
-    id: { type: 'string', format: 'uuid' },
-    status: {
-      type: 'object',
-      required: ['state'],
-      properties: {
-        state: {
-          type: 'string',
-          enum: ['submitted', 'working', 'input-required', 'completed', 'failed', 'canceled'],
-        },
-      },
-    },
-    createdAt: { type: 'string', format: 'date-time' },
-    updatedAt: { type: 'string', format: 'date-time' },
-  },
-};
-
-const validateMessageFn = ajv.compile(a2aMessageSchema);
-const validateTaskFn = ajv.compile(a2aTaskSchema);
+const validateMessageFn = ajv.compile(a2aMessageSchema as object);
+const validateTaskFn = ajv.compile(a2aTaskSchema as object);
 
 /** Validates an unknown value as an A2AMessage. Throws on failure. */
 export function validateA2AMessage(value: unknown): A2AMessage {

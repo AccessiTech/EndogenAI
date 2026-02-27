@@ -9,7 +9,8 @@
         "git push": true,
         "gh": true,
         "git checkout": true,
-        "git pull": true
+        "git pull": true,
+        "touch": true
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",

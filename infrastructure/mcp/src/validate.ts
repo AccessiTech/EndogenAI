@@ -1,62 +1,17 @@
 /**
  * JSON Schema validation for MCPContext envelopes.
- * Uses Ajv to validate against the canonical mcp-context.schema.json fields.
+ * Compiles the canonical shared/schemas/mcp-context.schema.json — single source of truth.
  */
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import type { MCPContext } from './types.js';
+import mcpContextSchema from '../../../shared/schemas/mcp-context.schema.json';
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 
-/** Schema inline-derived from shared/schemas/mcp-context.schema.json */
-const mcpContextSchema = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  type: 'object',
-  required: ['id', 'version', 'timestamp', 'source', 'payload', 'contentType'],
-  properties: {
-    id: { type: 'string', format: 'uuid' },
-    version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+$' },
-    timestamp: { type: 'string', format: 'date-time' },
-    source: {
-      type: 'object',
-      required: ['moduleId', 'layer'],
-      properties: {
-        moduleId: { type: 'string' },
-        layer: { type: 'string' },
-      },
-    },
-    destination: {
-      type: 'object',
-      required: ['moduleId', 'layer'],
-      properties: {
-        moduleId: { type: 'string' },
-        layer: { type: 'string' },
-      },
-    },
-    contentType: { type: 'string' },
-    payload: {},
-    correlationId: { type: 'string', format: 'uuid' },
-    sessionId: { type: 'string' },
-    taskId: { type: 'string' },
-    priority: { type: 'integer', minimum: 0, maximum: 10 },
-    metadata: {
-      type: 'object',
-      additionalProperties: { type: 'string' },
-    },
-    traceContext: {
-      type: 'object',
-      required: ['traceparent'],
-      properties: {
-        traceparent: { type: 'string' },
-        tracestate: { type: 'string' },
-      },
-    },
-  },
-} as const;
-
-const validateFn = ajv.compile(mcpContextSchema);
+const validateFn = ajv.compile(mcpContextSchema as object);
 
 /**
  * Validates an unknown value as an MCPContext envelope.

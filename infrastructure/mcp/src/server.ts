@@ -19,6 +19,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ListResourcesRequestSchema,
+  ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { CapabilityRegistry } from './registry.js';
@@ -59,6 +60,53 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
       },
     },
   );
+
+  // ── Tools (discovery) ──────────────────────────────────────────────────────
+
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    return {
+      tools: [
+        {
+          name: 'register_capability',
+          description: "Register a module's capabilities with the MCP capability registry.",
+          inputSchema: {
+            type: 'object' as const,
+            required: ['moduleId', 'layer', 'accepts', 'emits', 'version'],
+            properties: {
+              moduleId: { type: 'string' },
+              layer: { type: 'string' },
+              accepts: { type: 'array', items: { type: 'string' } },
+              emits: { type: 'array', items: { type: 'string' } },
+              version: { type: 'string' },
+              url: { type: 'string' },
+            },
+          },
+        },
+        {
+          name: 'deregister_capability',
+          description: 'Remove a module from the capability registry.',
+          inputSchema: {
+            type: 'object' as const,
+            required: ['moduleId'],
+            properties: { moduleId: { type: 'string' } },
+          },
+        },
+        {
+          name: 'publish_context',
+          description: 'Publish an MCPContext message through the context broker.',
+          inputSchema: {
+            type: 'object' as const,
+            description: 'A valid MCPContext envelope (see mcp-context.schema.json).',
+          },
+        },
+        {
+          name: 'list_states',
+          description: 'List the current synchronisation state of all registered modules.',
+          inputSchema: { type: 'object' as const, properties: {} },
+        },
+      ],
+    };
+  });
 
   // ── Resources ──────────────────────────────────────────────────────────────
 

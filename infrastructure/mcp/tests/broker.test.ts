@@ -14,7 +14,7 @@ function makeContext(overrides: Partial<MCPContext> = {}): MCPContext {
     id: uuidv4(),
     version: '0.1.0',
     timestamp: new Date().toISOString(),
-    source: { moduleId: 'test-source', layer: 'signal-processing' },
+    source: { moduleId: 'test-source', layer: 'sensory-input' },
     contentType: 'signal/text',
     payload: { text: 'hello' },
     priority: 5,
@@ -37,7 +37,7 @@ describe('ContextBroker', () => {
     const handler = vi.fn();
     broker.subscribe('target-module', handler);
     const ctx = makeContext({
-      destination: { moduleId: 'target-module', layer: 'cognitive-processing' },
+      destination: { moduleId: 'target-module', layer: 'perception' },
     });
     await broker.publish(ctx);
     expect(handler).toHaveBeenCalledOnce();
@@ -48,7 +48,7 @@ describe('ContextBroker', () => {
     const handler = vi.fn();
     broker.subscribe('other-module', handler);
     await broker.publish(
-      makeContext({ destination: { moduleId: 'target-module', layer: 'cognitive-processing' } }),
+      makeContext({ destination: { moduleId: 'target-module', layer: 'perception' } }),
     );
     expect(handler).not.toHaveBeenCalled();
   });
@@ -63,7 +63,7 @@ describe('ContextBroker', () => {
   it('routes broadcast to capability-matched modules', async () => {
     registry.register({
       moduleId: 'perception',
-      layer: 'signal-processing',
+      layer: 'sensory-input',
       accepts: ['signal/text'],
       emits: ['memory/item'],
       version: '0.1.0',
@@ -103,7 +103,7 @@ describe('ContextBroker', () => {
     broker.subscribe('target', h1);
     broker.subscribe('target', h2);
     const ctx = makeContext({
-      destination: { moduleId: 'target', layer: 'cognitive-processing' },
+      destination: { moduleId: 'target', layer: 'perception' },
     });
     await broker.publish(ctx);
     expect(h1).toHaveBeenCalledOnce();

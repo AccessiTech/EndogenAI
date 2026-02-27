@@ -8,7 +8,7 @@ import type { Capability } from '../src/types.js';
 
 const mockCap = (moduleId: string): Capability => ({
   moduleId,
-  layer: 'signal-processing',
+  layer: 'sensory-input',
   accepts: ['signal/text', 'application/json'],
   emits: ['memory/item'],
   version: '0.1.0',
