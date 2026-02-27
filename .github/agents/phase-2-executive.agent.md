@@ -61,9 +61,9 @@ that all Phase 1 checklist items in `docs/Workplan.md` are `[x]` and that
 the following commands exit 0:
 
 ```bash
-cd shared && buf lint
-cd shared/vector-store/python && uv run pytest --tb=short
-cd shared/vector-store/typescript && pnpm run test
+(cd shared && buf lint)
+(cd shared/vector-store/python && uv run pytest --tb=short)
+(cd shared/vector-store/typescript && pnpm run test)
 ```
 
 If Phase 1 is not complete, stop and hand off to the Phase 1 Executive.
