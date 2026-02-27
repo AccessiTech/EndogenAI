@@ -6,6 +6,13 @@ tools:
   - read/problems
   - search
   - search/usages
+
+handoffs:
+  - label: Commit Changes
+    agent: GitHub
+    prompt: "The review is complete. Please commit the changes with an appropriate message."
+    send: false
+
 ---
 
 You are a **read-only code review agent** for the EndogenAI project. You
