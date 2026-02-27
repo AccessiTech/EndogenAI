@@ -74,6 +74,17 @@ Coverage tooling: **pytest-cov** (Python) and **@vitest/coverage-v8** (TypeScrip
 
 ---
 
+## Schema Agent Fleet
+
+An executive to sub-agent hierarchy for schema authoring and safe migration. Invoke **Schema Executive** to run the full pipeline; invoke sub-agents individually for targeted passes.
+
+| Agent | File | Posture | Trigger | Handoffs | Backing Script |
+|-------|------|---------|---------|----------|----------------|
+| **Schema Executive** | `schema-executive.agent.md` | full | Start of any schema authoring or migration task; blocks implementation until schemas pass | Schema Validator, Schema Migration, Review | `scripts/schema/validate_all_schemas.py` |
+| **Schema Validator** | `schema-validator.agent.md` | read + execute | After any .schema.json or .proto file is created or edited | Schema Executive, Schema Migration | `scripts/schema/validate_all_schemas.py`, `buf lint` |
+| **Schema Migration** | `schema-migration.agent.md` | read-only (+ CHANGELOG.md) | After validation passes on a changed schema; assesses backwards compatibility | Schema Executive, Review | `shared/schemas/CHANGELOG.md` |
+
+
 ## Phase Executive Agents
 
 Phase executives drive all deliverables for a specific phase to the milestone gate, then hand off to Review.

@@ -264,24 +264,24 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
 
 ### 3.4 Schema & Contract Agent Fleet (`.github/agents/`)
 
-- [ ] Author `schema-executive.agent.md` — orchestrates schema authoring and safe migration; enforces schemas-first
+- [x] Author `schema-executive.agent.md` — orchestrates schema authoring and safe migration; enforces schemas-first
       constraint; delegates to validator and migration sub-agents; blocks implementation agents until schemas pass
-- [ ] Author `schema-validator.agent.md` — validates all JSON Schema files in `shared/schemas/` and `shared/types/`
+- [x] Author `schema-validator.agent.md` — validates all JSON Schema files in `shared/schemas/` and `shared/types/`
       against their `$schema` meta-schema; runs `buf lint`; driven by `scripts/schema/validate_all_schemas.py`
-- [ ] Author `schema-migration.agent.md` — guides safe, backwards-compatible schema evolution; inventories all
+- [x] Author `schema-migration.agent.md` — guides safe, backwards-compatible schema evolution; inventories all
       downstream consumers before approving field removals or type changes; records migration notes in
       `shared/schemas/CHANGELOG.md`
-- [ ] Author `scripts/schema/validate_all_schemas.py` — validates all JSON Schema files; checks required keys
+- [x] Author `scripts/schema/validate_all_schemas.py` — validates all JSON Schema files; checks required keys
       (`$schema`, `$id`, `title`, `type`); exits non-zero on any violation; `--dry-run` flag
-- [ ] Author `scripts/schema/tests/test_validate_all_schemas.py` — unit tests for required-key validation and exit
+- [x] Author `scripts/schema/tests/test_validate_all_schemas.py` — unit tests for required-key validation and exit
       codes
 
 #### 3.4 Verification
 
-- [ ] `uv run python scripts/schema/validate_all_schemas.py` exits 0 on current `shared/schemas/` and
+- [x] `uv run python scripts/schema/validate_all_schemas.py` exits 0 on current `shared/schemas/` and
       `shared/types/`
-- [ ] `uv run pytest scripts/schema/tests/ -v` exits 0
-- [ ] All schema agents appear in `.github/agents/README.md`
+- [x] `uv run pytest scripts/schema/tests/ -v` exits 0
+- [x] All schema agents appear in `.github/agents/README.md`
 
 ### 3.5 Executive Planner Agent (`.github/agents/`)
 
