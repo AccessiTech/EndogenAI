@@ -5,7 +5,10 @@
         "git add": true,
         "git commit": true,
         "pnpm": true,
-        "buf": true
+        "buf": true,
+        "git push": true,
+        "gh": true,
+        "git checkout": true
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",
