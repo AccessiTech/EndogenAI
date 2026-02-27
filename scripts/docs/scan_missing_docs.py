@@ -48,6 +48,8 @@ SHARED_REQUIRED_SECTIONS = {"## Purpose"}
 
 @dataclass
 class Gap:
+    """A single documentation gap found during a workspace scan."""
+
     path: str
     item: str
     severity: str  # HIGH | WARN | INFO
@@ -55,9 +57,12 @@ class Gap:
 
 @dataclass
 class ScanResult:
+    """Accumulates Gap instances from a workspace scan."""
+
     gaps: list[Gap] = field(default_factory=list)
 
     def add(self, path: str, item: str, severity: str = "HIGH") -> None:
+        """Append a new gap with the given path, description, and severity."""
         self.gaps.append(Gap(path=path, item=item, severity=severity))
 
     @property
@@ -98,6 +103,7 @@ def _check_readme_sections(
     result: ScanResult,
     rel: str,
 ) -> None:
+    """Record WARN gaps for each required H2 heading absent from *readme*."""
     for section in sorted(required):
         if not _has_section(readme, section):
             result.add(rel, f"README.md missing section `{section}`", "WARN")
@@ -133,6 +139,11 @@ def _scan_dir(
 
 
 def run_scan() -> ScanResult:
+    """Run a full workspace scan and return a ScanResult with all detected gaps.
+
+    Checks modules/, infrastructure/, and shared/ for missing README.md files
+    and missing required H2 section headings.
+    """
     result = ScanResult()
 
     # modules/<group>/<module>/ — two levels deep
@@ -148,6 +159,11 @@ def run_scan() -> ScanResult:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the scan_missing_docs CLI.
+
+    Runs a full workspace scan and prints a gap report.  Exits 1 when gaps are
+    found (unless --dry-run is set), exits 0 when the workspace is complete.
+    """
     parser = argparse.ArgumentParser(
         description="Report EndogenAI workspace gaps in required documentation."
     )

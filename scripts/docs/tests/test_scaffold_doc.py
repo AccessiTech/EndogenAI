@@ -119,3 +119,81 @@ def test_main_module_filter_no_match_exits_0() -> None:
         with patch.object(scaffold_doc, "INFRA_DIR", Path("/does/not/exist")):
             exit_code = scaffold_doc.main(["--module", "nonexistent"])
     assert exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# JSDoc helpers
+# ---------------------------------------------------------------------------
+
+
+def test_extract_param_names_basic() -> None:
+    assert scaffold_doc._extract_param_names("a: string, b: number") == ["a", "b"]
+
+
+def test_extract_param_names_empty() -> None:
+    assert scaffold_doc._extract_param_names("") == []
+
+
+def test_extract_param_names_optional_and_rest() -> None:
+    result = scaffold_doc._extract_param_names("...args: string[], opt?: boolean")
+    assert result == ["args", "opt"]
+
+
+def test_has_jsdoc_above_true() -> None:
+    lines = ["/**", " * doc", " */", "export function foo() {}"]
+    assert scaffold_doc._has_jsdoc_above(lines, 3) is True
+
+
+def test_has_jsdoc_above_false() -> None:
+    lines = ["const x = 1;", "", "export function foo() {}"]
+    assert scaffold_doc._has_jsdoc_above(lines, 2) is False
+
+
+def test_make_jsdoc_stub_with_params_and_return() -> None:
+    stub = scaffold_doc._make_jsdoc_stub(["name", "value"], "string", "  ")
+    assert "@param name" in stub
+    assert "@param value" in stub
+    assert "@returns" in stub
+
+
+def test_make_jsdoc_stub_void_no_returns() -> None:
+    stub = scaffold_doc._make_jsdoc_stub(["x"], "void", "")
+    assert "@returns" not in stub
+
+
+def test_make_jsdoc_stub_promise_void_no_returns() -> None:
+    stub = scaffold_doc._make_jsdoc_stub([], "Promise<void>", "")
+    assert "@returns" not in stub
+
+
+def test_scaffold_jsdoc_inserts_stub(tmp_path: Path) -> None:
+    """Should insert a stub for an exported function that has no JSDoc."""
+    src = tmp_path / "index.ts"
+    src.write_text("export function greet(name: string): string {\n  return name;\n}\n")
+    result = scaffold_doc._scaffold_jsdoc(src, dry_run=False)
+    assert len(result) == 1
+    content = src.read_text()
+    assert "/**" in content
+    assert "@param name" in content
+    assert "@returns" in content
+
+
+def test_scaffold_jsdoc_skips_existing_jsdoc(tmp_path: Path) -> None:
+    """Should not insert a stub when a JSDoc block already exists."""
+    src = tmp_path / "index.ts"
+    src.write_text("/**\n * Already documented.\n */\nexport function foo(): void {}\n")
+    result = scaffold_doc._scaffold_jsdoc(src, dry_run=False)
+    assert result == []
+
+
+def test_scaffold_jsdoc_dry_run_no_write(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """dry_run=True must print the stub but not modify the file."""
+    src = tmp_path / "index.ts"
+    original = "export function bar(x: number): number {\n  return x;\n}\n"
+    src.write_text(original)
+    scaffold_doc._scaffold_jsdoc(src, dry_run=True)
+    assert src.read_text() == original
+    out = capsys.readouterr().out
+    assert "dry-run" in out

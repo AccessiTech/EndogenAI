@@ -6,6 +6,11 @@ Derivations:
   - Schema field names from shared/schemas/ and shared/types/.
   - Collection names from shared/vector-store/collection-registry.json.
 
+What is scaffolded:
+  - Missing README.md files for modules/ and infrastructure/ packages.
+  - Missing JSDoc /** */ stubs for exported TypeScript functions and class methods
+    in infrastructure/*/src/ and modules/*/src/ directories.
+
 Usage:
   uv run python scripts/docs/scaffold_doc.py [--module <name>] [--dry-run]
 
@@ -15,11 +20,11 @@ Options:
 
 Exit codes:
   0  Success (or dry-run complete).
-  1  Error (missing source file, invalid argument, etc.).
-"""
+  1  Error (missing source file, invalid argument, etc.)."""
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -95,6 +100,25 @@ pnpm run test
 
 
 # ---------------------------------------------------------------------------
+# JSDoc patterns
+# ---------------------------------------------------------------------------
+
+# Matches exported top-level functions: export [async] function name(params): ReturnType
+_EXPORT_FN_RE = re.compile(
+    r"^(?P<indent>\s*)export\s+(?:async\s+)?function\s+(?P<name>\w+)\s*\((?P<params>[^)]*)\)"
+    r"(?:\s*:\s*(?P<ret>[^{;\n]+))?",
+    re.MULTILINE,
+)
+
+# Matches public (or undecorated) class methods — not constructors, not private
+_CLASS_METHOD_RE = re.compile(
+    r"^(?P<indent>  +)(?:public\s+)?(?:static\s+)?(?:async\s+)?(?P<name>[a-z]\w+)"
+    r"\s*\((?P<params>[^)]*)\)(?:\s*:\s*(?P<ret>[^{;\n]+))?(?:\s*\{|;)",
+    re.MULTILINE,
+)
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -132,8 +156,102 @@ def _purpose_from_registry(name: str, registry: dict[str, object]) -> str:
     return "<!-- TODO: describe the module's purpose and brain-region analogy -->"
 
 
+def _extract_param_names(params_str: str) -> list[str]:
+    """Return a list of parameter names from a TypeScript parameter-list string.
+
+    Handles optional markers (?), type annotations (:), default values (=),
+    and rest parameters (...).
+    """
+    if not params_str.strip():
+        return []
+    names: list[str] = []
+    for token in params_str.split(","):
+        token = token.strip()
+        # Strip rest (...), take the part before : or = or whitespace
+        bare = re.split(r"[:\s=?]", token.lstrip("."))[0].strip()
+        if bare:
+            names.append(bare)
+    return names
+
+
+def _has_jsdoc_above(lines: list[str], line_idx: int) -> bool:
+    """Return True if the source line at *line_idx* is preceded by a /** */ block."""
+    i = line_idx - 1
+    # Skip blank lines
+    while i >= 0 and not lines[i].strip():
+        i -= 1
+    return i >= 0 and lines[i].rstrip().endswith("*/")
+
+
+def _make_jsdoc_stub(params: list[str], return_type: str | None, indent: str) -> str:
+    """Return a JSDoc stub comment string.
+
+    Generates @param tags for every parameter and a @returns tag when the
+    inferred return type is not void.  All descriptions are TODO placeholders.
+    """
+    _VOID_RETURNS = {"void", "Promise<void>", "never", ""}
+    stub_lines = [f"{indent}/**"]
+    stub_lines.append(f"{indent} * <!-- TODO: describe -->")
+    for param in params:
+        stub_lines.append(f"{indent} * @param {param} <!-- TODO -->")
+    ret = (return_type or "").strip()
+    if ret not in _VOID_RETURNS:
+        stub_lines.append(f"{indent} * @returns <!-- TODO -->")
+    stub_lines.append(f"{indent} */")
+    return "\n".join(stub_lines)
+
+
+def _scaffold_jsdoc(src_file: Path, dry_run: bool) -> list[str]:
+    """Insert missing JSDoc stubs into a TypeScript source file.
+
+    Scans *src_file* for exported functions and public class methods that lack
+    a preceding /** */ block, then either prints the stubs (dry_run=True) or
+    inserts them into the file in place.  Returns a list of modified file paths.
+    """
+    original = src_file.read_text(encoding="utf-8")
+    lines = original.splitlines()
+
+    insertions: list[tuple[int, str]] = []  # (line_index_before, stub_text)
+
+    for pattern in (_EXPORT_FN_RE, _CLASS_METHOD_RE):
+        for match in pattern.finditer(original):
+            # Convert character offset to line index
+            line_idx = original[: match.start()].count("\n")
+            if _has_jsdoc_above(lines, line_idx):
+                continue
+            indent = match.group("indent")
+            params = _extract_param_names(match.group("params") or "")
+            ret = match.groupdict().get("ret")
+            stub = _make_jsdoc_stub(params, ret, indent)
+            # Avoid duplicate insertions at the same line
+            if not any(li == line_idx for li, _ in insertions):
+                insertions.append((line_idx, stub))
+
+    if not insertions:
+        return []
+
+    if dry_run:
+        print(f"[dry-run] Would insert {len(insertions)} JSDoc stub(s) into: {_rel(src_file)}")
+        for line_idx, stub in sorted(insertions):
+            fn_line = lines[line_idx] if line_idx < len(lines) else ""
+            print(f"  before line {line_idx + 1}: {fn_line.strip()[:60]}")
+            print(stub)
+        print("---")
+    else:
+        # Apply insertions in reverse order so line indices stay valid
+        for line_idx, stub in sorted(insertions, reverse=True):
+            lines.insert(line_idx, stub)
+        src_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print(f"JSDoc stubs added: {_rel(src_file)} ({len(insertions)} stub(s))")
+
+    return [str(src_file)]
+
+
 def _scaffold_module(module_dir: Path, dry_run: bool, registry: dict[str, object]) -> list[str]:
-    """Return a list of (path, content) tuples that would be written."""
+    """Scaffold README.md and JSDoc stubs for a module directory.
+
+    Returns a list of paths that were written (or would be written in dry-run mode).
+    """
     readme_path = module_dir / "README.md"
     if readme_path.exists():
         return []
@@ -150,11 +268,22 @@ def _scaffold_module(module_dir: Path, dry_run: bool, registry: dict[str, object
         readme_path.write_text(content, encoding="utf-8")
         print(f"Scaffolded: {_rel(readme_path)}")
 
-    return [str(readme_path)]
+    written = [str(readme_path)]
+
+    # JSDoc stubs for TypeScript src/ files in this module
+    src_dir = module_dir / "src"
+    if src_dir.is_dir():
+        for ts_file in sorted(src_dir.rglob("*.ts")):
+            written.extend(_scaffold_jsdoc(ts_file, dry_run))
+
+    return written
 
 
 def _scaffold_infra(pkg_dir: Path, dry_run: bool) -> list[str]:
-    """Scaffold README.md for an infrastructure package if missing."""
+    """Scaffold README.md and JSDoc stubs for an infrastructure package.
+
+    Returns a list of paths that were written (or would be written in dry-run mode).
+    """
     readme_path = pkg_dir / "README.md"
     if readme_path.exists():
         return []
@@ -171,7 +300,15 @@ def _scaffold_infra(pkg_dir: Path, dry_run: bool) -> list[str]:
         readme_path.write_text(content, encoding="utf-8")
         print(f"Scaffolded: {_rel(readme_path)}")
 
-    return [str(readme_path)]
+    written = [str(readme_path)]
+
+    # JSDoc stubs for TypeScript src/ files in this package
+    src_dir = pkg_dir / "src"
+    if src_dir.is_dir():
+        for ts_file in sorted(src_dir.rglob("*.ts")):
+            written.extend(_scaffold_jsdoc(ts_file, dry_run))
+
+    return written
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +317,14 @@ def _scaffold_infra(pkg_dir: Path, dry_run: bool) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the scaffold_doc CLI.
+
+    Scaffolds missing README.md files and JSDoc stubs across modules/ and
+    infrastructure/ packages.  Respects --module to scope to a single module
+    and --dry-run to preview output without writing any files.
+
+    Returns 0 on success.
+    """
     parser = argparse.ArgumentParser(
         description="Scaffold missing documentation files for EndogenAI modules."
     )

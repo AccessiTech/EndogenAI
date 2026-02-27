@@ -41,16 +41,23 @@ its output before writing your report.
 For every module under `modules/` and every package under `infrastructure/`
 and `shared/`, verify:
 
-| Item | Required |
-|------|----------|
+### Automated (run `scan_missing_docs.py` first — results appear in report)
+
+| Item | Checked by script |
+|------|------------------|
 | `README.md` present | ✓ |
 | README contains **Purpose** section | ✓ |
-| README contains **Interface** section | ✓ |
+| README contains **Interface** / **API** section | ✓ |
 | README contains **Configuration** section | ✓ |
 | README contains **Deployment** / **Running locally** section | ✓ |
-| All public TypeScript exports have JSDoc `/** */` comments | ✓ |
-| All public Python functions have docstrings | ✓ |
-| `agent-card.json` has a non-empty `description` field (modules only) | ✓ |
+
+### Manual (script cannot verify — check these by reading source files)
+
+| Item | How to verify |
+|------|---------------|
+| All public TypeScript exports have JSDoc `/** */` comments | Search for `^export` lines without a preceding `*/`; run `scaffold_doc.py --dry-run` to see candidates |
+| All public Python functions have docstrings | Search for `^def ` lines without a following `"""` |
+| `agent-card.json` has a non-empty `description` field (modules only) | Read each module's `agent-card.json` directly |
 
 ## Report format
 
