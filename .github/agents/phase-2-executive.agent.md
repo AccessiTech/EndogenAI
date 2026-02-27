@@ -1,6 +1,6 @@
 ---
 name: Phase 2 Executive
-description: Drive completion of Phase 2 — Communication Infrastructure (MCP + A2A). Scoped strictly to infrastructure/mcp/, infrastructure/a2a/, and infrastructure/adapters/. Will not author Phase 3+ deliverables.
+description: Drive completion of Phase 2 — Communication Infrastructure (MCP + A2A). Scoped strictly to infrastructure/mcp/, infrastructure/a2a/, infrastructure/adapters/, shared/, and docs/protocols/. Will not author Phase 3+ deliverables.
 tools:
   - search/codebase
   - edit/editFiles
@@ -61,9 +61,9 @@ that all Phase 1 checklist items in `docs/Workplan.md` are `[x]` and that
 the following commands exit 0:
 
 ```bash
-cd shared && buf lint
-cd shared/vector-store/python && uv run pytest --tb=short
-cd shared/vector-store/typescript && pnpm run test
+(cd shared && buf lint)
+(cd shared/vector-store/python && uv run pytest --tb=short)
+(cd shared/vector-store/typescript && pnpm run test)
 ```
 
 If Phase 1 is not complete, stop and hand off to the Phase 1 Executive.
@@ -172,28 +172,28 @@ Run these before declaring Phase 2 complete:
 
 ```bash
 # TypeScript — MCP infrastructure
-cd infrastructure/mcp
-pnpm run lint
-pnpm run typecheck
-pnpm run test
+(cd infrastructure/mcp && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test)
 
 # TypeScript + Python — A2A infrastructure
-cd infrastructure/a2a
-pnpm run lint
-pnpm run typecheck
-pnpm run test
-# (if Python package present)
-uv run ruff check .
-uv run mypy src/
-uv run pytest -v
+(cd infrastructure/a2a && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test && \
+  # (if Python package present)
+  uv run ruff check . && \
+  uv run mypy src/ && \
+  uv run pytest -v)
 
 # TypeScript — adapter bridge
-cd infrastructure/adapters
-pnpm run lint
-pnpm run typecheck
-pnpm run test
+(cd infrastructure/adapters && \
+  pnpm run lint && \
+  pnpm run typecheck && \
+  pnpm run test)
 
-# Full repo checks
+# Full repo checks (from repo root)
 pnpm run lint
 pnpm run typecheck
 ```
