@@ -237,30 +237,30 @@ discrete tasks and are individually invokeable. All sub-agents read `docs/AGENTS
 Mirrors the documentation fleet pattern: Executive orchestrates; sub-agents own scaffold / coverage / quality.
 All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` before running checks.
 
-- [ ] Author `test-executive.agent.md` — orchestrates the full testing lifecycle; runs coverage scan; delegates to
+- [x] Author `test-executive.agent.md` — orchestrates the full testing lifecycle; runs coverage scan; delegates to
       scaffold and review sub-agents; ensures `uv run pytest` and `pnpm run test` pass before handoff to Review
-- [ ] Author `test-scaffold.agent.md` — generates test file stubs from TypeScript interfaces and Python type stubs
+- [x] Author `test-scaffold.agent.md` — generates test file stubs from TypeScript interfaces and Python type stubs
       (signatures + docstrings only; no business logic inferred); driven by `scripts/testing/scaffold_tests.py`
-- [ ] Author `test-coverage.agent.md` — identifies untested code paths; maps coverage gaps to module contracts;
+- [x] Author `test-coverage.agent.md` — identifies untested code paths; maps coverage gaps to module contracts;
       driven by `scripts/testing/scan_coverage_gaps.py`; exits non-zero if any module is below threshold
-- [ ] Author `test-review.agent.md` — reviews test quality: checks for meaningful assertions, validates
+- [x] Author `test-review.agent.md` — reviews test quality: checks for meaningful assertions, validates
       Testcontainers use for integration tests, flags excessive mocking of internal collaborators
-- [ ] Author `scripts/testing/scaffold_tests.py` — generates test file stubs from source file interfaces;
+- [x] Author `scripts/testing/scaffold_tests.py` — generates test file stubs from source file interfaces;
       `--dry-run` mode; `--file` flag to scope to one source file
-- [ ] Author `scripts/testing/tests/test_scaffold_tests.py` — unit tests for stub generation logic and `--dry-run`
+- [x] Author `scripts/testing/tests/test_scaffold_tests.py` — unit tests for stub generation logic and `--dry-run`
       flag
-- [ ] Author `scripts/testing/scan_coverage_gaps.py` — runs coverage tooling and reports all untested symbols by
+- [x] Author `scripts/testing/scan_coverage_gaps.py` — runs coverage tooling and reports all untested symbols by
       module; exits non-zero if any module is below its declared threshold; `--dry-run` flag for CI use
-- [ ] Author `scripts/testing/tests/test_scan_coverage_gaps.py` — unit tests for gap detection and threshold
+- [x] Author `scripts/testing/tests/test_scan_coverage_gaps.py` — unit tests for gap detection and threshold
       enforcement
 
 #### 3.3 Verification
 
-- [ ] `uv run python scripts/testing/scan_coverage_gaps.py --dry-run` exits 0 on the current codebase
-- [ ] `uv run pytest scripts/testing/tests/ -v` exits 0
-- [ ] `test-scaffold.agent.md` can generate a test skeleton for `infrastructure/mcp/src/broker.ts` referencing
+- [x] `uv run python scripts/testing/scan_coverage_gaps.py --dry-run` exits 0 on the current codebase
+- [x] `uv run pytest scripts/testing/tests/ -v` exits 0
+- [x] `test-scaffold.agent.md` can generate a test skeleton for `infrastructure/mcp/src/broker.ts` referencing
       correct import paths
-- [ ] All testing agents appear in `.github/agents/README.md`
+- [x] All testing agents appear in `.github/agents/README.md`
 
 ### 3.4 Schema & Contract Agent Fleet (`.github/agents/`)
 

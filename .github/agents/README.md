@@ -59,6 +59,21 @@ Executive → sub-agent hierarchy for all documentation work. Sub-agents read `d
 
 ---
 
+## Testing Agent Fleet
+
+Executive → sub-agent hierarchy for the full testing lifecycle. Sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` before acting.
+
+Coverage tooling: **pytest-cov** (Python) and **@vitest/coverage-v8** (TypeScript). Default threshold: **80%**.
+
+| Agent | File | Posture | Trigger | Handoffs | Backing Script |
+|-------|------|---------|---------|----------|----------------|
+| **Test Executive** | `test-executive.agent.md` | full | Orchestrate the full testing lifecycle; run coverage scan; delegate to scaffold and review sub-agents; confirm all tests pass | Test Scaffold, Test Coverage, Test Review, Review | `scripts/testing/scan_coverage_gaps.py` |
+| **Test Scaffold** | `test-scaffold.agent.md` | read + create | Generate test stubs for source files with no test counterpart | Test Review, Test Executive | `scripts/testing/scaffold_tests.py` |
+| **Test Coverage** | `test-coverage.agent.md` | full | Run coverage tooling; map untested code paths to module contracts; enforce thresholds | Test Scaffold, Test Executive | `scripts/testing/scan_coverage_gaps.py` |
+| **Test Review** | `test-review.agent.md` | read-only | Review assertion quality, Testcontainers use for integration tests, and mocking discipline | Implement, Test Executive | — |
+
+---
+
 ## Phase Executive Agents
 
 Phase executives drive all deliverables for a specific phase to the milestone gate, then hand off to Review.
