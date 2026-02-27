@@ -285,19 +285,25 @@ uv run python scripts/ingest_seed.py --source resources/static/knowledge/ --coll
 
 ## VS Code Custom Agents
 
-Four workspace agents are defined in [`.github/agents/`](.github/agents/) and
-appear in the Copilot chat agents dropdown automatically.
+All `.agent.md` files in [`.github/agents/`](.github/agents/) appear in the
+Copilot chat agents dropdown automatically.
 
 | Agent | Posture | Trigger |
 |-------|---------|---------|
 | **Plan** | read-only | Start of any new task — survey workplan + codebase, produce a scoped plan |
 | **Scaffold Module** | read + create | Adding a new cognitive module — derives structure from endogenous knowledge |
+| **Scaffold Agent** | read + create | Adding a new VS Code Copilot agent to the development workflow |
 | **Implement** | full tools | Execute an approved plan; enforces all AGENTS.md constraints |
 | **Review** | read-only | Pre-commit gate — verify changes against constraints and module contracts |
+| **GitHub** | terminal + read | Git/PR workflows — branching, committing, opening and merging PRs |
+| **Executive Debugger** | full tools | Diagnose and fix runtime or test failures |
+| **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 
 For a new module: **Scaffold Module → (approve scaffold) → Implement → Review → commit**.
+
+For a new agent: **Scaffold Agent → (approve scaffold) → Review → commit**.
 
 ---
 

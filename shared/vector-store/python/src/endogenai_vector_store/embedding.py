@@ -14,7 +14,7 @@ Usage::
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import httpx
 import structlog
@@ -138,7 +138,9 @@ class EmbeddingClient:
 
         data = resp.json()
         # Ollama ≥ 0.3 returns {"embeddings": [[...], ...]}
-        embeddings: list[list[float]] = data.get("embeddings") or data.get("embedding") or []
+        embeddings: list[list[float]] = cast(
+            "list[list[float]]", data.get("embeddings") or data.get("embedding") or []
+        )
         if not embeddings:
             raise EmbeddingError(
                 "Ollama embed returned empty embeddings", provider="ollama", retryable=False
@@ -146,7 +148,7 @@ class EmbeddingClient:
 
         # Single-text fallback: Ollama may return a flat list for single inputs
         if isinstance(embeddings[0], float):
-            embeddings = [embeddings]  # noqa: PGH003
+            embeddings = cast("list[list[float]]", [embeddings])  # noqa: PGH003
 
         return embeddings
 
