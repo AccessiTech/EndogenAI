@@ -39,6 +39,7 @@ export class MCPToA2ABridge {
   ) {
     this.config = {
       contentType: 'application/json',
+      contextVersion: '0.1.0',
       ...config,
     };
 
@@ -74,13 +75,13 @@ export class MCPToA2ABridge {
     // 3. Build and publish the MCPContext
     const context: MCPContext = {
       id: uuidv4(),
-      version: '0.1.0',
+      version: this.config.contextVersion,
       timestamp: new Date().toISOString(),
       source: this.config.source,
       contentType: this.config.contentType,
       payload: {
         taskId: task.id,
-        message: options.message as unknown as Record<string, unknown>,
+        message: Object.assign({} as Record<string, unknown>, options.message),
       },
       taskId: task.id,
       sessionId: task.sessionId,
@@ -93,7 +94,11 @@ export class MCPToA2ABridge {
       // Ensure the task does not remain stuck in a "working" state if publication fails.
       const currentTask = this.orchestrator.get(task.id);
       if (currentTask && !TERMINAL_STATES.has(currentTask.status.state)) {
-        this.orchestrator.fail(task.id);
+        this.orchestrator.fail(task.id, {
+          code: 'MCP_PUBLISH_FAILED',
+          message: error instanceof Error ? error.message : String(error),
+          retryable: false,
+        });
       }
       throw error;
     }
