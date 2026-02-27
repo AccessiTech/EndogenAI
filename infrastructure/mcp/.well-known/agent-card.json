@@ -1,0 +1,34 @@
+{
+  "id": "mcp-server",
+  "name": "EndogenAI MCP Server",
+  "version": "0.1.0",
+  "description": "MCP context broker and capability registry for the EndogenAI communication backbone.",
+  "url": "http://mcp-server:8080",
+  "skills": [
+    {
+      "id": "register_capability",
+      "name": "Register Capability",
+      "description": "Register a module's capabilities with the MCP capability registry."
+    },
+    {
+      "id": "deregister_capability",
+      "name": "Deregister Capability",
+      "description": "Remove a module from the capability registry."
+    },
+    {
+      "id": "publish_context",
+      "name": "Publish Context",
+      "description": "Publish an MCPContext message to be routed by the context broker."
+    },
+    {
+      "id": "list_states",
+      "name": "List Module States",
+      "description": "Retrieve the current synchronisation state of all registered modules."
+    }
+  ],
+  "mcp": {
+    "accepts": ["application/json"],
+    "emits": ["application/json"],
+    "version": "0.1.0"
+  }
+}
