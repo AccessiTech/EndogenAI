@@ -198,6 +198,57 @@ When proceeding under ambiguity, **document the assumption inline** (code commen
 
 ---
 
+## Writing Files from the Terminal Tool
+
+The `run_in_terminal` tool has an **implicit input character limit**. Shell heredocs that embed
+large file content inside a single command string will be silently truncated — the tool emits
+`"The tool simplified the command to..."` and the output file is incomplete or empty.
+
+**Never use `cat << 'EOF' ... EOF` or multi-line Python heredoc strings for files longer than ~30 lines.**
+
+### Safe patterns for writing files
+
+#### For small files (< 30 lines) — direct `printf`
+
+```bash
+printf '# Title\n\nContent.\n' > /path/to/file.md
+```
+
+#### For medium files (30–150 lines) — multiple `printf >>` appends
+
+Keep each terminal call to **≤ 20 lines of content**. Use `>` for the first call, `>>` for all
+subsequent calls:
+
+```bash
+printf '# Title\n\nFirst section.\n' > /path/to/file.md
+printf '\n## Second Section\n\nMore content.\n' >> /path/to/file.md
+# repeat until complete — verify with: wc -l /path/to/file.md
+```
+
+#### For large files (150+ lines) — Python tmpfile script
+
+Build a Python script at `/tmp/` with small appends, then execute it:
+
+```bash
+printf 'import pathlib\n' > /tmp/write_file.py
+printf 'p = pathlib.Path("/repo/target.md")\n' >> /tmp/write_file.py
+printf 'lines = []\n' >> /tmp/write_file.py
+printf 'lines.append("# Title\\n")\n' >> /tmp/write_file.py
+printf 'lines.append("Content.\\n")\n' >> /tmp/write_file.py
+printf 'p.write_text("".join(lines))\n' >> /tmp/write_file.py
+python3 /tmp/write_file.py
+```
+
+For patching an **existing** file, prefer the `replace_string_in_file` editor tool —
+it has no size limit and is the safest option for non-creation edits.
+
+### Rule of thumb
+
+> If the terminal command is longer than a screen, split it into multiple calls.
+> Verify each file after creation with `wc -l` and `head`/`tail`.
+
+---
+
 ## Development Scripts
 
 This repository is designed to grow **endogenously** — scripts encode system knowledge locally so that repetitive or
