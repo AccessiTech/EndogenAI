@@ -72,6 +72,7 @@ class TestValidateFile:
             "$schema": "http://json-schema.org/draft-07/schema#",
             "$id": "https://example.com/test",
             "title": "Test",
+            "description": "A test schema.",
             "type": "object",
         })
         assert _validate_file(p) is None
@@ -81,6 +82,7 @@ class TestValidateFile:
             "$schema": "http://json-schema.org/draft-07/schema#",
             "$id": "https://example.com/test",
             "title": "Test",
+            "description": "A test schema.",
         })
         result = _validate_file(p)
         assert result is not None
@@ -90,7 +92,7 @@ class TestValidateFile:
         p = self._make_schema(tmp_path, {"title": "Bare"})
         result = _validate_file(p)
         assert result is not None
-        assert set(result.missing_keys) == {"$schema", "$id", "type"}
+        assert set(result.missing_keys) == {"$schema", "$id", "description", "type"}
 
     def test_invalid_json_reported(self, tmp_path: Path) -> None:
         p = tmp_path / "bad.schema.json"
@@ -117,6 +119,7 @@ class TestValidate:
             "$schema": "http://json-schema.org/draft-07/schema#",
             "$id": f"https://example.com/{name}",
             "title": name,
+            "description": "A valid schema.",
             "type": "object",
         }))
         return p
@@ -151,6 +154,7 @@ class TestMain:
             "$schema": "http://json-schema.org/draft-07/schema#",
             "$id": "https://example.com/ok",
             "title": "OK",
+            "description": "A valid schema.",
             "type": "object",
         }))
         return tmp_path

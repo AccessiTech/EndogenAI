@@ -3,7 +3,6 @@ name: Schema Validator
 description: Validate all JSON Schema files in shared/ and run Protobuf lint. Driven by scripts/schema/validate_all_schemas.py and buf lint. Read-only except for minor formatting fixes.
 tools:
   - codebase
-  - editFiles
   - problems
   - runInTerminal
   - getTerminalOutput
@@ -50,13 +49,14 @@ cd shared && buf lint
 ### JSON Schema — required top-level keys
 
 Every `.schema.json` in `shared/schemas/`, `shared/types/`, and `shared/vector-store/`
-must contain all four of:
+must contain all five of:
 
 | Key | Expected value / format |
 |-----|-------------------------|
 | `$schema` | `"http://json-schema.org/draft-07/schema#"` |
 | `$id` | Full URI — `"https://endogenai.local/schemas/<name>"` |
 | `title` | PascalCase string |
+| `description` | Non-empty string describing the schema |
 | `type` | Typically `"object"` |
 
 ### Naming conventions (from `shared/AGENTS.md`)

@@ -12,7 +12,7 @@ Usage:
 
 Exit codes:
   0  All packages pass thresholds, or --dry-run mode.
-  1  One or more packages below threshold or a blocking configuration gap.
+  1  One or more packages below threshold (configuration gaps are warnings only).
 
 Setup required per package
 --------------------------
@@ -212,6 +212,11 @@ def _run_python_coverage(pkg: PyPackage, dry_run: bool) -> CoverageResult:
                 coverage_pct = float(totals.get("percent_covered", 0))
             except (json.JSONDecodeError, KeyError, ValueError):
                 pass
+            finally:
+                try:
+                    cov_json.unlink(missing_ok=True)
+                except OSError:
+                    pass
 
         passed = result.returncode == 0
         if not passed:
