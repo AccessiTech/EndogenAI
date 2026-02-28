@@ -1,6 +1,7 @@
 ---
 name: Update Agent
 description: Update existing .agent.md and AGENTS.md hierarchy files for compliance with current authoring rules, applying minimum-diff corrections.
+user-invokable: false
 tools:
   - codebase
   - editFiles

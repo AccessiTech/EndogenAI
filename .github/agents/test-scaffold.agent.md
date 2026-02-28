@@ -2,6 +2,7 @@
 name: Test Scaffold
 description: Generate test file stubs from TypeScript and Python source file interfaces. Produces signatures and TODO markers only — no business logic inferred.
 argument-hint: "[--file <source-file>]"
+user-invokable: false
 tools:
   - codebase
   - editFiles

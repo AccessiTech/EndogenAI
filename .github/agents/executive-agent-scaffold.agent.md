@@ -13,6 +13,8 @@ tools:
 agents:
   - Scaffold Agent
   - Review Agent
+  - Govern Agent
+  - Update Agent
 handoffs:
   - label: Scaffold the Agent File
     agent: Scaffold Agent

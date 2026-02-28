@@ -1,6 +1,7 @@
 ---
 name: Docs Completeness Review
 description: Audit the workspace for modules and files missing required documentation sections. Exits non-zero when gaps are found.
+user-invokable: false
 tools:
   - codebase
   - problems

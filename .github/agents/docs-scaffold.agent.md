@@ -2,6 +2,7 @@
 name: Docs Scaffold
 description: Generate initial documentation scaffolds (READMEs, JSDoc stubs, architecture outlines) from module structure, schemas, and seed knowledge.
 argument-hint: "[--module <module-name>]"
+user-invokable: false
 tools:
   - codebase
   - editFiles

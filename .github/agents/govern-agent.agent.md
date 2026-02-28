@@ -1,6 +1,7 @@
 ---
 name: Govern Agent
 description: Read-only fleet-wide compliance audit of .github/agents/ against AGENTS.md guardrails, posture rules, naming conventions, and body structure requirements.
+user-invokable: false
 tools:
   - codebase
   - problems
@@ -13,7 +14,7 @@ handoffs:
     prompt: "Governance audit complete. Apply the FAIL corrections listed."
     send: false
   - label: Re-audit Fleet
-    agent: Govern Agent
+    agent: Agent Scaffold Executive
     prompt: "Fixes applied. Re-run the governance audit."
     send: false
 ---

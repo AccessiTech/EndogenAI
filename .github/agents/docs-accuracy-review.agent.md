@@ -1,6 +1,7 @@
 ---
 name: Docs Accuracy Review
 description: Cross-reference existing documentation against the current implementation. Flags stale file paths, wrong API names, and outdated descriptions.
+user-invokable: false
 tools:
   - codebase
   - problems

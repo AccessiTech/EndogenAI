@@ -2,6 +2,7 @@
 name: Scaffold Agent
 description: Generate a new VS Code Copilot custom agent (.agent.md) for the EndogenAI development workflow, derived from existing agents and project conventions.
 argument-hint: "<agent-name> — <one-line purpose>"
+user-invokable: false
 tools:
   - codebase
   - editFiles
