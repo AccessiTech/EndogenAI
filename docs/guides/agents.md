@@ -39,6 +39,91 @@ fits the task — never invoke a full-execution agent when a read-only audit wil
 | **Read + create** | Reads + creates new files | Scaffolding new modules or agents |
 | **Full execution** | Reads, edits, runs terminal commands, runs tests | Implementation, debugging, executive orchestration |
 
+### Canonical tool IDs
+
+All tool names in `.agent.md` frontmatter use **bare names** (no slash-prefixed namespaces). The full alias table
+from the [VS Code custom agents docs](https://code.visualstudio.com/docs/copilot/customization/custom-agents):
+
+| Tool ID | Aliases | Purpose |
+|---------|---------|--------|
+| `codebase` | — | Semantic codebase search |
+| `editFiles` | — | Create, edit, and delete files |
+| `runInTerminal` | — | Run shell commands |
+| `runTests` | — | Execute the test suite |
+| `getTerminalOutput` | — | Read terminal output from a prior command |
+| `terminalLastCommand` | — | Inspect the most recent terminal command |
+| `problems` | — | Read lint / compile errors (Problems panel) |
+| `usages` | — | Find symbol definitions and references |
+| `fetch` | — | Fetch content from a URL |
+| `search` | — | File and text search |
+| `changes` | — | Read current git diff |
+| `agent` | — | Invoke another agent as a subagent (see [Subagent model](#subagent-model)) |
+
+> **Note:** The `search/codebase`, `edit/editFiles`, `execute/runInTerminal`, etc. prefixed forms are **not**
+> recognised by VS Code — all unrecognised tool names are silently ignored. Always use the bare form above.
+
+---
+
+## Subagent model
+
+Executive agents orchestrate their contextual sub-fleet by invoking other agents as **subagents** — delegating
+specialist tasks while retaining editorial control over the overall workflow. This is the mechanism that allows
+Documents Executive, Test Executive, and Phase Executives to run multi-step pipelines without every agent needing
+full tool access.
+
+### How it works
+
+An agent becomes an **orchestrator** by:
+1. Including `agent` in its `tools` list.
+2. Declaring an `agents` property listing the names of agents it may invoke.
+3. Issuing subagent calls in its prompt, e.g. `"Use the Docs Scaffold agent to generate missing READMEs."`
+
+A subagent that should never appear in the user-facing dropdown (only invokable from an executive) sets
+`user-invokable: false` in its frontmatter.
+
+```yaml
+# Executive frontmatter example
+---
+name: Docs Executive
+tools: ['codebase', 'editFiles', 'runInTerminal', 'runTests', 'getTerminalOutput',
+        'problems', 'terminalLastCommand', 'usages', 'fetch', 'changes', 'agent']
+agents:
+  - Docs Scaffold
+  - Docs Completeness Review
+  - Docs Accuracy Review
+---
+```
+
+```yaml
+# Sub-agent frontmatter example (hidden from dropdown)
+---
+name: Docs Scaffold
+user-invokable: false
+tools: ['codebase', 'editFiles', 'usages', 'fetch']
+---
+```
+
+### Sequential vs. parallel
+
+- **Sequential**: default — the executive calls one subagent, waits for its result, then calls the next based on
+  findings. Use this when each step depends on the previous output (e.g. scaffold → review → fix).
+- **Parallel**: the executive instructs multiple subagents to run simultaneously and synthesises their independent
+  results. Use for independent review perspectives (e.g. accuracy, completeness, and freshness in parallel).
+
+### Sub-fleet map
+
+| Executive | Sub-agents |
+|-----------|------------|
+| **Docs Executive** | Docs Scaffold → Docs Completeness Review → Docs Accuracy Review |
+| **Test Executive** | Test Scaffold → Test Coverage → Test Review |
+| **Phase 1 Executive** | Plan, Scaffold Module, Implement, Schema Validator, Schema Migration |
+| **Phase 2 Executive** | Plan, Implement, Schema Validator |
+| **Phase 3 Executive** | Plan, Scaffold Agent, Implement, Review Agent |
+| **Agent Scaffold Executive** | Scaffold Agent, Review Agent |
+
+> See [VS Code subagents docs](https://code.visualstudio.com/docs/copilot/agents/subagents) for the full
+> specification, including multi-turn feedback loops and parallel execution patterns.
+
 ---
 
 ## Typical day-to-day workflows
@@ -163,8 +248,10 @@ a session to orient yourself before calling Plan or an executive.
 
 ### Documentation agent fleet
 
-An executive → sub-agent hierarchy. Invoke **Docs Executive** to run the full documentation pipeline; invoke
-sub-agents individually when you only need one pass.
+An executive → sub-agent hierarchy driven by the [subagent model](#subagent-model). Invoke **Docs Executive** to
+run the full pipeline; invoke sub-agents individually when you only need one pass. Sub-agents in this fleet are
+`user-invokable: false` — they appear in the dropdown only for direct use but are primarily orchestrated by the
+executive.
 
 **Docs Executive** (`docs-executive.agent.md`) — full execution  
 Orchestrates the documentation pipeline: runs `scripts/docs/scan_missing_docs.py` to produce a gap report, then
@@ -190,7 +277,7 @@ match potentially broken code — flags divergences instead.
 
 ### Testing agent fleet
 
-An executive → sub-agent hierarchy for the full testing lifecycle. Coverage tooling: **pytest-cov** (Python) and
+An executive → sub-agent hierarchy for the full testing lifecycle, orchestrated via the [subagent model](#subagent-model). Coverage tooling: **pytest-cov** (Python) and
 **@vitest/coverage-v8** (TypeScript). Default threshold: **80%** lines, functions, and branches per package.
 Invoke **Test Executive** to run the full pipeline; invoke sub-agents individually for targeted passes.
 
@@ -220,13 +307,15 @@ Produces a PASS / WARN / FAIL report with file and line references.
 ### Phase executive agents
 
 Each phase executive drives all deliverables for its phase to the milestone gate, then hands off to Review. They are
-aware of the full roadmap but will not author deliverables belonging to another phase.
+aware of the full roadmap but will not author deliverables belonging to another phase. They use the
+[subagent model](#subagent-model) to delegate specialist work — invoking Plan, Implement, Scaffold, and Review
+agents as subagents in sequence, synthesising results, and iterating until the milestone gate is met.
 
-| Agent | Phase | Milestone |
-|-------|-------|-----------|
-| **Phase 1 Executive** | Shared Contracts & Vector Store Adapter | M1 — Contracts Stable |
-| **Phase 2 Executive** | Communication Infrastructure (MCP + A2A) | M2 — Infrastructure Online |
-| **Phase 3 Executive** | Development Agent Infrastructure | M3 — Dev Agent Fleet Live |
+| Agent | Phase | Milestone | Sub-agents |
+|-------|-------|-----------|------------|
+| **Phase 1 Executive** | Shared Contracts & Vector Store Adapter | M1 — Contracts Stable | Plan, Scaffold Module, Implement, Schema Validator, Schema Migration |
+| **Phase 2 Executive** | Communication Infrastructure (MCP + A2A) | M2 — Infrastructure Online | Plan, Implement, Schema Validator |
+| **Phase 3 Executive** | Development Agent Infrastructure | M3 — Dev Agent Fleet Live | Plan, Scaffold Agent, Implement, Review Agent |
 
 ---
 
@@ -318,3 +407,10 @@ schema coverage.
 - [`scripts/docs/scan_missing_docs.py`](../../scripts/docs/scan_missing_docs.py) — documentation gap scanner
 - [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py) — test stub generator
 - [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — coverage gap scanner
+- [`scripts/fix_agent_tools.py`](../../scripts/fix_agent_tools.py) — tool ID canonicalisation script
+
+### VS Code documentation
+
+- [Custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) — agent frontmatter schema, tool aliases, handoffs, `agents` property
+- [Custom instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions) — `.agent.md` file format and `chatagent` fence syntax
+- [Subagents](https://code.visualstudio.com/docs/copilot/agents/subagents) — subagent invocation, `user-invokable: false`, parallel execution patterns

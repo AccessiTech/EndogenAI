@@ -12,6 +12,11 @@ tools:
   - changes
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Test Scaffold
+  - Test Coverage
+  - Test Review
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold

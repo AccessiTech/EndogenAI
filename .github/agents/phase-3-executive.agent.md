@@ -13,6 +13,12 @@ tools:
   - changes
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Plan
+  - Scaffold Agent
+  - Implement
+  - Review Agent
 handoffs:
   - label: Review Phase 3
     agent: Review

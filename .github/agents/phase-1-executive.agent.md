@@ -12,6 +12,13 @@ tools:
   - search
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Plan
+  - Scaffold Module
+  - Implement
+  - Schema Validator
+  - Schema Migration
 handoffs:
   - label: Review Phase 1
     agent: Review

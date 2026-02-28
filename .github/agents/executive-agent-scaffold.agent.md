@@ -5,11 +5,14 @@ tools:
   - codebase
   - editFiles
   - problems
-  - edit
   - search
   - runInTerminal
   - getTerminalOutput
   - terminalLastCommand
+  - agent
+agents:
+  - Scaffold Agent
+  - Review Agent
 handoffs:
   - label: Scaffold the Agent File
     agent: Scaffold Agent

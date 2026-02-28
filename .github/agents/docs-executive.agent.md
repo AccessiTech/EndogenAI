@@ -13,6 +13,11 @@ tools:
   - changes
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Docs Scaffold
+  - Docs Completeness Review
+  - Docs Accuracy Review
 handoffs:
   - label: Scaffold Missing Docs
     agent: Docs Scaffold

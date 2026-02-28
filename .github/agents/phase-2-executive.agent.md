@@ -12,6 +12,12 @@ tools:
   - search
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Plan
+  - Implement
+  - Schema Validator
+  - Schema Migration
 handoffs:
   - label: Review Phase 2
     agent: Review
