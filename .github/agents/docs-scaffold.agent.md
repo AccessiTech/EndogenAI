@@ -3,11 +3,11 @@ name: Docs Scaffold
 description: Generate initial documentation scaffolds (READMEs, JSDoc stubs, architecture outlines) from module structure, schemas, and seed knowledge.
 argument-hint: "[--module <module-name>]"
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
+  - codebase
+  - editFiles
+  - fetch
   - search
-  - search/usages
+  - usages
 handoffs:
   - label: Completeness Review
     agent: Docs Completeness Review
@@ -59,7 +59,7 @@ Before scaffolding any document, read:
 | JSDoc stubs | `@param`, `@returns`, `@throws` — signatures only, no logic |
 | `agent-card.json` description field | Derived from module collection name and interface |
 
-## Constraints
+## Guardrails
 
 - **Never invent** file paths, API names, or module names — verify against the
   codebase before writing.

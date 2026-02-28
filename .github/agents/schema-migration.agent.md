@@ -2,11 +2,11 @@
 name: Schema Migration
 description: Guide safe, backwards-compatible schema evolution. Inventories downstream consumers of changed schemas, assesses breaking change risk, and records migration notes in shared/schemas/CHANGELOG.md.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - read/problems
+  - codebase
+  - editFiles
+  - problems
   - search
-  - search/usages
+  - usages
 handoffs:
   - label: Back to Schema Executive
     agent: Schema Executive
@@ -82,7 +82,7 @@ Report to Schema Executive with:
 - The list of affected consumers
 - A recommended migration strategy (version bump, optional→required promotion, deprecation period)
 
-## Constraints
+## Guardrails
 
 - **Read-only** for all files except `shared/schemas/CHANGELOG.md` — do not
   edit schema files, source files, or consumer code.

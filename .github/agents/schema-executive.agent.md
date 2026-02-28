@@ -2,16 +2,16 @@
 name: Schema Executive
 description: Orchestrate schema authoring and safe migration for EndogenAI. Enforces the schemas-first constraint — no implementation agent may reference a new contract until the schema exists and passes validation.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
   - changes
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Validate Schemas
     agent: Schema Validator
@@ -79,7 +79,7 @@ Every `.schema.json` file must include these top-level keys:
 | `title` | PascalCase name identifying this schema |
 | `type` | `"object"` for most shared contracts |
 
-## Constraints
+## Guardrails
 
 - **Never rename or delete** a `shared/schemas/` file that is already imported
   by another package without running Schema Migration first.

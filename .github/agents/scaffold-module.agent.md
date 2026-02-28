@@ -3,9 +3,9 @@ name: Scaffold Module
 description: Generate a new cognitive module from endogenous project knowledge. Provide the module name and cognitive group.
 argument-hint: "<module-name> in <group-i|ii|iii|iv>"
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
+  - codebase
+  - editFiles
+  - fetch
   - search
 handoffs:
   - label: Implement Module
@@ -62,3 +62,10 @@ Derive the agent card from:
 List every file created, confirm the `agent-card.json` validates against
 `shared/schemas/`, and surface any ambiguities for the user to resolve before
 handing off to implementation.
+
+
+## Guardrails
+
+- **Endogenous-first** - do not invent structure; derive from existing modules and schemas.
+- **Do not implement** - scaffold only; hand off to Implement for src/ and tests/ bodies.
+- **Do not commit** - hand off to Review, then GitHub.

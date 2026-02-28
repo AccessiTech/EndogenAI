@@ -2,10 +2,10 @@
 name: Plan
 description: Survey the workplan and codebase, then produce a scoped implementation plan before any code is written.
 tools:
-  - search/codebase
-  - web/fetch
+  - codebase
+  - fetch
   - search
-  - read/problems
+  - problems
 handoffs:
   - label: Start Implementation
     agent: Implement
@@ -37,7 +37,7 @@ implementation plan.
 3. Read the relevant section of [`readme.md`](../../readme.md) File Directory
    for the target area (module, schema, infra).
 4. Search the codebase to confirm what already exists and what is missing.
-5. Check `#tool:read/problems` for any existing compile or lint errors that must
+5. Check `#tool:problems` for any existing compile or lint errors that must
    be resolved first.
 
 ## Plan format
@@ -66,3 +66,10 @@ Suggested incremental commit sequence (schema → impl → tests → docs).
 ### 6. Open questions
 Anything that requires the user's decision before implementation begins.
 List clearly; do not proceed past an open question.
+
+
+## Guardrails
+
+- **Read-only** - do not create, edit, or delete any file.
+- **Do not start implementing** - output is a plan only; hand off to Implement.
+- **Do not proceed past open questions** - surface them and wait for the users decision.

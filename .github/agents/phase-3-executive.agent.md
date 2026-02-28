@@ -2,17 +2,17 @@
 name: Phase 3 Executive
 description: Drive completion of Phase 3 — Development Agent Infrastructure. Scoped strictly to .github/agents/, scripts/docs/, scripts/testing/, scripts/schema/, recursive AGENTS.md files, and docs/Workplan.md. Will not author Phase 4+ deliverables.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
   - changes
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Review Phase 3
     agent: Review
@@ -169,7 +169,7 @@ the Phase 2 Executive to close the remaining gaps before proceeding.
    ls scripts/ 2>/dev/null || echo "scripts/ has no subdirectories yet"
    ls docs/AGENTS.md modules/AGENTS.md infrastructure/AGENTS.md shared/AGENTS.md 2>/dev/null
    ```
-4. Run `#tool:read/problems` to capture any existing errors.
+4. Run `#tool:problems` to capture any existing errors.
 5. Produce a **gap list**: every `[ ]` checklist item in §§3.1–3.5 of the
    Workplan, in the order it must be resolved.
 
@@ -206,9 +206,9 @@ not invent structure from scratch:
 - **`--dry-run` on every script** that writes or modifies files — this is a
   hard requirement, not advisory.
 - **Minimum posture** for each agent — do not give a read-only agent
-  `execute/runInTerminal`. Verify tool list against the posture table in
+  `runInTerminal`. Verify tool list against the posture table in
   `AGENTS.md` before saving.
-- **Check `#tool:read/problems` after every file edit.**
+- **Check `#tool:problems` after every file edit.**
 
 ---
 
@@ -264,3 +264,10 @@ Phase 3 is complete when:
 5. Root `AGENTS.md` VS Code Custom Agents table includes all new agents.
 
 At that point, offer the **Review Phase 3** handoff.
+
+
+## Guardrails
+
+- **Phase 3 scope only** - do not create files under modules/, apps/, or shared/vector-store/ (implementation).
+- **Do not author Phase 4+ deliverables** - record cross-boundary items as open questions.
+- **Do not commit** - hand off to Review, then GitHub.

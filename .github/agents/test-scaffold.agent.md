@@ -3,13 +3,10 @@ name: Test Scaffold
 description: Generate test file stubs from TypeScript and Python source file interfaces. Produces signatures and TODO markers only — no business logic inferred.
 argument-hint: "[--file <source-file>]"
 tools:
-  - search/codebase
-  - edit/editFiles
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
   - search
-  - search/usages
+  - usages
 handoffs:
   - label: Test Quality Review
     agent: Test Review
@@ -85,7 +82,7 @@ class TestMyClass:
         assert False, "stub — replace with real assertion"
 ```
 
-## Constraints
+## Guardrails
 
 - **Signatures only** — never infer or describe business logic. Use `// TODO` for all
   assertion bodies.

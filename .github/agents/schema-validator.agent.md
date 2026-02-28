@@ -2,13 +2,13 @@
 name: Schema Validator
 description: Validate all JSON Schema files in shared/ and run Protobuf lint. Driven by scripts/schema/validate_all_schemas.py and buf lint. Read-only except for minor formatting fixes.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
+  - codebase
+  - editFiles
+  - problems
+  - runInTerminal
+  - getTerminalOutput
   - search
-  - search/usages
+  - usages
 handoffs:
   - label: Back to Schema Executive
     agent: Schema Executive
@@ -67,7 +67,7 @@ must contain all four of:
 | Schema `$id` URIs | `https://endogenai.local/schemas/<name>` | `https://endogenai.local/schemas/signal` |
 | Protobuf files | `snake_case.proto` | `signal_envelope.proto` |
 
-## Constraints
+## Guardrails
 
 - **Do not modify schema content** unless fixing a missing required key.
   Content changes belong to Schema Executive + Schema Migration.

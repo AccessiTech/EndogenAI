@@ -26,7 +26,7 @@ Typical workflow: **Plan → (approve) → Implement → (complete) → Review �
 | Agent | File | Posture | Trigger | Handoffs |
 |-------|------|---------|---------|----------|
 | **Scaffold Module** | `scaffold-module.agent.md` | read + create | Adding a new cognitive module — derives structure from endogenous knowledge | Review, GitHub |
-| **Scaffold Agent** | `scaffold-agent.agent.md` | read + create | Adding a new VS Code Copilot agent to the development workflow | Review, GitHub |
+| **Scaffold Agent** | `scaffold-agent.agent.md` | read + create | Generate a new VS Code Copilot agent file from a brief; invoked by Agent Scaffold Executive | Review Agent, Agent Scaffold Executive, GitHub |
 
 ---
 
@@ -84,6 +84,20 @@ An executive to sub-agent hierarchy for schema authoring and safe migration. Inv
 | **Schema Validator** | `schema-validator.agent.md` | read-only | After any .schema.json or .proto file is created or edited | Schema Executive, Schema Migration | `scripts/schema/validate_all_schemas.py`, `buf lint` |
 | **Schema Migration** | `schema-migration.agent.md` | read-only (+ CHANGELOG.md) | After validation passes on a changed schema; assesses backwards compatibility | Schema Executive, Review | `shared/schemas/CHANGELOG.md` |
 
+
+## Agent Governance Fleet
+
+Executive and specialist agents for creating, reviewing, updating, and auditing the `.github/agents/` fleet itself.
+Invoke **Agent Scaffold Executive** to add a new agent; invoke **Govern Agent** for periodic fleet audits.
+
+| Agent | File | Posture | Trigger | Handoffs |
+|-------|------|---------|---------|----------|
+| **Agent Scaffold Executive** | `executive-agent-scaffold.agent.md` | full | Adding a new VS Code Copilot agent to the workflow | Scaffold Agent, Review Agent, GitHub |
+| **Review Agent** | `review-agent.agent.md` | read-only | After any `.agent.md` or `AGENTS.md` hierarchy file is created or modified | Update Agent, GitHub, Agent Scaffold Executive |
+| **Update Agent** | `update-agent.agent.md` | read + create | After Govern Agent or Review Agent reports FAILs on existing agent files | Review Agent, GitHub |
+| **Govern Agent** | `govern-agent.agent.md` | read-only | Periodic fleet-wide compliance audit; before merging PRs that add or change agent files | Update Agent, Govern Agent (re-audit) |
+
+---
 
 ## Phase Executive Agents
 
@@ -153,9 +167,10 @@ current codebase. Each script has a co-located `tests/` directory.
 
 ## Adding a New Agent
 
-Use the **Scaffold Agent** agent. It will:
-1. Read all existing agents to infer naming conventions and posture.
-2. Create the `.agent.md` file with correct frontmatter and body structure per `.github/agents/AGENTS.md`.
-3. Hand off to Review, then GitHub.
+Use the **Agent Scaffold Executive** agent. It will:
+1. Survey existing agents to establish context and detect naming conflicts.
+2. Prepare a brief (name, posture, tools, handoffs, backing script) and delegate file creation to **Scaffold Agent**.
+3. Validate frontmatter post-creation and update this README and root `AGENTS.md`.
+4. Hand off to **Review Agent** (specialist `.agent.md` review), then **GitHub** (commit).
 
-After adding an agent, update this README to include it in the appropriate table and handoff graph.
+After adding an agent, confirm it appears in the correct table above and in the handoff graph.

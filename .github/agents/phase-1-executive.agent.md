@@ -2,16 +2,16 @@
 name: Phase 1 Executive
 description: Drive completion of Phase 1 — Shared Contracts & Vector Store Adapter. Scoped strictly to shared/schemas/, shared/types/, shared/utils/, and shared/vector-store/. Will not author Phase 2+ deliverables.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Review Phase 1
     agent: Review
@@ -96,7 +96,7 @@ commands pass. Do not create any `infrastructure/` files.
    cd shared/vector-store/python && uv run pytest --tb=short
    cd shared/vector-store/typescript && pnpm run test
    ```
-4. Run `#tool:read/problems` to capture any existing errors.
+4. Run `#tool:problems` to capture any existing errors.
 5. Produce a **gap list**: every checklist item that is missing or failing,
    in the order it must be resolved.
 
@@ -130,7 +130,7 @@ invent structure from scratch:
   change per commit.
 - **Tests alongside code**: write or update tests in the same commit as the
   feature they cover.
-- **Check `#tool:read/problems` after every edit.**
+- **Check `#tool:problems` after every edit.**
 
 ---
 
@@ -187,3 +187,10 @@ Phase 1 is complete when:
    it can be pre-populated without implementing the modules).
 
 At that point, offer the **Review Phase 1** handoff.
+
+
+## Guardrails
+
+- **Phase 1 scope only** - do not create files outside shared/.
+- **Do not author Phase 2+ deliverables** - record cross-boundary items as open questions.
+- **Do not commit** - hand off to Review, then GitHub.

@@ -2,14 +2,14 @@
 name: Test Coverage
 description: Identify untested code paths, map coverage gaps to module contracts, and enforce per-module coverage thresholds.
 tools:
-  - search/codebase
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
   - changes
-  - read/terminalLastCommand
+  - terminalLastCommand
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold
@@ -78,7 +78,7 @@ Default threshold: **80%** lines, functions, and branches. Per-package overrides
 are declared in `scripts/testing/scan_coverage_gaps.py` (`PYTHON_PACKAGES` and
 `TS_PACKAGES` lists).
 
-## Constraints
+## Guardrails
 
 - **Read coverage, not code** — inspect reports only; do not modify source files or
   test files. Delegate fixes to Test Scaffold or Implement.

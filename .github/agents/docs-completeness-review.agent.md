@@ -2,10 +2,10 @@
 name: Docs Completeness Review
 description: Audit the workspace for modules and files missing required documentation sections. Exits non-zero when gaps are found.
 tools:
-  - search/codebase
-  - read/problems
+  - codebase
+  - problems
   - search
-  - search/usages
+  - usages
   - changes
 handoffs:
   - label: Scaffold Missing Docs
@@ -76,3 +76,10 @@ End the report with a summary line:
 `Completeness result: N gaps found (X HIGH, Y WARN, Z INFO)`
 
 If zero gaps: `Completeness result: PASS — all required documentation present`
+
+
+## Guardrails
+
+- **Read-only** - do not create, edit, or delete any file.
+- **Do not fix** - flag gaps and delegate to Docs Scaffold.
+- **Do not commit** - hand off to Docs Executive.

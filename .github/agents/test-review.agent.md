@@ -2,10 +2,10 @@
 name: Test Review
 description: Review test quality — check for meaningful assertions, validate Testcontainers use for integration tests, and flag excessive mocking of internal collaborators.
 tools:
-  - search/codebase
-  - read/problems
+  - codebase
+  - problems
   - search
-  - search/usages
+  - usages
   - changes
 handoffs:
   - label: Fix Test Quality Issues
@@ -79,3 +79,10 @@ For each issue found, report:
 
 Rate the overall suite: **PASS** (no FAILs), **WARN** (warnings only), or **FAIL**
 (blocking issues present).
+
+
+## Guardrails
+
+- **Read-only** - do not create, edit, or delete any file.
+- **Do not modify tests** - flag quality issues as FAIL and delegate to Implement.
+- **Do not commit** - hand off to Test Executive.

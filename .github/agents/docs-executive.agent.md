@@ -2,17 +2,17 @@
 name: Docs Executive
 description: Orchestrate all documentation work across EndogenAI. Delegates to docs sub-agents, produces a gap report, and hands off to Review.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
   - changes
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Scaffold Missing Docs
     agent: Docs Scaffold
@@ -65,7 +65,7 @@ uv run python scripts/docs/scan_missing_docs.py
 # 5. Hand off to Review
 ```
 
-## Constraints
+## Guardrails
 
 - **Endogenous-first**: all documentation content must be derived from
   existing schemas, interfaces, and module structures — never invented.

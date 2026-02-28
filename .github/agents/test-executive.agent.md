@@ -2,16 +2,16 @@
 name: Test Executive
 description: Orchestrate the full testing lifecycle for EndogenAI. Runs coverage scan, delegates to scaffold and review sub-agents, and ensures all tests pass before handoff.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
   - changes
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold
@@ -80,7 +80,7 @@ TypeScript coverage (requires `@vitest/coverage-v8` in each package's `devDepend
 pnpm --filter <package-name> run test -- --coverage
 ```
 
-## Constraints
+## Guardrails
 
 - **No implementation edits**: testing agents must not modify logic under `src/`. If a
   test reveals a real bug, flag it as an open question for the Implement agent.

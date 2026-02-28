@@ -2,10 +2,10 @@
 name: Docs Accuracy Review
 description: Cross-reference existing documentation against the current implementation. Flags stale file paths, wrong API names, and outdated descriptions.
 tools:
-  - search/codebase
-  - read/problems
+  - codebase
+  - problems
   - search
-  - search/usages
+  - usages
   - changes
 handoffs:
   - label: Fix Docs Inaccuracies
@@ -30,7 +30,7 @@ For each documentation file, cross-reference every claim against the codebase:
 
 ### File paths
 - Every file path mentioned in a doc must exist on disk.
-- Check with `search/codebase` or `search` before flagging.
+- Check with `codebase` or `search` before flagging.
 
 ### API names and signatures
 - Every function, method, class, or type name referenced in docs must exist
@@ -60,7 +60,7 @@ For each documentation file, cross-reference every claim against the codebase:
 End the report with:
 `Accuracy result: N stale items found` or `Accuracy result: PASS`
 
-## Constraints
+## Guardrails
 
 - **Do not guess**: if you cannot verify a claim with a tool call, mark it as
   **UNVERIFIED** rather than PASS or FAIL.

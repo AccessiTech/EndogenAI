@@ -46,9 +46,9 @@ Choose the minimum posture that fulfils the agent's stated purpose. Do not add t
 
 | Posture | Permitted tool IDs |
 |---------|-------------------|
-| **Read-only** (review, plan, audit) | `search/codebase`, `read/problems`, `search`, `search/usages`, `changes` |
-| **Read + create** (scaffold) | adds `edit/editFiles`, `web/fetch` |
-| **Full execution** (implement, debug, executive) | adds `execute/runInTerminal`, `execute/getTerminalOutput`, `execute/runTests`, `read/terminalLastCommand` |
+| **Read-only** (review, plan, audit) | `codebase`, `problems`, `search`, `usages`, `changes` |
+| **Read + create** (scaffold) | adds `editFiles`, `edit`, `fetch` |
+| **Full execution** (implement, debug, executive) | adds `runInTerminal`, `getTerminalOutput`, `runTests`, `terminalLastCommand` |
 
 If an executive or implement agent is granted `execute/runInTerminal`, it inherits the Python
 `uv run`-only rule and the TypeScript `pnpm`-only rule from root `AGENTS.md`. It also inherits
