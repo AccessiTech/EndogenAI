@@ -9,7 +9,6 @@ tools:
   - changes
   - usages
   - fetch
-  - edit
 handoffs:
   - label: Implement Workplan Update
     agent: Executive Planner

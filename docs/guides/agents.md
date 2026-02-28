@@ -115,8 +115,7 @@ tools: ['codebase', 'editFiles', 'usages', 'fetch']
 | Executive | Sub-agents |
 |-----------|------------|
 | **Docs Executive** | Docs Scaffold → Docs Completeness Review → Docs Accuracy Review |
-| **Test Executive** | Test Scaffold → Test Coverage → Test Review |
-| **Phase 1 Executive** | Plan, Scaffold Module, Implement, Schema Validator, Schema Migration |
+| **Test Executive** | Test Scaffold → Test Coverage → Test Review || **Schema Executive** | Schema Validator, Schema Migration || **Phase 1 Executive** | Plan, Scaffold Module, Implement, Schema Validator, Schema Migration |
 | **Phase 2 Executive** | Plan, Implement, Schema Validator |
 | **Phase 3 Executive** | Plan, Scaffold Agent, Implement, Review Agent |
 | **Agent Scaffold Executive** | Scaffold Agent, Review Agent |

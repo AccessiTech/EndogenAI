@@ -12,6 +12,10 @@ tools:
   - changes
   - terminalLastCommand
   - usages
+  - agent
+agents:
+  - Schema Validator
+  - Schema Migration
 handoffs:
   - label: Validate Schemas
     agent: Schema Validator
