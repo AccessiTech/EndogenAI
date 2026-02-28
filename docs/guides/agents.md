@@ -301,9 +301,10 @@ before confirming. If an agent modifies files it shouldn't, raise it as an issue
 The script found a missing README or required section. Run it locally with `--dry-run` to see the gap report, then
 invoke **Docs Scaffold** to generate the missing files.
 
-**A backing script is missing**  
-`scripts/schema/validate_all_schemas.py` is a Phase 3.4 deliverable — not yet implemented. See
-`docs/Workplan.md` §3.4 for status.
+**Schema validation script fails or reports missing schemas**  
+`scripts/schema/validate_all_schemas.py` validates JSON/YAML schemas used by agents and backing tools. Run it locally
+to reproduce CI failures and update or add the referenced schemas as needed. See `docs/Workplan.md` §3.4 for expected
+schema coverage.
 
 ---
 

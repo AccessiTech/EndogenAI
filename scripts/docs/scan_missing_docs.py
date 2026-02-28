@@ -5,7 +5,7 @@ Required documentation per target:
   - Every directory under modules/<group>/ must have a README.md.
   - Every directory under infrastructure/ must have a README.md.
   - Every directory under shared/ (excluding .venv, __pycache__ etc.) must have a README.md.
-  - README.md files must contain the required section headings (H2 ##) listed in docs/AGENTS.md.
+  - README.md files must contain the required section headings (H2 ##) defined per target type in this script.
 
 Usage:
   uv run python scripts/docs/scan_missing_docs.py [--dry-run]

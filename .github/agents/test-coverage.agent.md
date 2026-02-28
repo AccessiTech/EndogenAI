@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Test Coverage
 description: Identify untested code paths, map coverage gaps to module contracts, and enforce per-module coverage thresholds.
@@ -86,4 +85,3 @@ are declared in `scripts/testing/scan_coverage_gaps.py` (`PYTHON_PACKAGES` and
 - **Map gaps to contracts** — when reporting a gap, reference the relevant interface
   in `shared/schemas/` or the module's `agent-card.json`.
 - **`uv run` only** for Python.
-````

@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Test Executive
 description: Orchestrate the full testing lifecycle for EndogenAI. Runs coverage scan, delegates to scaffold and review sub-agents, and ensures all tests pass before handoff.
@@ -90,4 +89,3 @@ pnpm --filter <package-name> run test -- --coverage
 - **`uv run` only**: never invoke bare `python` for Python scripts.
 - **Workplan updates**: after each sub-agent completes, mark the corresponding
   `docs/Workplan.md` checklist item `[x]`.
-````

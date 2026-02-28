@@ -31,11 +31,28 @@ Violating this order creates drift between contracts and implementation that is 
 
 Every `.schema.json` file in `shared/schemas/`, `shared/types/`, and `shared/vector-store/` must include:
 
-| Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key || Key || aft U| Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key |identifying this schema || Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key || Key || Key ||  s| Key || Key || Key || K Ex| Key || Key || Key || K Ex| Key || Key || Keject"` |
+| Key | Required | Description | Example |
+|-----|----------|-------------|---------|
+| `$schema` | yes | JSON Schema draft version | `"https://json-schema.org/draft/2020-12/schema"` |
+| `$id` | yes | Unique URI identifying this schema | `"https://endogenai.local/schemas/signal"` |
+| `title` | yes | Human-readable name | `"Signal Envelope"` |
+| `description` | yes | Purpose of the schema | `"Wraps a signal for routing"` |
+| `type` | yes | Root JSON type | `"object"` |
 
-MisMisMisMisMisMisMisMisMisMisMvalMdation error caught by `scrMisMisMisMisMisMisMisMisMisMisMvalMdation error caught by `scrMisMisMisMisMisMisMisMisto` files live under `shared/schemas/proto/`.
+Missing any of these keys will cause a validation error caught by `scripts/schema/validate_all_schemas.py`.
+
+### Protobuf Conventions
+
+- `.proto` files live under `shared/schemas/proto/`.
 - `cd shared && buf lint` must exit 0 before any Protobuf change is committed.
-- `buf.yaml` and `buf.gen.yaml` govern li- `buf.yaml` and `buf.gen.yaml` govern li- `bufm w- `buf.yaml` and `buf.gen.yaml` gt` and- `buf.yaml` and `buf.gen.yaml` govern li- `buf.yaml` and `buf.gen.yaml` govern li- `bufm w- `buf.s use `Pasc- `buf.yaml` and `buf.genConv- `buf.yaml` and `buf.gen.yaml` govern li- `buf.yaml` and `buf.gen.yaml` govern li- `bufm w- `buf.yaml`kebab-case.schema.json` | `memory-item.schema.json` |
+- `buf.yaml` and `buf.gen.yaml` govern lint rules and code generation config — do not edit without understanding downstream impact.
+- Message names use `PascalCase`; field names use `snake_case`; enum values use `SCREAMING_SNAKE_CASE`.
+
+### Naming Conventions
+
+| Artifact | Convention | Example |
+|----------|------------|---------|
+| JSON Schema files | `kebab-case.schema.json` | `memory-item.schema.json` |
 | Protobuf files | `snake_case.proto` | `signal_envelope.proto` |
 | Schema `$id` URIs | `https://endogenai.local/schemas/<name>` | `https://endogenai.local/schemas/signal` |
 | Collection names | `brain.<module-name>` (lowercase, hyphenated) | `brain.short-term-memory` |
@@ -44,7 +61,8 @@ MisMisMisMisMisMisMisMisMisMisMvalMdation error caught by `scrMisMisMisMisMisMis
 
 ## Lockfile Guardrails
 
-- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never h commit - **Never hand-edit `pnpm- **Never hand-edit `pnpm- **Never hand-edit `pnpm-: `pnpm remove <pkg>` or `uv remove <pkg>` — same rule.
+- **Never hand-edit `pnpm-lock.yaml` or `uv.lock`** — always use `pnpm install`/`pnpm add` or `uv sync`/`uv add` instead.
+- To remove a dependency: `pnpm remove <pkg>` or `uv remove <pkg>` — same rule.
 
 ---
 
@@ -54,7 +72,15 @@ The `shared/vector-store/` adapter is the **only** permitted entry point to vect
 
 - Python: import from `endogenai_vector_store` — never from `chromadb`, `qdrant_client`, or
   `psycopg2` directly in module or infrastructure code.
-- TypeScript: import from `@endogenai/vector-store` — never from the backend SDK directly.- TypeScript: import from `@endogenai/vector-store` — nevg.schem- TypeScript: import from `@endogenai/vector-store` — never from the backend SDK directly.- TypeScripd (4)- TypeScript: import from `@endogenai/vector-store` — never from the backend SDK directly.ema validat- TypeScript: imporcripts/schema/validate_all_schemas.py
+- TypeScript: import from `@endogenai/vector-store` — never from the backend SDK directly.
+
+---
+
+## Verification Gate
+
+```bash
+# JSON Schema validation
+uv run python scripts/schema/validate_all_schemas.py
 
 # Protobuf linting
 cd shared && buf lint

@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Test Review
 description: Review test quality — check for meaningful assertions, validate Testcontainers use for integration tests, and flag excessive mocking of internal collaborators.
@@ -80,4 +79,3 @@ For each issue found, report:
 
 Rate the overall suite: **PASS** (no FAILs), **WARN** (warnings only), or **FAIL**
 (blocking issues present).
-````

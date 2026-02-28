@@ -28,8 +28,16 @@ If a task requires Python glue, it belongs in `shared/` or a `modules/` package 
 
 ## Package Boundaries
 
-| Package | Directo| Package | Directo| Package | Directo| Package | Directo| Package | Direcnf| Package | Directo| PP serv| Package | Directo| Package | Directo| Package | Directo| Package | Direuc| Package | Directo| Package | Directo| Package | Directo| Package | Directo| Package | Dpters| | `| Prastructu| Package | Directo| Package | Directo| Package | Directo| Package | Directo| Packagess| Package | Directo| Package | Directo| Package | Directo| Package | Directo| Pack
-OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOs the singOOOOOOOOOOOOOOOOOOOOOOOOO---
+| Package | Directory | Responsibility |
+|---------|-----------|----------------|
+| `mcp` | `infrastructure/mcp/` | MCP server — context exchange backbone |
+| `a2a` | `infrastructure/a2a/` | A2A coordination — task delegation between agents |
+| `adapters` | `infrastructure/adapters/` | Bridge layer — adapts modules to MCP/A2A protocols |
+
+Each package is an independent `pnpm` workspace member with its own `package.json`, `tsconfig.json`,
+and test suite. Changes to one package must not silently break another.
+
+---
 
 ## MCP/A2A Conformance Gates
 
@@ -45,9 +53,12 @@ Before any change to `infrastructure/` is committed:
 pnpm run lint && pnpm run typecheck
 ```
 
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArmance
-tttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttDetttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttanctttttttttttttttttttttancttttttttp/` or `a2a/` package.
-3. Add the3. Add the3. Add the3. Add the3. Add the3. Add the3te tests: u3. Add the3. Add the3. Add theintegration in `adapters/`.
+When adding a new protocol feature or adapter, follow this workflow:
+
+1. Author the schema contract in `shared/schemas/` and land it first.
+2. Implement the change in the `mcp/` or `a2a/` package.
+3. Add integration tests in `adapters/`.
+4. Run all conformance gates (see above) — they must exit 0.
 5. Update the relevant `README.md` and `docs/protocols/` spec.
 
 ---

@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Test Scaffold
 description: Generate test file stubs from TypeScript and Python source file interfaces. Produces signatures and TODO markers only — no business logic inferred.
@@ -94,4 +93,3 @@ class TestMyClass:
   the source file.
 - **`--dry-run` first** — always preview before writing files.
 - **Do not overwrite** existing test files — the script skips files that already exist.
-````
