@@ -174,25 +174,189 @@ through.
 
 ---
 
-## Phase 3 — Group I: Signal Processing Modules
+## Phase 3 — Development Agent Infrastructure
 
-**Goal**: Implement the sensory boundary of the system — raw signal ingestion, attentional gating, and feature
-extraction.
+**Goal**: Establish a fleet of VS Code Copilot agents and supporting scripts that encode the system's own development
+process — enabling documentation generation, test scaffolding, schema validation, and module auditing to be driven
+endogenously from the codebase itself. Recursive `AGENTS.md` files in each subdirectory give agents context-specific
+guidance without contradicting root constraints.
 
-### 3.1 Sensory / Input Layer (`modules/group-i-signal-processing/sensory-input/`)
+### 3.1 Agent Conventions & Recursive `AGENTS.md` Hierarchy
+
+- [x] Author `docs/AGENTS.md` — documentation-specific agent guidance: target audiences, frontmatter requirements,
+      link and cross-reference conventions
+- [x] Author `modules/AGENTS.md` — module development conventions: per-group constraints, `agent-card.json` contract,
+      MCP/A2A wiring checklist
+- [x] Author `infrastructure/AGENTS.md` — infra-specific patterns: MCP/A2A conformance gates, adapter boundary rules,
+      TypeScript-only constraint for this directory
+- [x] Author `shared/AGENTS.md` — contract/schema authoring rules: `buf lint` gate, JSON Schema meta-schema
+      compliance, no hand-editing of lockfiles
+- [x] Author `.github/agents/AGENTS.md` — agent development conventions: frontmatter schema, tool selection rationale,
+      handoff graph patterns, mandatory script coupling
+- [x] Author `.github/agents/README.md` — agent catalog: name, posture, trigger conditions, handoff graph, and
+      supporting scripts for every agent currently in the fleet
+
+#### 3.1 Verification
+
+- [x] Every nested `AGENTS.md` opens with a cross-reference to root `AGENTS.md` and only narrows (never contradicts)
+      its constraints
+- [x] `.github/agents/README.md` lists all agents with posture, trigger, and handoff targets
+- [x] `pre-commit run validate-frontmatter --all-files` continues to exit 0 after all new files are added
+
+### 3.2 Documentation Agent Fleet (`.github/agents/`)
+
+Uses an Executive → sub-agent hierarchy: the Executive orchestrates and produces a gap report; sub-agents own
+discrete tasks and are individually invokeable. All sub-agents read `docs/AGENTS.md` for context before acting.
+
+- [x] Author `docs-executive.agent.md` — orchestrates all documentation work; delegates to scaffold / completeness /
+      accuracy sub-agents; produces a documentation gap report; handoffs to Review and GitHub
+- [x] Author `docs-scaffold.agent.md` — generates initial documentation (READMEs, JSDoc stubs, architecture diagram
+      outlines) from module structure, schemas, and seed knowledge; driven by `scripts/docs/scaffold_doc.py`
+- [x] Author `docs-completeness-review.agent.md` — audits the workspace for missing required documentation sections
+      (README, interface docstrings, `agent-card.json` descriptions); driven by
+      `scripts/docs/scan_missing_docs.py`; exits non-zero on gaps
+- [x] Author `docs-accuracy-review.agent.md` — cross-references existing documentation against current implementation;
+      flags stale descriptions, wrong paths, and outdated API references
+- [x] Author `scripts/docs/scaffold_doc.py` — generates documentation scaffolds from module structure and
+      `shared/schemas/`; `--dry-run` mode prints output without writing; `--module` flag scopes to one module
+- [x] Author `scripts/docs/tests/test_scaffold_doc.py` — unit tests for scaffold logic and `--dry-run` flag
+- [x] Author `scripts/docs/scan_missing_docs.py` — walks workspace and reports all modules/files missing required
+      documentation; exits non-zero when gaps are found; `--dry-run` flag for CI use
+- [x] Author `scripts/docs/tests/test_scan_missing_docs.py` — unit tests for gap detection and exit codes
+
+#### 3.2 Verification
+
+- [x] `uv run python scripts/docs/scan_missing_docs.py --dry-run` exits 0 on the current workspace
+- [x] `uv run pytest scripts/docs/tests/ -v` exits 0
+- [x] `docs-scaffold.agent.md` can generate a complete README stub for a hypothetical module without hallucinating
+      file paths or API names
+- [x] All docs agents appear in `.github/agents/README.md` with correct posture and handoff targets
+
+### 3.3 Testing Agent Fleet (`.github/agents/`)
+
+Mirrors the documentation fleet pattern: Executive orchestrates; sub-agents own scaffold / coverage / quality.
+All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` before running checks.
+
+- [x] Author `test-executive.agent.md` — orchestrates the full testing lifecycle; runs coverage scan; delegates to
+      scaffold and review sub-agents; ensures `uv run pytest` and `pnpm run test` pass before handoff to Review
+- [x] Author `test-scaffold.agent.md` — generates test file stubs from TypeScript interfaces and Python type stubs
+      (signatures + docstrings only; no business logic inferred); driven by `scripts/testing/scaffold_tests.py`
+- [x] Author `test-coverage.agent.md` — identifies untested code paths; maps coverage gaps to module contracts;
+      driven by `scripts/testing/scan_coverage_gaps.py`; exits non-zero if any module is below threshold
+- [x] Author `test-review.agent.md` — reviews test quality: checks for meaningful assertions, validates
+      Testcontainers use for integration tests, flags excessive mocking of internal collaborators
+- [x] Author `scripts/testing/scaffold_tests.py` — generates test file stubs from source file interfaces;
+      `--dry-run` mode; `--file` flag to scope to one source file
+- [x] Author `scripts/testing/tests/test_scaffold_tests.py` — unit tests for stub generation logic and `--dry-run`
+      flag
+- [x] Author `scripts/testing/scan_coverage_gaps.py` — runs coverage tooling and reports all untested symbols by
+      module; exits non-zero if any module is below its declared threshold; `--dry-run` flag for CI use
+- [x] Author `scripts/testing/tests/test_scan_coverage_gaps.py` — unit tests for gap detection and threshold
+      enforcement
+
+#### 3.3 Verification
+
+- [x] `uv run python scripts/testing/scan_coverage_gaps.py --dry-run` exits 0 on the current codebase
+- [x] `uv run pytest scripts/testing/tests/ -v` exits 0
+- [x] `test-scaffold.agent.md` can generate a test skeleton for `infrastructure/mcp/src/broker.ts` referencing
+      correct import paths
+- [x] All testing agents appear in `.github/agents/README.md`
+
+### 3.4 Schema & Contract Agent Fleet (`.github/agents/`)
+
+- [x] Author `schema-executive.agent.md` — orchestrates schema authoring and safe migration; enforces schemas-first
+      constraint; delegates to validator and migration sub-agents; blocks implementation agents until schemas pass
+- [x] Author `schema-validator.agent.md` — validates all JSON Schema files in `shared/schemas/` and `shared/types/`
+      against their `$schema` meta-schema; runs `buf lint`; driven by `scripts/schema/validate_all_schemas.py`
+- [x] Author `schema-migration.agent.md` — guides safe, backwards-compatible schema evolution; inventories all
+      downstream consumers before approving field removals or type changes; records migration notes in
+      `shared/schemas/CHANGELOG.md`
+- [x] Author `scripts/schema/validate_all_schemas.py` — validates all JSON Schema files; checks required keys
+      (`$schema`, `$id`, `title`, `type`); exits non-zero on any violation; `--dry-run` flag
+- [x] Author `scripts/schema/tests/test_validate_all_schemas.py` — unit tests for required-key validation and exit
+      codes
+
+#### 3.4 Verification
+
+- [x] `uv run python scripts/schema/validate_all_schemas.py` exits 0 on current `shared/schemas/` and
+      `shared/types/`
+- [x] `uv run pytest scripts/schema/tests/ -v` exits 0
+- [x] All schema agents appear in `.github/agents/README.md`
+
+### 3.5 Executive Planner Agent (`.github/agents/`)
+
+- [x] Author `executive-planner.agent.md` — surveys codebase against `docs/Workplan.md`; reconciles checklist state;
+      updates Workplan with minimum-diff edits; recommends next agent to engage; read-only on code
+
+#### 3.5 Verification
+
+- [x] `executive-planner.agent.md` is present at `.github/agents/executive-planner.agent.md` with valid
+      frontmatter (`name`, `description`, `tools`, `handoffs`)
+- [x] Agent posture is `read + edit`; `edit/editFiles` tool present; `runInTerminal` tool absent (minimum
+      posture enforced)
+- [x] Guardrails section explicitly restricts edits to `docs/Workplan.md` and `CHANGELOG.md` only — no code
+      files may be modified
+- [x] Agent listed in `.github/agents/README.md` under **Planning & Orchestration Agents** with posture
+      `read + edit` and correct handoff targets (Review, GitHub, Executive Planner iterate)
+- [x] `AGENTS.md` VS Code Custom Agents table updated to include Executive Planner
+- [x] `executive-planner.agent.md` appears in VS Code Copilot agents dropdown *(manual: confirm in VS Code
+      Copilot chat panel — file is correctly placed and formatted; auto-discovery is VS Code's responsibility)*
+
+**Deliverables**: recursive `AGENTS.md` hierarchy established; documentation, testing, and schema agent fleets
+operational with supporting scripts; Executive Planner tracking project state; all agents catalogued in
+`.github/agents/README.md`.
+
+### 3.6 Agent Governance Fleet (`.github/agents/`)
+
+- [x] Author `executive-agent-scaffold.agent.md` — full posture; orchestrates
+      new agent creation; provides brief to Scaffold Agent; runs post-creation
+      validation; delegates to Review Agent and GitHub
+- [x] Update `scaffold-agent.agent.md` — add `.github/agents/AGENTS.md` as
+      source #1; update handoffs to `Review Agent` and `Agent Scaffold Executive`
+- [x] Author `review-agent.agent.md` — read-only specialist review of `.agent.md`
+      and `AGENTS.md` hierarchy files; FAIL/WARN/PASS report format
+- [x] Author `update-agent.agent.md` — read + create; applies minimum-diff
+      corrections to existing agent files; hands off to Review Agent
+- [x] Author `govern-agent.agent.md` — read-only fleet-wide compliance audit;
+      produces fleet health report; hands off to Update Agent
+
+#### 3.6 Verification
+
+- [x] All five governance agent files present in `.github/agents/` with valid
+      frontmatter (`name`, `description`, `tools`, `handoffs`)
+- [x] Posture enforced: `executive-agent-scaffold` is full; `review-agent` and
+      `govern-agent` are read-only; `update-agent` is read + create
+- [x] All `handoffs[].agent` values reference existing agent `name` fields exactly
+- [x] Each agent body has: bold role statement, endogenous sources section,
+      workflow/checklist, and guardrails section
+- [x] All five agents listed in `.github/agents/README.md` under Agent Governance
+      Fleet with posture, trigger, and handoff targets
+- [x] Root `AGENTS.md` VS Code Custom Agents table updated to include all five
+      new agents
+- [x] `pre-commit run validate-frontmatter --all-files` exits 0 after all new
+      files are added
+
+---
+
+## Phase 4 — Group I: Signal Processing Modules
+
+**Goal**: Implement the sensory boundary of the system — raw signal ingestion,
+attentional gating, and feature extraction.
+
+### 4.1 Sensory / Input Layer (`modules/group-i-signal-processing/sensory-input/`)
 
 - [ ] Implement signal ingestion for text, image, audio, API events, and sensor stream modalities
 - [ ] Implement normalization, timestamping, and upward dispatch
 - [ ] Wire MCP + A2A interfaces; author `agent-card.json`
 - [ ] Write unit and integration tests; author `README.md`
 
-### 3.2 Attention & Filtering Layer (`modules/group-i-signal-processing/attention-filtering/`)
+### 4.2 Attention & Filtering Layer (`modules/group-i-signal-processing/attention-filtering/`)
 
 - [ ] Implement salience scoring, relevance filtering, and signal routing
 - [ ] Implement top-down attention modulation interface (receives directives from Executive layer)
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 3.3 Perception Layer (`modules/group-i-signal-processing/perception/`)
+### 4.3 Perception Layer (`modules/group-i-signal-processing/perception/`)
 
 - [ ] Implement feature extraction, pattern recognition, language understanding, scene parsing, and multimodal fusion
       pipeline
@@ -205,11 +369,11 @@ extraction.
 
 ---
 
-## Phase 4 — Group II: Cognitive Processing Modules
+## Phase 5 — Group II: Cognitive Processing Modules
 
 **Goal**: Implement memory across all timescales, affective modulation, and the reasoning/planning engine.
 
-### 4.1 Working Memory (`modules/group-ii-cognitive-processing/memory/working-memory/`)
+### 5.1 Working Memory (`modules/group-ii-cognitive-processing/memory/working-memory/`)
 
 - [ ] Implement in-process KV store with read, write, evict operations
 - [ ] Implement retrieval-augmented loader: queries `brain.short-term-memory` and `brain.long-term-memory` to assemble
@@ -218,7 +382,7 @@ extraction.
 - [ ] Configure `capacity.config.json` and `retrieval.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 4.2 Short-Term Memory (`modules/group-ii-cognitive-processing/memory/short-term-memory/`)
+### 5.2 Short-Term Memory (`modules/group-ii-cognitive-processing/memory/short-term-memory/`)
 
 - [ ] Implement session-scoped record store with TTL management (Redis/Valkey backend)
 - [ ] Wire `brain.short-term-memory` collection; embed session records via Ollama `nomic-embed-text`
@@ -226,7 +390,7 @@ extraction.
 - [ ] Configure `ttl.config.json`, `vector-store.config.json`, `embedding.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 4.3 Long-Term Memory (`modules/group-ii-cognitive-processing/memory/long-term-memory/`)
+### 5.3 Long-Term Memory (`modules/group-ii-cognitive-processing/memory/long-term-memory/`)
 
 - [ ] Implement configurable vector DB adapter for `brain.long-term-memory` (ChromaDB default, Qdrant for production)
 - [ ] Implement knowledge graph adapter (Kuzu default, Neo4j for production)
@@ -238,7 +402,7 @@ extraction.
 - [ ] Configure `vector-store.config.json`, `embedding.config.json`, `indexing.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 4.4 Episodic Memory (`modules/group-ii-cognitive-processing/memory/episodic-memory/`)
+### 5.4 Episodic Memory (`modules/group-ii-cognitive-processing/memory/episodic-memory/`)
 
 - [ ] Implement ordered event log with temporal indexing
 - [ ] Wire `brain.episodic-memory` collection; embed episode records for semantic + temporal composite queries
@@ -246,14 +410,14 @@ extraction.
 - [ ] Configure `vector-store.config.json`, `embedding.config.json`, `retention.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 4.5 Affective / Motivational Layer (`modules/group-ii-cognitive-processing/affective/`)
+### 5.5 Affective / Motivational Layer (`modules/group-ii-cognitive-processing/affective/`)
 
 - [ ] Implement reward signal generation, emotional weighting, urgency scoring, and prioritization cue dispatch
 - [ ] Wire `brain.affective` collection; embed reward and emotional state history
 - [ ] Configure `drive.config.json` and `vector-store.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 4.6 Decision-Making & Reasoning Layer (`modules/group-ii-cognitive-processing/reasoning/`)
+### 5.6 Decision-Making & Reasoning Layer (`modules/group-ii-cognitive-processing/reasoning/`)
 
 - [ ] Implement logical reasoning, causal inference, planning under uncertainty, and conflict resolution via DSPy
 - [ ] Integrate Guidance for constrained/structured generation in policy-following contexts
@@ -267,11 +431,11 @@ inference records.
 
 ---
 
-## Phase 5 — Group III: Executive & Output Modules
+## Phase 6 — Group III: Executive & Output Modules
 
 **Goal**: Implement the agent's executive identity, runtime orchestration, and environment effectors.
 
-### 5.1 Executive / Agent Layer (`modules/group-iii-executive-output/executive-agent/`)
+### 6.1 Executive / Agent Layer (`modules/group-iii-executive-output/executive-agent/`)
 
 - [ ] Implement agent identity management and self-model
 - [ ] Implement persistent goal stack with prioritization and lifecycle management
@@ -280,7 +444,7 @@ inference records.
 - [ ] Configure `identity.config.json` and `vector-store.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 5.2 Agent Execution (Runtime) Layer (`modules/group-iii-executive-output/agent-runtime/`)
+### 6.2 Agent Execution (Runtime) Layer (`modules/group-iii-executive-output/agent-runtime/`)
 
 - [ ] Implement task decomposition, tool/function selection, and skill pipeline execution via Temporal (primary) or
       Prefect (fallback)
@@ -288,7 +452,7 @@ inference records.
 - [ ] Configure tool registry
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 5.3 Motor / Output / Effector Layer (`modules/group-iii-executive-output/motor-output/`)
+### 6.3 Motor / Output / Effector Layer (`modules/group-iii-executive-output/motor-output/`)
 
 - [ ] Implement API call dispatch, message delivery, file writes, rendered output generation, and control signal
       emission
@@ -301,11 +465,11 @@ produce a measurable environmental output.
 
 ---
 
-## Phase 6 — Group IV: Adaptive Systems (Cross-Cutting)
+## Phase 7 — Group IV: Adaptive Systems (Cross-Cutting)
 
 **Goal**: Implement learning, reinforcement, and meta-cognitive monitoring layers that refine the system over time.
 
-### 6.1 Learning & Adaptation Layer (`modules/group-iv-adaptive-systems/learning-adaptation/`)
+### 7.1 Learning & Adaptation Layer (`modules/group-iv-adaptive-systems/learning-adaptation/`)
 
 - [ ] Implement reinforcement signal processing and parameter update dispatch via Stable-Baselines3 (scale to RLlib /
       TorchRL as needed)
@@ -315,7 +479,7 @@ produce a measurable environmental output.
 - [ ] Configure `learning.config.json` and `vector-store.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
-### 6.2 Meta-cognition & Monitoring Layer (`modules/group-iv-adaptive-systems/metacognition/`)
+### 7.2 Meta-cognition & Monitoring Layer (`modules/group-iv-adaptive-systems/metacognition/`)
 
 - [ ] Implement confidence tracking, error detection, performance evaluation, and anomaly escalation to executive layer
       via OpenTelemetry
@@ -329,24 +493,24 @@ influence subsequent decisions.
 
 ---
 
-## Phase 7 — Application Layer & Observability
+## Phase 8 — Application Layer & Observability
 
 **Goal**: Expose the system to external users and operators; verify end-to-end signal flow with full telemetry.
 
-### 7.1 Default Application Shell (`apps/default/`)
+### 8.1 Default Application Shell (`apps/default/`)
 
 - [ ] Implement request routing into Sensory/Input Layer and output surfacing from Motor/Output/Effector Layer
 - [ ] Build chatbot / API / dashboard entry point (TypeScript, Hono or Next.js)
 - [ ] Configure environment and write integration tests; author `README.md`
 
-### 7.2 Observability (`observability/`)
+### 8.2 Observability (`observability/`)
 
 - [ ] Finalize structured log emitters (structlog / pino) across all modules per `shared/utils/logging.md`
 - [ ] Wire OpenTelemetry trace context propagation across all inter-module boundaries per `shared/utils/tracing.md`
 - [ ] Provision Grafana dashboards for module health, signal flow latency, and memory collection sizes
 - [ ] Author `README.md`
 
-### 7.3 MCP Resource Registry (`resources/`)
+### 8.3 MCP Resource Registry (`resources/`)
 
 - [ ] Populate `uri-registry.json` with all resource URI patterns across modules
 - [ ] Author `access-control.md`
@@ -358,25 +522,25 @@ effector output, visible in Grafana.
 
 ---
 
-## Phase 8 — Cross-Cutting: Security, Deployment & Documentation
+## Phase 9 — Cross-Cutting: Security, Deployment & Documentation
 
 **Goal**: Harden the system, package it for deployment, and ensure the documentation is complete and self-referential.
 
-### 8.1 Security (`security/`)
+### 9.1 Security (`security/`)
 
 - [ ] Define module sandboxing policies and capability isolation rules with OPA
 - [ ] Configure gVisor sandbox templates for module containers
 - [ ] Perform security review of all inter-module interfaces; document findings
 - [ ] Author `README.md` and `docs/guides/security.md`
 
-### 8.2 Deployment (`deploy/`)
+### 9.2 Deployment (`deploy/`)
 
 - [ ] Write per-module `Dockerfile` definitions; author base image
 - [ ] Write Kubernetes manifests: per-module deployments, services, HPA configurations
 - [ ] Validate `docker-compose.yml` covers the full local development stack
 - [ ] Author `docs/guides/deployment.md`
 
-### 8.3 Documentation Completion
+### 9.3 Documentation Completion
 
 - [ ] Author `docs/architecture.md` — full architectural overview with signal-flow diagrams
 - [ ] Author `docs/guides/getting-started.md` — environment setup and first-run walkthrough
@@ -389,7 +553,7 @@ documentation complete and cross-linked.
 
 ---
 
-## Phase 9 — Neuromorphic Layer (Optional / Pluggable)
+## Phase 10 — Neuromorphic Layer (Optional / Pluggable)
 
 **Goal**: Evaluate and integrate spiking-neuron computation as an independently deployable, non-blocking extension.
 
@@ -408,20 +572,25 @@ documentation complete and cross-linked.
 | **M0 — Repo Live**                | 0        | `docker-compose up` green; seed knowledge committed                                       |
 | **M1 — Contracts Stable**         | 1        | All schemas validated; vector adapter tests pass                                          |
 | **M2 — Infrastructure Online**    | 2        | MCP + A2A conformance tests pass end-to-end                                               |
-| **M3 — Signal Boundary Live**     | 3        | Text input reaches `brain.perception` collection                                          |
-| **M4 — Memory Stack Live**        | 4        | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window |
-| **M5 — End-to-End Decision Loop** | 5        | Goal → Reason → Act pipeline produces verifiable output                                   |
-| **M6 — Adaptive Systems Active**  | 6        | Error detection escalates to executive; reinforcement signals registered                  |
-| **M7 — User-Facing**              | 7        | chatbot/API shell accessible; traces visible in Grafana                                   |
-| **M8 — Production-Ready**         | 8        | Kubernetes deploy succeeds; all documentation complete                                    |
+| **M3 — Dev Agent Fleet Live**     | 3        | All agent fleets operational; recursive `AGENTS.md` hierarchy in place; scripts passing   |
+| **M4 — Signal Boundary Live**     | 4        | Text input reaches `brain.perception` collection                                          |
+| **M5 — Memory Stack Live**        | 5        | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window |
+| **M6 — End-to-End Decision Loop** | 6        | Goal → Reason → Act pipeline produces verifiable output                                   |
+| **M7 — Adaptive Systems Active**  | 7        | Error detection escalates to executive; reinforcement signals registered                  |
+| **M8 — User-Facing**              | 8        | chatbot/API shell accessible; traces visible in Grafana                                   |
+| **M9 — Production-Ready**         | 9        | Kubernetes deploy succeeds; all documentation complete                                    |
 
 ---
 
 ## Open Questions & Deferred Decisions
 
 - **A2A version lock**: confirm which A2A spec release to align to before Phase 2 begins.
-- **Temporal vs. Prefect**: run a comparative spike during Phase 5 before committing to Temporal for `agent-runtime/`.
+- **Temporal vs. Prefect**: run a comparative spike during Phase 6 before committing to Temporal for `agent-runtime/`.
 - **Graph store selection**: Kuzu (embedded) is the default for `long-term-memory/graph-store/`; validate storage limits
-  before Phase 4 closes.
-- **WebMCP evaluation**: determine whether browser-native UI modules require WebMCP before Phase 7 begins.
-- **Neuromorphic prioritization**: decide if Phase 9 is in-scope for v1 or deferred to v2.
+  before Phase 5 closes.
+- **WebMCP evaluation**: determine whether browser-native UI modules require WebMCP before Phase 8 begins.
+- **Neuromorphic prioritization**: decide if Phase 10 is in-scope for v1 or deferred to v2.
+- **Agent fleet scope**: confirm whether all four Phase 3 sub-fleets (docs, testing, schema, planner) are in-scope
+  together or should be time-boxed and delivered incrementally within Phase 3.
+- **Phase-3 Executive agent**: determine whether a dedicated Phase-3 Executive agent should be scaffolded to drive
+  Phase 3 delivery, or whether the existing Plan → Implement → Review workflow is sufficient.

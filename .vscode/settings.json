@@ -10,7 +10,13 @@
         "gh": true,
         "git checkout": true,
         "git pull": true,
-        "touch": true
+        "touch": true,
+        "true": true,
+        "pre-commit": true,
+        "printf": true,
+        "uniq": true,
+        "git fetch": true,
+        "git rebase": true
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",

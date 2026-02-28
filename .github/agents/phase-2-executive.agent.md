@@ -2,16 +2,22 @@
 name: Phase 2 Executive
 description: Drive completion of Phase 2 — Communication Infrastructure (MCP + A2A). Scoped strictly to infrastructure/mcp/, infrastructure/a2a/, infrastructure/adapters/, shared/, and docs/protocols/. Will not author Phase 3+ deliverables.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
+  - agent
+agents:
+  - Plan
+  - Implement
+  - Schema Validator
+  - Schema Migration
 handoffs:
   - label: Review Phase 2
     agent: Review
@@ -114,7 +120,7 @@ If Phase 1 is not complete, stop and hand off to the Phase 1 Executive.
    ```bash
    ls infrastructure/ 2>/dev/null || echo "infrastructure/ does not exist yet"
    ```
-6. Run `#tool:read/problems` to capture any existing errors.
+6. Run `#tool:problems` to capture any existing errors.
 7. Fetch the upstream A2A specification to lock the correct version:
    ```bash
    # Review the A2A spec before scaffolding the package
@@ -162,7 +168,7 @@ invent structure from scratch:
 - **Module contracts**: every new package under `infrastructure/` must expose
   an `agent-card.json` at `/.well-known/agent-card.json`, communicate
   exclusively via MCP/A2A, and emit structured telemetry per `shared/utils/`.
-- **Check `#tool:read/problems` after every edit.**
+- **Check `#tool:problems` after every edit.**
 
 ---
 
@@ -239,3 +245,10 @@ Phase 2 is complete when:
    delegation → adapter bridge → response.
 
 At that point, offer the **Review Phase 2** handoff.
+
+
+## Guardrails
+
+- **Phase 2 scope only** - do not create files outside infrastructure/, shared/, or docs/protocols/.
+- **Do not author Phase 3+ deliverables** - record cross-boundary items as open questions.
+- **Do not commit** - hand off to Review, then GitHub.

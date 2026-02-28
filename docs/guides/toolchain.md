@@ -254,6 +254,90 @@ The `commitizen` pre-commit hook enforces this automatically at the `commit-msg`
 
 ---
 
+## Test coverage
+
+Coverage is not run by the pre-commit hooks — run it manually or in CI after the test suite passes.
+
+### Python — pytest-cov
+
+`pytest-cov` must be added to each Python sub-package's `pyproject.toml` individually:
+
+```bash
+# Add pytest-cov to a sub-package
+cd shared/vector-store/python && uv add --dev pytest-cov
+```
+
+Run coverage for a sub-package:
+
+```bash
+cd shared/vector-store/python
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+```
+
+Persist a JSON report for `scan_coverage_gaps.py` to parse:
+
+```bash
+uv run pytest --cov=src --cov-report=term-missing --cov-report=json:coverage.json --cov-fail-under=80
+```
+
+Recommended `pyproject.toml` additions per sub-package:
+
+```toml
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+```
+
+### TypeScript — @vitest/coverage-v8
+
+`@vitest/coverage-v8` must be added to each TypeScript package's `devDependencies` individually:
+
+```bash
+# Add to a specific package
+pnpm add -D @vitest/coverage-v8 --filter @accessitech/mcp
+```
+
+Run coverage for a package:
+
+```bash
+pnpm --filter @accessitech/mcp run test -- --coverage
+```
+
+To enforce thresholds, add a `vitest.config.ts` to the package root:
+
+```typescript
+import { defineConfig } from 'vitest/config';
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'json-summary'],
+      thresholds: { lines: 80, functions: 80, branches: 80 },
+    },
+  },
+});
+```
+
+### Scanning all packages
+
+Use `scripts/testing/scan_coverage_gaps.py` to check all registered packages at once:
+
+```bash
+# Preview coverage commands without executing (always exits 0)
+uv run python scripts/testing/scan_coverage_gaps.py --dry-run
+
+# Run full scan — exits 1 if any package is below threshold
+uv run python scripts/testing/scan_coverage_gaps.py
+```
+
+The script reports missing tooling setup (`pytest-cov` / `@vitest/coverage-v8`) with exact installation commands.
+Add new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as modules are created.
+
+---
+
 ## Quick Reference
 
 | What you want to check  | Command                                                  |
@@ -268,6 +352,9 @@ The `commitizen` pre-commit hook enforces this automatically at the `commit-msg`
 | Frontmatter validation  | `uv run pre-commit run validate-frontmatter --all-files` |
 | Commit message format   | `echo "<msg>" \| npx commitlint`                         |
 | Full Turborepo pipeline | `pnpm run lint && pnpm run typecheck && pnpm run test`   |
+| Python test coverage    | `cd <pkg> && uv run pytest --cov=src --cov-fail-under=80` |
+| TypeScript test coverage | `pnpm --filter <pkg> run test -- --coverage`            |
+| Scan all coverage gaps  | `uv run python scripts/testing/scan_coverage_gaps.py`   |
 
 ---
 
@@ -276,4 +363,5 @@ The `commitizen` pre-commit hook enforces this automatically at the `commit-msg`
 - [Getting Started](getting-started.md) — install and run the local stack
 - [Adding a Module](adding-a-module.md) — module scaffolding guide
 - [Observability](observability.md) — telemetry setup and dashboards
+- [Agent Fleet Guide](agents.md) — testing agent fleet and coverage workflow
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) — PR process and module contract rules

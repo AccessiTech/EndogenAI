@@ -198,6 +198,57 @@ When proceeding under ambiguity, **document the assumption inline** (code commen
 
 ---
 
+## Writing Files from the Terminal Tool
+
+The `run_in_terminal` tool has an **implicit input character limit**. Shell heredocs that embed
+large file content inside a single command string will be silently truncated — the tool emits
+`"The tool simplified the command to..."` and the output file is incomplete or empty.
+
+**Never use `cat << 'EOF' ... EOF` or multi-line Python heredoc strings for files longer than ~30 lines.**
+
+### Safe patterns for writing files
+
+#### For small files (< 30 lines) — direct `printf`
+
+```bash
+printf '# Title\n\nContent.\n' > /path/to/file.md
+```
+
+#### For medium files (30–150 lines) — multiple `printf >>` appends
+
+Keep each terminal call to **≤ 20 lines of content**. Use `>` for the first call, `>>` for all
+subsequent calls:
+
+```bash
+printf '# Title\n\nFirst section.\n' > /path/to/file.md
+printf '\n## Second Section\n\nMore content.\n' >> /path/to/file.md
+# repeat until complete — verify with: wc -l /path/to/file.md
+```
+
+#### For large files (150+ lines) — Python tmpfile script
+
+Build a Python script at `/tmp/` with small appends, then execute it:
+
+```bash
+printf 'import pathlib\n' > /tmp/write_file.py
+printf 'p = pathlib.Path("/repo/target.md")\n' >> /tmp/write_file.py
+printf 'lines = []\n' >> /tmp/write_file.py
+printf 'lines.append("# Title\\n")\n' >> /tmp/write_file.py
+printf 'lines.append("Content.\\n")\n' >> /tmp/write_file.py
+printf 'p.write_text("".join(lines))\n' >> /tmp/write_file.py
+uv run python /tmp/write_file.py
+```
+
+For patching an **existing** file, prefer the `edit` tool —
+it has no size limit and is the safest option for non-creation edits.
+
+### Rule of thumb
+
+> If the terminal command is longer than a screen, split it into multiple calls.
+> Verify each file after creation with `wc -l` and `head`/`tail`.
+
+---
+
 ## Development Scripts
 
 This repository is designed to grow **endogenously** — scripts encode system knowledge locally so that repetitive or
@@ -297,8 +348,14 @@ Copilot chat agents dropdown automatically.
 | **Review** | read-only | Pre-commit gate — verify changes against constraints and module contracts |
 | **GitHub** | terminal + read | Git/PR workflows — branching, committing, opening and merging PRs |
 | **Executive Debugger** | full tools | Diagnose and fix runtime or test failures |
+| **Executive Planner** | read + edit | Reconcile `docs/Workplan.md` against codebase; recommend next agent |
+| **Agent Scaffold Executive** | full tools | Orchestrate new agent creation — brief Scaffold Agent, validate, update catalog |
+| **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
+| **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |
+| **Govern Agent** | read-only | Fleet-wide compliance audit of `.github/agents/` against all guardrails |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 | **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
+| **Phase-3 Executive** | full tools | Phase-3 specific orchestration and delivery tasks |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 
@@ -314,6 +371,7 @@ For a new agent: **Scaffold Agent → (approve scaffold) → Review → commit**
 |----------|---------|
 | [`docs/Workplan.md`](docs/Workplan.md) | Phase-by-phase implementation roadmap |
 | [`docs/architecture.md`](docs/architecture.md) | Full architectural overview and signal-flow diagrams |
+| [`docs/guides/agents.md`](docs/guides/agents.md) | Human-readable agent fleet guide: what each agent does, postures, typical workflows |
 | [`docs/guides/adding-a-module.md`](docs/guides/adding-a-module.md) | Step-by-step module scaffolding guide |
 | [`docs/guides/toolchain.md`](docs/guides/toolchain.md) | Full toolchain command reference |
 | [`shared/vector-store/README.md`](shared/vector-store/README.md) | Vector store adapter pattern and collection registry |

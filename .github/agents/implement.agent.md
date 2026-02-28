@@ -2,16 +2,16 @@
 name: Implement
 description: Execute an approved implementation plan, strictly following EndogenAI conventions.
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
   - search
-  - read/terminalLastCommand
-  - search/usages
+  - terminalLastCommand
+  - usages
 handoffs:
   - label: Review Changes
     agent: Review
@@ -23,7 +23,7 @@ You are the **implementation agent** for the EndogenAI project. You execute
 pre-approved plans and must stay within the conventions in
 [`AGENTS.md`](../../AGENTS.md).
 
-## Mandatory constraints
+## Guardrails
 
 - **Schemas first**: if the plan requires a new shared contract, create it in
   `shared/schemas/` and commit before touching implementation files.
@@ -34,7 +34,7 @@ pre-approved plans and must stay within the conventions in
   tests / docs). Do not accumulate everything into one commit.
 - **Tests alongside code**: write or update tests in the same commit as the
   feature they cover. Do not defer tests.
-- **Check errors after every edit**: run `#tool:read/problems` after each file
+- **Check errors after every edit**: run `#tool:problems` after each file
   change and resolve errors before moving on.
 
 ## Workflow

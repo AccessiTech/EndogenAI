@@ -3,15 +3,19 @@ name: Scaffold Agent
 description: Generate a new VS Code Copilot custom agent (.agent.md) for the EndogenAI development workflow, derived from existing agents and project conventions.
 argument-hint: "<agent-name> — <one-line purpose>"
 tools:
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
+  - codebase
+  - editFiles
+  - fetch
+  - problems
   - search
 handoffs:
-  - label: Review Agent
-    agent: Review
-    prompt: "The new agent file has been scaffolded. Please review it against AGENTS.md constraints and the VS Code custom agents spec before committing."
+  - label: Review Agent File
+    agent: Review Agent
+    prompt: "New agent file scaffolded. Review it against .github/agents/AGENTS.md — frontmatter schema, posture, handoff graph, and body structure."
+    send: false
+  - label: Return to Agent Scaffold Executive
+    agent: Agent Scaffold Executive
+    prompt: "File scaffolded. Please validate, update the README catalog, and hand off to review."
     send: false
   - label: Commit with GitHub Agent
     agent: GitHub
@@ -27,15 +31,18 @@ entirely from existing project knowledge — not authored from scratch.
 
 Before creating any files, read all of the following:
 
-1. [`AGENTS.md`](../../AGENTS.md) — guiding constraints, commit discipline,
+1. [`.github/agents/AGENTS.md`](./AGENTS.md) — **read this first**: frontmatter
+   schema, posture table, naming conventions, body structure requirements, and
+   script coupling rules.
+2. [`AGENTS.md`](../../AGENTS.md) — guiding constraints, commit discipline,
    and the endogenous-first principle.
-2. [`readme.md` — File Directory](../../readme.md) — canonical
-   project structure; if the new agent warrants a docs entry, it goes here.
 3. **Every existing agent** in `.github/agents/` — read them all to understand
    naming patterns, tool selections, handoff chains, and body structure.
-4. [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — PR guidelines, commit
+4. [`readme.md` — File Directory](../../readme.md) — canonical
+   project structure; if the new agent warrants a docs entry, it goes here.
+5. [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — PR guidelines, commit
    conventions, and coding standards.
-5. [`docs/Workplan.md`](../../docs/Workplan.md) — the phase roadmap, to
+6. [`docs/Workplan.md`](../../docs/Workplan.md) — the phase roadmap, to
    understand where the new agent fits in the overall workflow.
 
 ## VS Code custom agent format
@@ -49,15 +56,15 @@ name: <Display Name>            # Shown in the Copilot agents dropdown
 description: <One-line summary> # Used by Copilot to route #-mentions
 argument-hint: <hint>           # Placeholder shown in the chat input
 tools:                          # Minimal subset of available tool IDs
-  - search/codebase
-  - edit/editFiles
-  - web/fetch
-  - read/problems
-  - execute/runInTerminal
-  - execute/getTerminalOutput
-  - execute/runTests
-  - read/terminalLastCommand
-  - search/usages
+  - codebase
+  - editFiles
+  - fetch
+  - problems
+  - runInTerminal
+  - getTerminalOutput
+  - runTests
+  - terminalLastCommand
+  - usages
   - search
   - changes
 handoffs:                       # Buttons shown after the agent responds
@@ -73,9 +80,9 @@ handoffs:                       # Buttons shown after the agent responds
 
 | Posture | Typical tool set |
 |---------|-----------------|
-| Read-only (review, plan) | `search/codebase`, `read/problems`, `search`, `search/usages`, `changes` |
-| Read + create (scaffold) | add `edit/editFiles`, `web/fetch` |
-| Full execution (implement, debug) | add `execute/runInTerminal`, `execute/getTerminalOutput`, `execute/runTests`, `read/terminalLastCommand` |
+| Read-only (review, plan) | `codebase`, `problems`, `search`, `usages`, `changes` |
+| Read + create (scaffold) | add `editFiles`, `fetch` |
+| Full execution (implement, debug) | add `runInTerminal`, `getTerminalOutput`, `runTests`, `terminalLastCommand` |
 
 Choose the **minimum posture** that fulfils the agent's purpose.
 
@@ -113,5 +120,5 @@ Create a single file at:
 - Do **not** invent naming conventions — derive from existing `.agent.md` files.
 - Do **not** give the agent a broader tool set than its posture requires.
 - Do **not** commit the file — hand off to the GitHub agent after scaffolding.
-- Do **not** skip the `read/problems` check before handing off.
+- Do **not** skip the `problems` check before handing off.
 - Confirm the `name` field is unique across all files in `.github/agents/`.
