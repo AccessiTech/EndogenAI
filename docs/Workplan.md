@@ -306,21 +306,42 @@ All sub-agents read `shared/AGENTS.md` and the relevant module `AGENTS.md` befor
 operational with supporting scripts; Executive Planner tracking project state; all agents catalogued in
 `.github/agents/README.md`.
 
-#### 3.6 Agent Scaffold Agent & Fleet (`.github/agents/`)
-- [ ] `executive-agent-scaffold.agent.md` can generate a new agent scaffold with correct frontmatter and handoffs (posture: full; edit/editFiles tool present; runInTerminal tool present)
-- [ ] `scaffold-agent.agent.md` can generate a new agent scaffold with correct frontmatter and handoffs
-- [ ] `review-agent.agent.md` can review new and existing .agent/AGENT.md files for compliance with AGENTS.md rules and guides
-- [ ] `update-agent.agent.md` can update existing .agent/AGENT.md files for compliance with AGENTS.md rules and guides and to incorporate lessons learned along the way
-- [ ] `govern-agent.agent.md` can enforce compliance with AGENTS.md guardrails, rules, and guides across the .agent/AGENTS.md ecosystem
-- [ ] All scaffold agents appear in `.github/agents/README.md`
+### 3.6 Agent Governance Fleet (`.github/agents/`)
 
+- [x] Author `executive-agent-scaffold.agent.md` — full posture; orchestrates
+      new agent creation; provides brief to Scaffold Agent; runs post-creation
+      validation; delegates to Review Agent and GitHub
+- [x] Update `scaffold-agent.agent.md` — add `.github/agents/AGENTS.md` as
+      source #1; update handoffs to `Review Agent` and `Agent Scaffold Executive`
+- [x] Author `review-agent.agent.md` — read-only specialist review of `.agent.md`
+      and `AGENTS.md` hierarchy files; FAIL/WARN/PASS report format
+- [x] Author `update-agent.agent.md` — read + create; applies minimum-diff
+      corrections to existing agent files; hands off to Review Agent
+- [x] Author `govern-agent.agent.md` — read-only fleet-wide compliance audit;
+      produces fleet health report; hands off to Update Agent
+
+#### 3.6 Verification
+
+- [x] All five governance agent files present in `.github/agents/` with valid
+      frontmatter (`name`, `description`, `tools`, `handoffs`)
+- [x] Posture enforced: `executive-agent-scaffold` is full; `review-agent` and
+      `govern-agent` are read-only; `update-agent` is read + create
+- [x] All `handoffs[].agent` values reference existing agent `name` fields exactly
+- [x] Each agent body has: bold role statement, endogenous sources section,
+      workflow/checklist, and guardrails section
+- [x] All five agents listed in `.github/agents/README.md` under Agent Governance
+      Fleet with posture, trigger, and handoff targets
+- [x] Root `AGENTS.md` VS Code Custom Agents table updated to include all five
+      new agents
+- [x] `pre-commit run validate-frontmatter --all-files` exits 0 after all new
+      files are added
 
 ---
 
 ## Phase 4 — Group I: Signal Processing Modules
 
-**Goal**: Implement the sensory boundary of the system — raw signal ingestion, attentional gating, and feature
-extraction.
+**Goal**: Implement the sensory boundary of the system — raw signal ingestion,
+attentional gating, and feature extraction.
 
 ### 4.1 Sensory / Input Layer (`modules/group-i-signal-processing/sensory-input/`)
 
