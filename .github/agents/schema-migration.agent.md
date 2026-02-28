@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Schema Migration
 description: Guide safe, backwards-compatible schema evolution. Inventories downstream consumers of changed schemas, assesses breaking change risk, and records migration notes in shared/schemas/CHANGELOG.md.
@@ -90,4 +89,3 @@ Report to Schema Executive with:
 - **Never silence a breaking change** — document it even if consumers appear
   non-production.
 - **`uv run` only** — never invoke bare `python`.
-````

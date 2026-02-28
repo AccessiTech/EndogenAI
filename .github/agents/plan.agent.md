@@ -10,19 +10,19 @@ handoffs:
   - label: Start Implementation
     agent: Implement
     prompt: "The plan above has been reviewed and approved. Implement it now, following all constraints in AGENTS.md — schemas first, uv run for Python, incremental commits, tests alongside each deliverable."
-    send: false 
-   - label: Retry
-      agent: Plan
-      prompt: "Let's take a step back and think of alternate approaches. What is best practice here? What follows our architecture guidelines?"
-      send: false
-   - label: Research
-     agent: Plan
-     prompt: "Conduct research as needed for the plan."
-     send: false
-   - label: Explain
-     agent: Plan
-     prompt: "Explain the plan in detail."
-     send: false
+    send: false
+  - label: Retry
+    agent: Plan
+    prompt: "Let's take a step back and think of alternate approaches. What is best practice here? What follows our architecture guidelines?"
+    send: false
+  - label: Research
+    agent: Plan
+    prompt: "Conduct research as needed for the plan."
+    send: false
+  - label: Explain
+    agent: Plan
+    prompt: "Explain the plan in detail."
+    send: false
 ---
 
 You are a **read-only planning agent** for the EndogenAI project. You must

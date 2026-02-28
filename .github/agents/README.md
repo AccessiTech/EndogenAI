@@ -81,7 +81,7 @@ An executive to sub-agent hierarchy for schema authoring and safe migration. Inv
 | Agent | File | Posture | Trigger | Handoffs | Backing Script |
 |-------|------|---------|---------|----------|----------------|
 | **Schema Executive** | `schema-executive.agent.md` | full | Start of any schema authoring or migration task; blocks implementation until schemas pass | Schema Validator, Schema Migration, Review | `scripts/schema/validate_all_schemas.py` |
-| **Schema Validator** | `schema-validator.agent.md` | read + execute | After any .schema.json or .proto file is created or edited | Schema Executive, Schema Migration | `scripts/schema/validate_all_schemas.py`, `buf lint` |
+| **Schema Validator** | `schema-validator.agent.md` | read-only | After any .schema.json or .proto file is created or edited | Schema Executive, Schema Migration | `scripts/schema/validate_all_schemas.py`, `buf lint` |
 | **Schema Migration** | `schema-migration.agent.md` | read-only (+ CHANGELOG.md) | After validation passes on a changed schema; assesses backwards compatibility | Schema Executive, Review | `shared/schemas/CHANGELOG.md` |
 
 

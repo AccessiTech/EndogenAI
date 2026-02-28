@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Schema Executive
 description: Orchestrate schema authoring and safe migration for EndogenAI. Enforces the schemas-first constraint — no implementation agent may reference a new contract until the schema exists and passes validation.
@@ -87,4 +86,3 @@ Every `.schema.json` file must include these top-level keys:
 - **Protobuf changes** require `cd shared && buf lint` to exit 0 before commit.
 - **`uv run` only** — never invoke bare `python`.
 - **One schema per commit** — land schema files incrementally, not in bulk.
-````

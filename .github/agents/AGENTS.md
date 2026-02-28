@@ -125,7 +125,7 @@ Before committing a new or modified agent file:
 
 ```bash
 # Check for name uniqueness
-grep -h "^name:" /Users/conor/Sites/EndogenAI/.github/agents/*.agent.md | sort | uniq -d
+grep -h "^name:" .github/agents/*.agent.md | sort | uniq -d
 
 # Verify all handoff targets resolve (manual: every `agent:` field must match a `name:`)
 

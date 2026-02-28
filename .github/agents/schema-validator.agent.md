@@ -1,4 +1,3 @@
-````chatagent
 ---
 name: Schema Validator
 description: Validate all JSON Schema files in shared/ and run Protobuf lint. Driven by scripts/schema/validate_all_schemas.py and buf lint. Read-only except for minor formatting fixes.
@@ -74,4 +73,3 @@ must contain all four of:
   Content changes belong to Schema Executive + Schema Migration.
 - **Report**, do not silently fix, any naming convention violation.
 - **`uv run` only** — never invoke bare `python`.
-````

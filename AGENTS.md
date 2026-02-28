@@ -236,10 +236,10 @@ printf 'lines = []\n' >> /tmp/write_file.py
 printf 'lines.append("# Title\\n")\n' >> /tmp/write_file.py
 printf 'lines.append("Content.\\n")\n' >> /tmp/write_file.py
 printf 'p.write_text("".join(lines))\n' >> /tmp/write_file.py
-python3 /tmp/write_file.py
+uv run python /tmp/write_file.py
 ```
 
-For patching an **existing** file, prefer the `replace_string_in_file` editor tool —
+For patching an **existing** file, prefer the `edit` tool —
 it has no size limit and is the safest option for non-creation edits.
 
 ### Rule of thumb

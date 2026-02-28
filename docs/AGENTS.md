@@ -46,7 +46,9 @@ Every document in `docs/` must include:
 
 ## Frontmatter Rules
 
-`docs/` files are **plain Markdown** — no YAML frontmatter block is required or expected.
+Some `docs/` files use YAML frontmatter (`id`, `version`, `status`, `last-reviewed`) to
+support tooling and metadata tracking — this is allowed and encouraged for guides and
+reference documents. Files without frontmatter are also valid.
 
 Files under `resources/` (not `docs/`) require frontmatter. See
 [`scripts/validate_frontmatter.py`](../scripts/validate_frontmatter.py) for the required fields
@@ -72,8 +74,9 @@ Files under `resources/` (not `docs/`) require frontmatter. See
   implementation files — do not invent names.
 - **No implementation detail in `docs/`**: architecture docs describe *what* and *why*; implementation
   lives in code and module READMEs.
-- **Workplan edits are minimum-diff**: when updating `docs/Workplan.md`, change only checklist state
-  (`[ ]` → `[x]`) and add new open questions — do not restructure headings or reorder phases.
+- **Workplan edits prefer minimum-diff**: when updating `docs/Workplan.md`, keep unrelated changes small
+  (especially checklist state `[ ]` → `[x]` and new open questions), but phase renumbering or structural
+  heading changes are allowed when required to reflect roadmap updates.
 - **Protocol specs must match implementation**: before editing `docs/protocols/`, confirm the actual
   behaviour in `infrastructure/mcp/` or `infrastructure/a2a/`. Flag divergences rather than silently
   updating the spec to match a potentially broken implementation.
