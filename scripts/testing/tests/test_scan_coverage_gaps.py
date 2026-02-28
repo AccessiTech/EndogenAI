@@ -97,16 +97,10 @@ def test_run_python_coverage_dry_run_always_passes(tmp_path: Path) -> None:
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text('[project]\nname = "t"\n# pytest-cov\n')
     (tmp_path / "src").mkdir()
-    pkg = scan_coverage_gaps.PyPackage(rel_dir=str(tmp_path), src_subdir="src", threshold=80)
+    pkg = scan_coverage_gaps.PyPackage(rel_dir=tmp_path.name, src_subdir="src", threshold=80)
 
     with patch.object(scan_coverage_gaps, "REPO_ROOT", tmp_path.parent):
-        # Adjust the pkg rel_dir to be relative
-        pkg2 = scan_coverage_gaps.PyPackage(
-            rel_dir=tmp_path.name, src_subdir="src", threshold=80
-        )
-        # Patch REPO_ROOT so pkg_dir resolves correctly
-        with patch.object(scan_coverage_gaps, "REPO_ROOT", tmp_path.parent):
-            result = scan_coverage_gaps._run_python_coverage(pkg2, dry_run=True)
+        result = scan_coverage_gaps._run_python_coverage(pkg, dry_run=True)
     assert result.passed is True
 
 

@@ -2,8 +2,8 @@
 """validate_all_schemas.py — Validate all JSON Schema files in shared/.
 
 Checks every .schema.json file in shared/schemas/, shared/types/, and
-shared/vector-store/ for the four required top-level keys:
-  $schema, $id, title, type
+shared/vector-store/ for the five required top-level keys:
+  $schema, $id, title, description, type
 
 Usage:
   uv run python scripts/schema/validate_all_schemas.py          # exits 1 on violations
@@ -25,7 +25,7 @@ SCAN_DIRS = [
     REPO_ROOT / "shared" / "vector-store",
 ]
 
-REQUIRED_KEYS = ["$schema", "$id", "title", "type"]
+REQUIRED_KEYS = ["$schema", "$id", "title", "description", "type"]
 
 @dataclass
 class SchemaViolation:

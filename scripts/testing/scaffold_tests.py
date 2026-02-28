@@ -92,6 +92,42 @@ def _rel(path: Path) -> str:
         return str(path)
 
 
+def _extract_ts_class_body(src: str, start: int) -> str:
+    """Return the text inside the first { ... } block after *start*."""
+    i = start
+    while i < len(src) and src[i] != "{":
+        i += 1
+    if i >= len(src):
+        return ""
+    depth = 1
+    i += 1
+    body_start = i
+    while i < len(src) and depth > 0:
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+        i += 1
+    return src[body_start : i - 1]
+
+
+def _extract_py_class_body(src: str, start: int) -> str:
+    """Return only the indented body lines of a Python class beginning at *start*."""
+    lines = src[start:].splitlines(keepends=True)
+    body_lines: list[str] = []
+    found_body = False
+    for line in lines:
+        if not found_body:
+            if line.strip():
+                found_body = True
+                body_lines.append(line)
+        else:
+            if line and not line[0].isspace() and line.strip():
+                break
+            body_lines.append(line)
+    return "".join(body_lines)
+
+
 def _extract_ts_symbols(src: str) -> list[TsSymbol]:
     """Extract exported TypeScript classes and functions from source text."""
     symbols: list[TsSymbol] = []
@@ -106,7 +142,7 @@ def _extract_ts_symbols(src: str) -> list[TsSymbol]:
 
     for class_match in _TS_EXPORT_CLASS_RE.finditer(src):
         class_name = class_match.group(1)
-        body = src[class_match.end() :]
+        body = _extract_ts_class_body(src, class_match.end())
         methods = [
             m.group(1)
             for m in _TS_METHOD_RE.finditer(body)
@@ -174,7 +210,7 @@ def _extract_py_symbols(src: str) -> list[PySymbol]:
 
     for class_match in _PY_CLASS_RE.finditer(src):
         class_name = class_match.group(1)
-        body = src[class_match.end() :]
+        body = _extract_py_class_body(src, class_match.end())
         methods = [
             m.group(1)
             for m in _PY_METHOD_RE.finditer(body)

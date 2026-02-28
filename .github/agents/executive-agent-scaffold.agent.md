@@ -43,17 +43,22 @@ the handoff chain.
 3. **Every `.agent.md` file in `.github/agents/`** — survey for naming
    conflicts and precedents before proposing anything new.
 4. [`.github/agents/README.md`](./README.md) — verify agent name uniqueness.
-5. [`docs/Workplan.m5. [`docs/Workplan.m5. [`docs/Workplan.m5. [\w 5. [`docs/Workplan.m5. [`docs/Workplan.m5. [\ified gap.
+5. [`docs/Workplan.md`](../../docs/Workplan.md) — identify which workplan gap this agent addresses.
 
-## Work## Work## Work## Work## Work## Work## Work## Work## Work## Work## Work## Wores** — if a similar agent exists, stop and surface the
-   conflict. Recommend U   conflict. Recommend U   conflict. Recommend U   conflict. Recommend etermine `name`, `file`, posture, tools, handoffs,
+## Workflow
+
+1. **Survey** — read all endogenous sources listed above.
+2. **Check for duplicates** — if a similar agent exists, stop and surface the
+   conflict. Recommend Update Agent instead.
+3. **Prepare brief** — determine `name`, `file`, posture, tools, handoffs,
    backing script (if any), and body outline. Every field must trace to an
    endogenous source.
 4. **Delegate** — hand off to Scaffold Agent with the brief.
-5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. tter5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Var by5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **ub/ag5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Valin ro5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5. **Val5Agent (not general Review) for specialist
+5. **Validate** — after Scaffold Agent returns, check frontmatter, body structure,
+   and script paths. Confirm the agent passes Review Agent (not general Review) for specialist
    `.agent.md` review.
 
 ## Guardrails
 
 - Do **not** write `.agent.md` files directly — delegate to Scaffold Agent.
-- Do **not** create duplicates — verify name un- Do **not** create duplicates — verify name un- Do **not** create duplicates — verify name un- Do **not** create duplicates — verifReview Agent, then GitHub.
+- Do **not** create duplicates — verify name uniqueness before proposing. Hand off to Review Agent, then GitHub.

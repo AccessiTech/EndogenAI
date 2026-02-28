@@ -47,7 +47,7 @@ Choose the minimum posture that fulfils the agent's stated purpose. Do not add t
 | Posture | Permitted tool IDs |
 |---------|-------------------|
 | **Read-only** (review, plan, audit) | `codebase`, `problems`, `search`, `usages`, `changes` |
-| **Read + create** (scaffold) | adds `editFiles`, `edit`, `fetch` |
+| **Read + create** (scaffold) | adds `editFiles`, `fetch` |
 | **Full execution** (implement, debug, executive) | adds `runInTerminal`, `getTerminalOutput`, `runTests`, `terminalLastCommand` |
 
 If an executive or implement agent is granted `execute/runInTerminal`, it inherits the Python

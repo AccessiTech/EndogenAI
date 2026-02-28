@@ -1,4 +1,3 @@
-```chatagent
 ---
 name: Review Agent
 description: Specialist read-only reviewer of .agent.md files — checks frontmatter schema, posture compliance, body structure, handoff graph validity, and script coupling against AGENTS.md authoring rules.
@@ -86,4 +85,4 @@ For each `.agent.md` file under review:
 - **Read-only** — do not create, edit, or delete any file.
 - **Specialist scope** — only review `.agent.md` files and `AGENTS.md`; do not audit other file types.
 - **Do not commit** — hand off to Update Agent for fixes, or to GitHub Agent for merge.
-```
+
