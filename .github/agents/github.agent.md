@@ -4,8 +4,13 @@ description: Manage git workflows, GitHub pull requests, code reviews, and issue
 tools:
   - search
   - read
+  - edit
+  - write
   - terminal
+  - run_in_terminal
   - changes
+  - agent
+  - web
 handoffs:
   - label: Review Changes
     agent: Review
