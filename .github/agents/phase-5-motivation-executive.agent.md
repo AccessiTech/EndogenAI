@@ -42,11 +42,25 @@ You are the **Phase 5 Motivation Executive Agent** for the EndogenAI project.
 Your sole mandate is to implement the **affective and motivational layer for Phase 5** (§5.5)
 under `modules/group-ii-cognitive-processing/affective/`:
 
+### Neuroscience-to-code mapping
+
+Derive all implementation decisions from this table (sourced from `phase-5-synthesis-workplan.md` §6):
+
+| Biological finding | Implementation decision |
+|-------------------|------------------------|
+| Dopamine RPE: VTA phasic burst = unexpected reward | `RewardSignal.value > 0` = positive RPE; `value < 0` = negative RPE; magnitude encodes surprise |
+| Incentive salience (nucleus accumbens) | `urgency` signal type drives priority re-ranking in working memory loader |
+| BLA emotional tagging → hippocampal amplification | All `RewardSignal` items link to co-occurring memory items; module writes to `brain.affective` **and** triggers `importanceScore` boost on those items via MCP |
+| Hypothalamus drive variables | Drive variables (urgency, novelty, threat) computed from incoming signals; emitted as urgency-type `RewardSignal`s |
+
+### Module deliverables
+
 - **Reward signal generation** — produce outputs conforming to `shared/types/reward-signal.schema.json`; every emitted reward object must pass schema validation.
-- **Emotional weighting** — compute and store emotional weight factors for incoming signals; embed state history in `brain.affective` via the shared vector store adapter.
-- **Urgency scoring** — derive urgency scores from drive parameters in `drive.config.json`; apply configurable reward decay and urgency thresholds.
-- **Prioritisation cue dispatch** — route cues to the working memory consolidation pipeline and, in later phases, to the executive layer; document the interface contract in `README.md`.
-- **Configuration**: `drive.config.json` (reward decay, urgency thresholds, emotional weight factors) and `vector-store.config.json`.
+- **Emotional weighting** (`emotional_weighting.py`) — compute and store emotional weight factors for incoming signals; embed state history in `brain.affective` via the shared vector store adapter.
+- **Urgency scoring** (`urgency_scoring.py`) — derive urgency scores from drive parameters in `drive.config.json`; drive variable types: **urgency**, **novelty**, **threat**; apply configurable reward decay and urgency thresholds.
+- **Reward signal generation** (`reward_signals.py`) — emit `RewardSignal` records; link each to the co-occurring memory item ID.
+- **Prioritisation cue dispatch** (`prioritisation.py`) — route prioritisation cues to the working memory consolidation pipeline via MCP (document as a cross-module dependency in `README.md` and wire through `infrastructure/adapters/bridge.ts`); this is the mechanism by which high-valence events boost `importanceScore` on co-occurring memory items in `brain.short-term-memory` and `brain.long-term-memory`.
+- **Configuration**: `drive.config.json` (reward decay, urgency thresholds, emotional weight factors, drive variable types: urgency/novelty/threat) and `vector-store.config.json`.
 - **Brain analogy**: limbic system — derive module name, description, and `agent-card.json` fields from `resources/neuroanatomy/limbic-system.md`; do not invent descriptions.
 
 **Gate prerequisite**: the four memory modules (§§5.1–5.4) must be verified complete — all pytest
@@ -78,6 +92,10 @@ identified, record it as an open question and surface it to Phase 5 Executive.
    ```bash
    ls modules/group-ii-cognitive-processing/memory/{working-memory,short-term-memory,long-term-memory,episodic-memory}/agent-card.json
    ```
+10. Read the Phase 5 research briefs — in particular the affective module sections:
+    - [`docs/research/phase-5-synthesis-workplan.md`](../../docs/research/phase-5-synthesis-workplan.md) §6 — Module §5.5 neuroscience derivation and implementation decisions
+    - [`docs/research/phase-5-detailed-workplan.md`](../../docs/research/phase-5-detailed-workplan.md) §8 — §5.5 directory structure, config files, and verification checklist
+    - [`docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md`](../../docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md) §7 — affective context propagation and reward signal MCP payloads
 
 ---
 

@@ -50,6 +50,16 @@ under `modules/group-ii-cognitive-processing/reasoning/`:
 - **Brain analogy**: prefrontal cortex and frontal lobe — derive module name, description, and `agent-card.json` fields from `resources/neuroanatomy/prefrontal-cortex.md` and `resources/neuroanatomy/frontal-lobe.md`; do not invent descriptions.
 - Must wire MCP + A2A, expose `agent-card.json`, have passing tests, and a `README.md`.
 
+### Module file layout
+
+Derive from `docs/research/phase-5-detailed-workplan.md` §9 for the canonical file list.
+Key source files under `src/reasoning/`:
+- `dspy_pipeline.py` — DSPy program definitions; all LLM calls via LiteLLM endpoint
+- `causal_planner.py` — causal inference and planning under uncertainty
+- `conflict_resolver.py` — conflict resolution policy logic
+- `inference_trace.py` — `InferenceTrace` model and embedding to `brain.reasoning`
+- `mcp_tools.py`, `a2a_handler.py` — protocol interfaces
+
 **Gate prerequisite**: BOTH the four memory modules (§§5.1–5.4) AND the motivational/affective
 module (§5.5) must be verified complete — all pytest passing, all `[x]` in Workplan — before any
 implementation work begins. If either gate has not been confirmed, **stop** and hand off to Phase
@@ -87,6 +97,10 @@ Executive.
    ls modules/group-ii-cognitive-processing/memory/{working-memory,short-term-memory,long-term-memory,episodic-memory}/agent-card.json
    ls modules/group-ii-cognitive-processing/affective/agent-card.json
    ```
+10. Read the Phase 5 research briefs — in particular the reasoning module sections:
+    - [`docs/research/phase-5-synthesis-workplan.md`](../../docs/research/phase-5-synthesis-workplan.md) §7 — Module §5.6 neuroscience derivation and implementation decisions
+    - [`docs/research/phase-5-detailed-workplan.md`](../../docs/research/phase-5-detailed-workplan.md) §9 — §5.6 directory structure, config files, and verification checklist
+    - [`docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md`](../../docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md) §2.2 — RAG variants; in particular **Recursive / multi-hop RAG** as the mechanism for causal reasoning chains
 
 ---
 
@@ -106,6 +120,22 @@ cd modules/group-ii-cognitive-processing/affective && uv run pytest
 ```
 
 If either gate fails, **stop** and notify Phase 5 Executive with the specific failing check.
+
+---
+
+## Schemas-first gate
+
+`InferenceTrace` is a likely new shared schema required by `inference_trace.py` before any
+embedding or validation code can be written.
+
+**Before writing any code that defines or imports `InferenceTrace`**:
+1. Coordinate with the Schema Executive.
+2. Land the JSON Schema in `shared/schemas/inference-trace.schema.json` and ensure `buf lint`
+   and all schema validation checks pass.
+3. Only then implement `inference_trace.py` against it.
+
+Do not define the type inline in the module. It must live in `shared/schemas/` first, so that
+downstream consumers (Phase 6 Executive layer) can import it without circular dependencies.
 
 ---
 
@@ -132,16 +162,22 @@ scratch:
   pipelines — declare it in `pyproject.toml` with a pinned version.
 - **Guidance** is used for constrained/structured generation in policy-following contexts — also
   declare in `pyproject.toml` with a pinned version.
+- **Multi-hop / recursive RAG for causal reasoning**: each retrieval stage informs the next
+  query — the output of one retrieval step is used to refine the next query, chaining retrieved
+  evidence into a causal reasoning trace. This is the primary mechanism for multi-step inference
+  in `causal_planner.py`. Wire retrieval through the shared adapter querying
+  `brain.long-term-memory`.
 - All reasoning calls that invoke an LLM must go through LiteLLM — never import `openai`,
   `anthropic`, `ollama`, or similar SDKs directly; configure model strings in
   `strategy.config.json`.
+- **Cross-module read dependencies** (must be declared in `README.md` and wired via
+  `infrastructure/adapters/bridge.ts` — no direct HTTP between modules):
+  - `brain.long-term-memory` — background knowledge retrieval for reasoning context
+  - `brain.affective` — prioritisation cues from the motivational layer
 - Inference traces, plans, and causal models are embedded and stored in `brain.reasoning` via
   `endogenai_vector_store` — never call ChromaDB/Qdrant directly.
 - `strategy.config.json` must document: default reasoning strategy, causal inference parameters,
   planning horizon, conflict resolution policy, and LiteLLM model routing config.
-- The reasoning module may query `brain.long-term-memory` (for background knowledge) and
-  `brain.affective` (for prioritisation cues) via MCP — document these cross-module dependencies
-  in `README.md` and wire them via `infrastructure/adapters/bridge.ts`.
 
 ---
 

@@ -94,7 +94,12 @@ executive until the previous one's gate checks pass.
    ls modules/group-ii-cognitive-processing/ 2>/dev/null || echo "directory does not exist yet"
    ```
 9. Run `#tool:problems` to capture any existing errors.
-10. Produce a **gap list**: every `[ ]` checklist item in §§5.1–5.6 of the Workplan, in the
+10. Read the Phase 5 research briefs — they are the **primary pre-implementation reference**
+    for all §§5.1–5.6 decisions. Read before delegating to any domain executive:
+    - [`docs/research/phase-5-detailed-workplan.md`](../../docs/research/phase-5-detailed-workplan.md) — canonical directory tree, build sequence, gate definitions, Docker service requirements, and open questions
+    - [`docs/research/phase-5-synthesis-workplan.md`](../../docs/research/phase-5-synthesis-workplan.md) — module-by-module neuroscience-to-implementation mapping for all six modules
+    - [`docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md`](../../docs/research/phase-5-mcp-solutions-and-programmatic-techniques.md) — RAG patterns, tiered memory store architecture, consolidation pipeline design, and context window management strategies
+11. Produce a **gap list**: every `[ ]` checklist item in §§5.1–5.6 of the Workplan, in the
     order it must be resolved.
 
 Work through the gap list item by item. Do not start item N+1 until item N passes all
@@ -140,26 +145,40 @@ pnpm run lint && pnpm run typecheck
 If any Phase 4 item is incomplete or any command fails, **stop**. Hand off to
 the Phase 4 Executive to close the remaining gaps before proceeding.
 
+Also verify required Docker services are present — this is a **blocker** for §5.2 STM
+integration tests. The short-term memory backend is configurable (default: `redis`):
+
+```bash
+# Confirm chromadb, redis (or valkey), and ollama services are declared
+docker compose config --services | grep -E "chromadb|redis|valkey|ollama"
+```
+
+If `redis` or `valkey` is absent from `docker-compose.yml`, it must be added with
+configurable backend support before §5.2 implementation begins. Record as a blocker
+if missing and do not delegate to Phase 5 Memory Executive until resolved.
+
 ---
 
 ## Phase 5 scope
 
 ### §§5.1–5.4 Memory (`modules/group-ii-cognitive-processing/memory/`)
 
-Four memory sub-modules, implemented in order:
+Four memory sub-modules. Build sequence (strictly): **STM → LTM → Episodic → WM**
+(Working Memory assembles from the other three, so those must exist first):
 
-- **Working Memory** (`memory/working-memory/`) — active context window assembly, retrieval-
-  augmented loader querying `brain.short-term-memory` and `brain.long-term-memory`, eviction and
-  consolidation pipeline dispatching to episodic / long-term memory.
 - **Short-Term Memory** (`memory/short-term-memory/`) — session-scoped retention, `brain.short-
   term-memory` collection wired via shared adapter, Ollama `nomic-embed-text` embeddings,
-  semantic search to serve the working memory loader.
+  semantic search to serve the working memory loader. Configurable backend, default: Redis.
 - **Long-Term Memory** (`memory/long-term-memory/`) — persistent semantic storage, configurable
   vector DB adapter for `brain.long-term-memory` (ChromaDB default, Qdrant for production),
-  graph store wired via shared adapter.
+  graph store wired via shared adapter; boot-time seed pipeline via LlamaIndex.
 - **Episodic Memory** (`memory/episodic-memory/`) — event-sequenced episode records,
   `brain.episodic-memory` collection wired via shared adapter, semantic + temporal composite
-  queries.
+  queries; all items must carry the Tulving triple (`sessionId + sourceTaskId + createdAt`).
+- **Working Memory** (`memory/working-memory/`) — active context window assembly; retrieval-
+  augmented loader merging Redis (exact-match), ChromaDB (semantic), and SQLite (structured)
+  results into a ranked context payload; eviction and consolidation pipeline dispatching to
+  episodic / long-term memory; token budget enforcement alongside item count cap.
 
 All four modules: MCP + A2A interfaces; `agent-card.json`; unit and integration tests; `README.md`.
 
@@ -280,9 +299,9 @@ Phase 5 is complete when:
 2. All verification commands above exit 0.
 3. Each module has `README.md`, `agent-card.json`, `pyproject.toml`, `src/`, and `tests/` with
    passing tests.
-4. All five `brain.*` collections — `brain.short-term-memory`, `brain.long-term-memory`,
-   `brain.episodic-memory`, `brain.affective`, and `brain.reasoning` — receive embeddings
-   end-to-end.
+4. All six `brain.*` collections — `brain.working-memory`, `brain.short-term-memory`,
+   `brain.long-term-memory`, `brain.episodic-memory`, `brain.affective`, and
+   `brain.reasoning` — receive embeddings end-to-end.
 5. `.github/agents/README.md` catalogs all Phase 5 agents.
 6. Root `AGENTS.md` VS Code Custom Agents table includes all Phase 5 agents.
 
