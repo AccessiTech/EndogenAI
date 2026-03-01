@@ -61,9 +61,12 @@ Information flows **bottom-up** (Input → Perception → Cognition → Action) 
 
 ### Group V — Interface
 
-| Module            | Role                                             |
-| ----------------- | ------------------------------------------------ |
-| Application Layer | External-facing UI, API gateway, chatbot surface |
+| Component                        | Location                        | Role                                                                                                                 |
+| -------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Hono API Gateway                 | `apps/default/server/`          | BFF: MCP client (Streamable HTTP), SSE relay to browser, CORS policy, endpoint for all `/api/*` routes              |
+| OAuth 2.1 Auth Layer             | `apps/default/server/auth/`     | JWT-based local IdP stub (PKCE flow, RFC 8414/9728 metadata endpoints); replaceable with external OIDC in forks     |
+| Browser Client — Chat tab       | `apps/default/client/`          | User-facing input/output surface; SSE token streaming via `EventSource`; WCAG 2.1 AA + mobile responsive             |
+| Browser Client — Internals tab  | `apps/default/client/`          | Developer transparency: agent card browser, signal trace feed, memory state inspector, active collections viewer     |
 
 ---
 
@@ -131,7 +134,10 @@ _Signal-flow sequence diagrams will be added when Phase 3 (Signal Processing) mo
 
 Narrative summary:
 
-1. **Application Layer** receives external input and creates a `Signal` (text, image, audio, API event).
+1. **Application Layer (Hono gateway + browser client)** receives external input from the user, authenticates
+   the request (OAuth 2.1 Bearer token), and issues a `POST /api/input` that the gateway wraps in a `Signal`
+   envelope and dispatches to the Sensory / Input Layer via the MCP backbone. Streaming token responses are
+   relayed back to the browser via SSE (`GET /api/stream`, `text/event-stream`).
 2. **Sensory / Input Layer** ingests the signal, assigns a `traceId`, normalizes it to a `Signal` envelope, and
    dispatches it upward via MCP.
 3. **Attention & Filtering Layer** scores salience, applies relevance gates, and routes the prioritized signal. May drop

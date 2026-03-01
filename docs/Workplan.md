@@ -495,30 +495,138 @@ influence subsequent decisions.
 
 ## Phase 8 — Application Layer & Observability
 
-**Goal**: Expose the system to external users and operators; verify end-to-end signal flow with full telemetry.
+**Goal**: Expose the system to external users and operators through a minimal, accessible, mobile-responsive web
+interface; provide developer transparency into internal signal and memory state; wire the full MCP authorization
+layer; and verify end-to-end signal flow with full telemetry. The default shell is intentionally generic boilerplate
+— designed to be forked, styled, and extended without requiring changes to the underlying cognitive modules.
 
-### 8.1 Default Application Shell (`apps/default/`)
+**Architecture note**: The browser client does NOT connect directly to the MCP server. The Hono API gateway acts as
+a Backend-for-Frontend (BFF): it is an MCP client (connecting to `infrastructure/mcp` via the canonical Streamable
+HTTP transport, spec 2025-06-18), an SSE relay (streaming MCP push events to the browser), and an auth gate
+(validating Bearer tokens on all `/api/*` routes). This keeps the MCP port off the public network, prevents DNS
+rebinding attacks as required by the MCP transport security spec, and provides a single surface for CORS policy.
 
-- [ ] Implement request routing into Sensory/Input Layer and output surfacing from Motor/Output/Effector Layer
-- [ ] Build chatbot / API / dashboard entry point (TypeScript, Hono or Next.js)
-- [ ] Configure environment and write integration tests; author `README.md`
+### 8.1 Hono API Gateway (`apps/default/server/`)
 
-### 8.2 Observability (`observability/`)
+- [ ] Scaffold TypeScript package: Hono on Node.js (`@hono/node-server`); add to `pnpm-workspace.yaml`
+- [ ] Implement MCP client adapter: connect to `infrastructure/mcp` server via Streamable HTTP; relay `MCPContext`
+      envelopes between browser sessions and the MCP backbone
+- [ ] Expose SSE endpoint `GET /api/stream` — relay server-side MCP push events (token streaming, module
+      notifications) to the browser via `text/event-stream`; support `Last-Event-ID` header for resumability per
+      MCP transport spec
+- [ ] Expose REST endpoint `POST /api/input` — accept user input, wrap in `Signal` envelope, dispatch to
+      Sensory/Input Layer via MCP; return `202 Accepted` + SSE session ID
+- [ ] Expose health endpoint `GET /api/health` — return gateway + MCP server connectivity status
+- [ ] Add CORS middleware: validate `Origin` header; restrict to configured allowed origins (default:
+      `http://localhost:*`); reject unrecognised origins to prevent DNS rebinding per MCP spec §2.0.1
+- [ ] Serve Vite-built SPA static assets from `apps/default/client/dist/`
+- [ ] Configure environment via `.env` (MCP server URL, allowed origins, JWT secret, token TTL); document all
+      variables in `apps/default/.env.example`
+- [ ] Write unit and integration tests; author `README.md`
+
+#### 8.1 Verification
+
+- [ ] `pnpm run dev` starts gateway on `localhost:3001` without error
+- [ ] `POST /api/input` returns `202 Accepted` with a valid SSE session ID when MCP server is running
+- [ ] `GET /api/stream` opens an SSE stream and receives push events from MCP
+- [ ] `GET /api/health` returns `{ "gateway": "ok", "mcp": "ok" }` when both services are up
+- [ ] CORS middleware rejects requests from non-allowlisted origins with `HTTP 403`
+
+### 8.2 MCP OAuth 2.1 Auth Layer (`apps/default/server/auth/` + `infrastructure/mcp/src/auth.ts`)
+
+- [ ] Expose `GET /.well-known/oauth-protected-resource` on the MCP server — return Protected Resource Metadata
+      per RFC 9728, pointing to the local authorization server on the Hono gateway
+- [ ] Expose `GET /.well-known/oauth-authorization-server` on the Hono gateway — return Authorization Server
+      Metadata per RFC 8414
+- [ ] Implement local JWT auth stub: `POST /auth/login` (username + password → short-lived JWT access token +
+      longer-lived refresh token); document this as a replaceable boilerplate identity provider in `README.md`
+- [ ] Implement PKCE authorization code flow: `GET /auth/authorize`, `POST /auth/token`, `POST /auth/refresh`,
+      `DELETE /auth/session` (explicit session termination per MCP session management spec)
+- [ ] Add Bearer token validation middleware to all `/api/*` routes; return `HTTP 401` with `WWW-Authenticate`
+      header on failure per RFC 9728 §5.1
+- [ ] Store refresh token in `HttpOnly` cookie (never `localStorage`); access token in memory only
+- [ ] Write unit tests for token issuance, validation, PKCE flow, clock-skew tolerance, and expiry; author
+      `README.md`
+
+#### 8.2 Verification
+
+- [ ] `POST /auth/login` with valid credentials returns a JWT access token and `HttpOnly` refresh-token cookie
+- [ ] `GET /.well-known/oauth-protected-resource` returns a conformant RFC 9728 document
+- [ ] `GET /.well-known/oauth-authorization-server` returns a conformant RFC 8414 document
+- [ ] Unauthenticated `POST /api/input` returns `HTTP 401` with `WWW-Authenticate` header
+- [ ] Authenticated request with valid Bearer token is accepted and forwarded to the MCP backbone
+- [ ] Expired access token returns `HTTP 401`; `POST /auth/refresh` with valid cookie issues a new access token
+
+### 8.3 Browser Client (`apps/default/client/`)
+
+- [ ] Scaffold Vite + React TypeScript SPA (`@vitejs/plugin-react`); add to `pnpm-workspace.yaml`; configure
+      `vite.config.ts` for HMR in dev and an optimized production build; document the framework choice as
+      explicitly replaceable boilerplate in `README.md` (Preact, Solid, Svelte, vanilla are all valid swaps)
+- [ ] Implement two-tab shell layout:
+  - **Tab 1 — Chat**: text input → `POST /api/input`; `EventSource` listener on `GET /api/stream` renders
+        streamed tokens in real time; conversation history persisted in session storage; clear/reset control;
+        visual loading and error states
+  - **Tab 2 — Internals** (developer transparency panel): see components below
+- [ ] Implement Internals panel components:
+  - **Agent card browser**: fetches `/.well-known/agent-card.json` from each registered module via the
+        gateway; displays name, version, A2A endpoint, capabilities, and MCP tool list
+  - **Active collections viewer**: queries the vector store collection registry API; shows collection name,
+        backend, record count, and last-updated timestamp
+  - **Signal trace feed**: live SSE subscription to internal MCP message events; displays `traceId`, source
+        module, target module, message type, and ISO timestamp; filterable by module name
+  - **Working memory inspector**: shows the last N context window items assembled by Working Memory;
+        token-budget bar visualization; auto-refreshes every 5 s
+- [ ] Implement auth UI: login form, logout button, silent token refresh (auto-retry on `401`), token expiry
+      countdown indicator
+- [ ] Apply **WCAG 2.1 AA** accessibility standards throughout: semantic HTML5 landmarks, ARIA roles and
+      live-regions for streamed content, full keyboard navigation, visible focus indicators, color contrast
+      ≥ 4.5:1 (normal text) and ≥ 3:1 (large/UI), `prefers-reduced-motion` support
+- [ ] Apply **mobile-responsive layout**: CSS custom properties for theming (no CSS-framework lock-in for
+      forks); single-column stack below 768 px; touch-friendly interactive targets ≥ 44 × 44 px; no
+      horizontal scroll at any viewport width ≥ 320 px
+- [ ] Write component unit tests (Vitest + Testing Library); write E2E smoke test (Playwright: login → send
+      message → receive streamed response → verify Internals panel loads); author `README.md`
+
+#### 8.3 Verification
+
+- [ ] `pnpm run build` in `apps/default/client/` produces a valid `dist/` bundle; initial gzipped JS chunk
+      < 200 kB
+- [ ] Chat tab sends a message and renders a streamed response end-to-end with the live system
+- [ ] Internals panel loads agent cards and at least one active collection when the system is running
+- [ ] Signal trace feed shows live MCP events in real time
+- [ ] Lighthouse accessibility audit scores ≥ 90 on both tabs in production build
+- [ ] Layout renders correctly at 320 px, 768 px, and 1440 px viewport widths (Playwright snapshot assertions)
+- [ ] All Vitest unit tests and Playwright E2E smoke test pass
+
+### 8.4 Observability (`observability/`)
 
 - [ ] Finalize structured log emitters (structlog / pino) across all modules per `shared/utils/logging.md`
-- [ ] Wire OpenTelemetry trace context propagation across all inter-module boundaries per `shared/utils/tracing.md`
-- [ ] Provision Grafana dashboards for module health, signal flow latency, and memory collection sizes
+- [ ] Wire OpenTelemetry trace context propagation across all inter-module boundaries per
+      `shared/utils/tracing.md`
+- [ ] Instrument Hono gateway: emit OTel spans for all `/api/*` routes; propagate `traceId` from incoming
+      request headers into `MCPContext` envelopes forwarded to the backbone
+- [ ] Provision Grafana dashboards: module health, signal-flow latency, memory collection sizes, and gateway
+      request rate / error rate
 - [ ] Author `README.md`
 
-### 8.3 MCP Resource Registry (`resources/`)
+#### 8.4 Verification
+
+- [ ] A browser request generates a complete trace in Grafana — gateway → Sensory/Input → … →
+      Motor/Output/Effector — with a single propagated `traceId`
+- [ ] Gateway error rate dashboard shows non-zero data after a test run with deliberate failures
+- [ ] All module log emitters produce valid structured JSON per `shared/utils/logging.md`
+
+### 8.5 MCP Resource Registry (`resources/`)
 
 - [ ] Populate `uri-registry.json` with all resource URI patterns across modules
 - [ ] Author `access-control.md`
 - [ ] Populate per-layer resource definition files (`group-i` → `group-iv`)
 - [ ] Author `README.md`
 
-**Deliverables**: system accessible end-to-end via the application shell, with trace IDs propagating from input to
-effector output, visible in Grafana.
+**Deliverables**: fully accessible, mobile-responsive two-tab web shell; OAuth 2.1 + PKCE JWT auth stub with spec-
+compliant `/.well-known/` metadata endpoints; end-to-end SSE streaming from user input to rendered response;
+Internals transparency panel showing live agent cards, signal traces, and memory state; trace IDs propagating
+from browser request to effector output, visible in Grafana.
 
 ---
 
@@ -577,7 +685,7 @@ documentation complete and cross-linked.
 | **M5 — Memory Stack Live**        | 5        | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window |
 | **M6 — End-to-End Decision Loop** | 6        | Goal → Reason → Act pipeline produces verifiable output                                   |
 | **M7 — Adaptive Systems Active**  | 7        | Error detection escalates to executive; reinforcement signals registered                  |
-| **M8 — User-Facing**              | 8        | chatbot/API shell accessible; traces visible in Grafana                                   |
+| **M8 — User-Facing**              | 8        | Browser shell accessible at `localhost`; Chat tab streams responses end-to-end; Internals panel shows live agent state; OAuth 2.1 auth stub operational; traces visible in Grafana |
 | **M9 — Production-Ready**         | 9        | Kubernetes deploy succeeds; all documentation complete                                    |
 
 ---
@@ -588,7 +696,18 @@ documentation complete and cross-linked.
 - **Temporal vs. Prefect**: run a comparative spike during Phase 6 before committing to Temporal for `agent-runtime/`.
 - **Graph store selection**: Kuzu (embedded) is the default for `long-term-memory/graph-store/`; validate storage limits
   before Phase 5 closes.
-- **WebMCP evaluation**: determine whether browser-native UI modules require WebMCP before Phase 8 begins.
+- **WebMCP evaluation**: ~~resolved in Phase 8 planning~~ — `webmcp.dev` is a library that makes existing websites
+  controllable *by* external MCP clients (e.g. Claude Desktop); it is the reverse of what EndogenAI needs, and the
+  underlying `WebMCP/webmcp` GitHub project is pre-production (1 star, no releases). The boilerplate uses the MCP
+  **Streamable HTTP** transport (spec 2025-06-18) via the Hono BFF gateway instead. Closed.
+- **Client-side framework**: the boilerplate SPA defaults to React (Vite + `@vitejs/plugin-react`); confirm whether
+  Preact is preferred (identical API, ~3 kB vs ~45 kB gzipped) — defer final decision to Phase 8.3 start.
+- **External IdP integration**: the Phase 8.2 JWT stub is the minimum viable auth layer; production forks replace it
+  with an OIDC provider (Keycloak, Auth0, Okta). Decide before Phase 8.2 closes whether the boilerplate should
+  include an optional Keycloak Docker Compose profile as a second reference implementation.
+- **SSE proxy compatibility**: some corporate proxies and browser extensions buffer SSE streams, breaking real-time
+  token rendering. Determine whether a long-polling fallback for `GET /api/stream` is required in the boilerplate
+  or left to forks — defer to Phase 8.3.
 - **Neuromorphic prioritization**: decide if Phase 10 is in-scope for v1 or deferred to v2.
 - **Agent fleet scope**: confirm whether all four Phase 3 sub-fleets (docs, testing, schema, planner) are in-scope
   together or should be time-boxed and delivered incrementally within Phase 3.
