@@ -41,7 +41,7 @@ class TestSignalSource:
         assert src.module_id == "sensory-input"
 
     def test_module_id_populated_by_name(self) -> None:
-        src = SignalSource(module_id="sensory-input", layer="sensory-input")
+        src = SignalSource.model_validate({"module_id": "sensory-input", "layer": "sensory-input"})
         assert src.module_id == "sensory-input"
 
     def test_instance_id_defaults_to_none(self) -> None:
