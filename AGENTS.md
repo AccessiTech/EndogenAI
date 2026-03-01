@@ -353,6 +353,7 @@ Copilot chat agents dropdown automatically.
 | **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
 | **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |
 | **Govern Agent** | read-only | Fleet-wide compliance audit of `.github/agents/` against all guardrails |
+| **Docs Executive Researcher** | read + create | Pre-planning; invoked by Phase Executives to research codebase and docs state, write a phase-scoped research brief to `docs/research/`, and hand back to the invoking executive before workplan authoring |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 | **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
 | **Phase-3 Executive** | full tools | Phase-3 specific orchestration and delivery tasks |

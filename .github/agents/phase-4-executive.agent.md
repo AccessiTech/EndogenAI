@@ -16,11 +16,16 @@ agents:
   - Scaffold Module
   - Test Executive
   - Docs Executive
+  - Docs Executive Researcher
   - Schema Executive
 handoffs:
   - label: Research & Plan
     agent: Phase 4 Executive
     prompt: "Please research and present a detailed workplan for Phase 4 — Group I: Signal Processing Modules, following all AGENTS.md constraints and reading modules/AGENTS.md for module-specific guidance."
+    send: false
+  - label: Research Docs State
+    agent: Docs Executive Researcher
+    prompt: "Please research the current documentation and codebase state for Phase 4 — Group I: Signal Processing Modules. Survey modules/group-i-signal-processing/, shared/schemas/, docs/Workplan.md (Phase 4 section), and relevant neuroanatomy stubs. Write a research brief to docs/research/phase-4-brief.md and hand back to Phase 4 Executive when complete."
     send: false
   - label: Please Proceed
     agent: Phase 4 Executive

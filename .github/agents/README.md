@@ -53,6 +53,7 @@ Executive → sub-agent hierarchy for all documentation work. Sub-agents read `d
 | Agent | File | Posture | Trigger | Handoffs | Backing Script |
 |-------|------|---------|---------|----------|----------------|
 | **Docs Executive** | `docs-executive.agent.md` | full | Orchestrate all documentation work; produce gap report; coordinate scaffold / completeness / accuracy passes | Docs Scaffold, Docs Completeness Review, Docs Accuracy Review, Review | `scripts/docs/scan_missing_docs.py` |
+| **Docs Executive Researcher** | `docs-executive-researcher.agent.md` | read + create | Pre-planning research pass; invoked by Phase Executives before workplan authoring — surveys codebase + docs state, writes `docs/research/<phase>-brief.md`, hands back to invoking executive | Phase N Executive (caller), Executive Planner | — |
 | **Docs Scaffold** | `docs-scaffold.agent.md` | read + create | Generate missing READMEs, JSDoc stubs, and architecture outlines from module structure and schemas | Docs Completeness Review, Docs Executive | `scripts/docs/scaffold_doc.py` |
 | **Docs Completeness Review** | `docs-completeness-review.agent.md` | read-only | Audit workspace for modules missing required documentation sections; exits non-zero on gaps | Docs Scaffold, Docs Executive | `scripts/docs/scan_missing_docs.py` |
 | **Docs Accuracy Review** | `docs-accuracy-review.agent.md` | read-only | Cross-reference docs against implementation; flag stale paths, wrong API names, outdated descriptions | Implement, Docs Executive | — |

@@ -16,6 +16,7 @@ agents:
   - Scaffold Module
   - Test Executive
   - Docs Executive
+  - Docs Executive Researcher
   - Schema Executive
 handoffs:
   - label: Research & Plan Reasoning Module
