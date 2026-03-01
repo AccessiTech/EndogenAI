@@ -6,7 +6,7 @@ import pytest
 
 from endogenai_attention_filtering.filter import AttentionFilter
 from endogenai_attention_filtering.imports import Modality, Signal, SignalSource
-from endogenai_attention_filtering.models import AttentionDirective
+from endogenai_attention_filtering.models import AttentionDirective, FilteredSignal
 
 
 def _make_signal(
@@ -114,7 +114,7 @@ class TestAttentionFilter:
 class TestAttentionFilterRouting:
     """Verify every modality is routed to the expected downstream module."""
 
-    def _eval(self, modality: Modality, priority: int = 7) -> object:
+    def _eval(self, modality: Modality, priority: int = 7) -> FilteredSignal | None:
         af = AttentionFilter(threshold=0.0)  # pass everything
         signal = _make_signal(modality=modality, priority=priority)
         return af.evaluate(signal)

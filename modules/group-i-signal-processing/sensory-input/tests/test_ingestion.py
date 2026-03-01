@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from endogenai_sensory_input.ingestion import SignalIngestor
-from endogenai_sensory_input.models import Modality, RawInput
+from endogenai_sensory_input.models import Modality, RawInput, Signal
 
 
 def make_ingestor() -> SignalIngestor:
@@ -88,7 +88,7 @@ class TestSignalIngestor:
 class TestSignalIngestorAllModalities:
     """Verify every modality produces the correct canonical Signal.type prefix."""
 
-    def _ingest(self, modality: Modality, payload: object) -> object:
+    def _ingest(self, modality: Modality, payload: object) -> Signal:
         ingestor = SignalIngestor()
         return ingestor.ingest(RawInput(modality=modality, payload=payload))
 
