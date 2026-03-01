@@ -1,0 +1,13 @@
+{
+  "name": "sensory-input",
+  "description": "Multi-modal signal ingestion, normalisation, and upward dispatch — the brAIn system's interface with the external environment. Analogous to the Sensory Cortex.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "modalities": ["text", "image", "audio", "sensor", "api-event"],
+  "endpoints": {
+    "a2a": "http://localhost:8100",
+    "mcp": "http://localhost:8101"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/signal.schema.json"
+}
