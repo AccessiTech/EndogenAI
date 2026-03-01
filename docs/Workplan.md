@@ -373,19 +373,26 @@ attentional gating, and feature extraction.
 
 **Goal**: Implement memory across all timescales, affective modulation, and the reasoning/planning engine.
 
+**Build sequence** (strict dependency order within the memory group): §5.2 → §5.3 → §5.4 → §5.1 → §5.5 → §5.6. Working Memory (§5.1) must be built last within the memory group because it assembles from the three stores beneath it. Gate 1 (all four memory modules passing tests) must pass before §5.5 begins; Gate 2 (§5.5 passing tests) before §5.6.
+
 ### 5.1 Working Memory (`modules/group-ii-cognitive-processing/memory/working-memory/`)
 
 - [ ] Implement in-process KV store with read, write, evict operations
-- [ ] Implement retrieval-augmented loader: queries `brain.short-term-memory` and `brain.long-term-memory` to assemble
-      context window per turn; respect token budget
-- [ ] Implement consolidation pipeline: dispatch evicted items to episodic / long-term memory
+- [ ] Implement retrieval-augmented loader: queries `brain.short-term-memory`, `brain.long-term-memory`, and
+      `brain.episodic-memory` to assemble context window per turn; respect token budget
+- [ ] Implement consolidation pipeline: dispatch evicted items via STM's A2A `consolidate_item` endpoint; STM
+      routes to `brain.episodic-memory` or `brain.long-term-memory` (WM does not write to those collections directly)
 - [ ] Configure `capacity.config.json` and `retrieval.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.2 Short-Term Memory (`modules/group-ii-cognitive-processing/memory/short-term-memory/`)
 
-- [ ] Implement session-scoped record store with TTL management (Redis/Valkey backend)
+- [ ] Implement session-scoped record store with TTL management (Redis 7 backend; `redis:7-alpine`)
 - [ ] Wire `brain.short-term-memory` collection; embed session records via Ollama `nomic-embed-text`
+- [ ] Implement near-duplicate novelty detection (DG pattern separation analogue): query nearest neighbour before
+      write; cosine similarity > 0.9 → update existing item rather than create new
+- [ ] Implement consolidation pipeline: SCAN→SCORE→GATE→EMBED→PRUNE — promote scored items to
+      `brain.episodic-memory` (items with `sessionId + sourceTaskId + createdAt`) or `brain.long-term-memory`
 - [ ] Implement semantic search over current session to serve working memory loader
 - [ ] Configure `ttl.config.json`, `vector-store.config.json`, `embedding.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
@@ -404,9 +411,13 @@ attentional gating, and feature extraction.
 
 ### 5.4 Episodic Memory (`modules/group-ii-cognitive-processing/memory/episodic-memory/`)
 
-- [ ] Implement ordered event log with temporal indexing
+- [ ] Implement ordered event log with temporal indexing; enforce what-where-when immutability contract
+      (`sessionId`, `sourceTaskId`, `createdAt`, `affectiveValence` required on all episodic items; content frozen
+      at write time)
 - [ ] Wire `brain.episodic-memory` collection; embed episode records for semantic + temporal composite queries
 - [ ] Implement temporal replay, semantic episode search, and composite queries
+- [ ] Implement episodic distillation pipeline: cluster recurring patterns and promote to `brain.long-term-memory`
+      via LTM A2A `write_item`; runs on schedule (cron hourly) or explicit trigger
 - [ ] Configure `vector-store.config.json`, `embedding.config.json`, `retention.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
@@ -420,7 +431,9 @@ attentional gating, and feature extraction.
 ### 5.6 Decision-Making & Reasoning Layer (`modules/group-ii-cognitive-processing/reasoning/`)
 
 - [ ] Implement logical reasoning, causal inference, planning under uncertainty, and conflict resolution via DSPy
-- [ ] Integrate Guidance for constrained/structured generation in policy-following contexts
+      (`ChainOfThought`, `ProgramOfThought`, `ReAct`, `MultiChainComparison`)
+- [ ] Integrate `guidance` package for constrained/structured generation in inhibitory-control contexts; wired
+      into `inference.py` — no standalone module file required
 - [ ] Wire `brain.reasoning` collection; embed inference traces, plans, and causal models
 - [ ] Route all LLM calls through LiteLLM
 - [ ] Configure `strategy.config.json` and `vector-store.config.json`
@@ -675,18 +688,18 @@ documentation complete and cross-linked.
 
 ## Milestones Summary
 
-| Milestone                         | Phase(s) | Key Signal                                                                                |
-| --------------------------------- | -------- | ----------------------------------------------------------------------------------------- |
-| **M0 — Repo Live**                | 0        | `docker-compose up` green; seed knowledge committed                                       |
-| **M1 — Contracts Stable**         | 1        | All schemas validated; vector adapter tests pass                                          |
-| **M2 — Infrastructure Online**    | 2        | MCP + A2A conformance tests pass end-to-end                                               |
-| **M3 — Dev Agent Fleet Live**     | 3        | All agent fleets operational; recursive `AGENTS.md` hierarchy in place; scripts passing   |
-| **M4 — Signal Boundary Live**     | 4        | Text input reaches `brain.perception` collection                                          |
-| **M5 — Memory Stack Live**        | 5        | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window |
-| **M6 — End-to-End Decision Loop** | 6        | Goal → Reason → Act pipeline produces verifiable output                                   |
-| **M7 — Adaptive Systems Active**  | 7        | Error detection escalates to executive; reinforcement signals registered                  |
-| **M8 — User-Facing**              | 8        | Browser shell accessible at `localhost`; Chat tab streams responses end-to-end; Internals panel shows live agent state; OAuth 2.1 auth stub operational; traces visible in Grafana |
-| **M9 — Production-Ready**         | 9        | Kubernetes deploy succeeds; all documentation complete                                    |
+| Milestone                         | Phase(s) | Status | Key Signal                                                                                |
+| --------------------------------- | -------- | ------ | ----------------------------------------------------------------------------------------- |
+| **M0 — Repo Live**                | 0        | ✅ Complete | `docker-compose up` green; seed knowledge committed                                  |
+| **M1 — Contracts Stable**         | 1        | ✅ Complete | All schemas validated; vector adapter tests pass                                     |
+| **M2 — Infrastructure Online**    | 2        | ✅ Complete | MCP + A2A conformance tests pass end-to-end                                          |
+| **M3 — Dev Agent Fleet Live**     | 3        | ✅ Complete | All agent fleets operational; recursive `AGENTS.md` hierarchy in place; scripts passing |
+| **M4 — Signal Boundary Live**     | 4        | 🔄 In Progress | MCP + A2A wiring incomplete across all three Group I modules; text input does not yet fully reach `brain.perception` |
+| **M5 — Memory Stack Live**        | 5        | ⬜ Not Started | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window; reasoning layer produces traceable inference records in `brain.reasoning` |
+| **M6 — End-to-End Decision Loop** | 6        | ⬜ Not Started | Goal → Reason → Act pipeline produces verifiable output                              |
+| **M7 — Adaptive Systems Active**  | 7        | ⬜ Not Started | Error detection escalates to executive; reinforcement signals registered              |
+| **M8 — User-Facing**              | 8        | ⬜ Not Started | Browser shell accessible at `localhost`; Chat tab streams responses end-to-end; Internals panel shows live agent state; OAuth 2.1 auth stub operational; traces visible in Grafana |
+| **M9 — Production-Ready**         | 9        | ⬜ Not Started | Kubernetes deploy succeeds; all documentation complete                               |
 
 ---
 
@@ -694,8 +707,9 @@ documentation complete and cross-linked.
 
 - **A2A version lock**: confirm which A2A spec release to align to before Phase 2 begins.
 - **Temporal vs. Prefect**: run a comparative spike during Phase 6 before committing to Temporal for `agent-runtime/`.
-- **Graph store selection**: Kuzu (embedded) is the default for `long-term-memory/graph-store/`; validate storage limits
-  before Phase 5 closes.
+- **Graph store selection**: ~~Kuzu vs. alternatives~~ — Kuzu (embedded) is confirmed as the default for
+  `long-term-memory/graph-store/`; Neo4j is the production swap-out. Storage-limits validation deferred to Phase 5
+  close (see `docs/research/phase-5-detailed-workplan.md` §13 OQ resolution).
 - **WebMCP evaluation**: ~~resolved in Phase 8 planning~~ — `webmcp.dev` is a library that makes existing websites
   controllable *by* external MCP clients (e.g. Claude Desktop); it is the reverse of what EndogenAI needs, and the
   underlying `WebMCP/webmcp` GitHub project is pre-production (1 star, no releases). The boilerplate uses the MCP
