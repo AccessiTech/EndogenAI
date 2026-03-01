@@ -18,6 +18,13 @@ agents:
   - Docs Executive
   - Schema Executive
 handoffs:
+  - label: Research & Plan
+    agent: Phase 4 Executive
+    prompt: "Please research and present a detailed workplan for Phase 4 — Group I: Signal Processing Modules, following all AGENTS.md constraints and reading modules/AGENTS.md for module-specific guidance."
+    send: false
+  - label: Please Proceed
+    agent: Phase 4 Executive
+    prompt: "Research and workplan approved. Please proceed with Phase 4 execution."
   - label: Review Phase 4
     agent: Review
     prompt: "Phase 4 work is complete. Please review all changed files against AGENTS.md constraints — Python-only for Group I, uv run for all Python, agent-card.json present for every module, MCP+A2A wired via infrastructure/adapters/, no direct ChromaDB/Qdrant SDK calls — before I commit and open a PR."
@@ -25,10 +32,6 @@ handoffs:
   - label: Commit & Push
     agent: GitHub
     prompt: "Phase 4 deliverables are reviewed and approved. Please commit incrementally (schemas → implementation → tests → docs) and push to feat/phase-4-signal-processing, then open a PR against main targeting milestone M4 — Signal Boundary Live."
-    send: false
-  - label: Drive Phase 5
-    agent: Plan
-    prompt: "Phase 4 is complete and M4 — Signal Boundary Live is reached. Please produce a scoped implementation plan for Phase 5 — Group II: Cognitive Processing Modules, following all AGENTS.md constraints and reading modules/AGENTS.md for module-specific guidance."
     send: false
 ---
 
