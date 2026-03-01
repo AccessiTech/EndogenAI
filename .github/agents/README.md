@@ -109,6 +109,10 @@ Phase executives drive all deliverables for a specific phase to the milestone ga
 | **Phase 2 Executive** | `phase-2-executive.agent.md` | full | Phase 2 — Communication Infrastructure (`infrastructure/`) | Review, GitHub |
 | **Phase 3 Executive** | `phase-3-executive.agent.md` | full | Phase 3 — Development Agent Infrastructure (`.github/agents/`, `scripts/`, nested `AGENTS.md`) | Review, GitHub |
 | **Phase 4 Executive** | `phase-4-executive.agent.md` | full | Phase 4 — Group I: Signal Processing Modules (`modules/group-i-signal-processing/`) | Review, GitHub, Plan |
+| **Phase 5 Executive** | `phase-5-executive.agent.md` | full | Phase 5 — Group II: Cognitive Processing Modules (`modules/group-ii-cognitive-processing/`) — orchestrates Memory, Motivation, and Reasoning domain executives in sequence | Phase 5 Memory Executive, Phase 5 Motivation Executive, Phase 5 Reasoning Executive, Review, GitHub |
+| **Phase 5 Memory Executive** | `phase-5-memory-executive.agent.md` | full | Phase 5 §§5.1–5.4 — working, short-term, long-term, and episodic memory (`modules/group-ii-cognitive-processing/memory/`) | Phase 5 Executive, Review |
+| **Phase 5 Motivation Executive** | `phase-5-motivation-executive.agent.md` | full | Phase 5 §5.5 — affective/motivational layer, reward signals, emotional weighting (`modules/group-ii-cognitive-processing/affective/`) — gate: memory complete | Phase 5 Executive, Review |
+| **Phase 5 Reasoning Executive** | `phase-5-reasoning-executive.agent.md` | full | Phase 5 §5.6 — DSPy reasoning, causal inference, Guidance generation, LiteLLM routing (`modules/group-ii-cognitive-processing/reasoning/`) — gate: memory + motivation complete | Phase 5 Executive, Review |
 
 ---
 

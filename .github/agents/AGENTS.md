@@ -24,6 +24,8 @@ description: <One-line summary> # Required. ≤ 200 characters.
 argument-hint: <hint>           # Optional. Placeholder shown in the chat input box.
 tools:                          # Required. Minimal subset — see posture table below.
   - <tool-id>
+agents:                         # Optional. List of agent `name` values this agent may invoke.
+  - <Agent Name>                # Must match the `name` field of the target agent exactly.
 handoffs:                       # Required. At least one handoff per agent.
   - label: <Button text>
     agent: <Target agent name>  # Must match the `name` field of the target exactly.
@@ -52,7 +54,7 @@ Choose the minimum posture that fulfils the agent's stated purpose. Do not add t
 |---------|-------------------|
 | **Read-only** (review, plan, audit) | `search`, `read`, `changes`, `usages` |
 | **Read + create** (scaffold) | adds `edit`, `web` |
-| **Full execution** (implement, debug, executive) | adds `execute`, `terminal` |
+| **Full execution** (implement, debug, executive) | adds `execute`, `terminal`, `agent` |
 
 **Toolset contents (reference):**
 
@@ -64,6 +66,7 @@ Choose the minimum posture that fulfils the agent's stated purpose. Do not add t
 | `web` | `fetch` (+ web search) |
 | `execute` | `runInTerminal`, `getTerminalOutput`, `runTests` |
 | `terminal` | `runInTerminal`, `getTerminalOutput`, `terminalLastCommand` |
+| `agent` | invoke other Copilot agents by name (used by executive agents that delegate to sub-agents) |
 
 **Govern Agent exception:** The Govern Agent has a **full execution** posture so it can
 autonomously verify, reproduce, and report on any agent in the fleet. Its mandate, however, is
@@ -128,8 +131,7 @@ If genuinely new, include an inline rationale comment.
 
 | Agent type | File name pattern | `name` field |
 |-----------|------------------|-------------|
-| Phase executive | `phase-N-executive.agent.md` | `Phase N Executive` |
-| Fleet executive | `<area>-executive.agent.md` | `<Area> Executive` |
+| Phase executive | `phase-N-executive.agent.md` | `Phase N Executive` || Phase domain sub-executive | `phase-N-<domain>-executive.agent.md` | `Phase N <Domain> Executive` || Fleet executive | `<area>-executive.agent.md` | `<Area> Executive` |
 | Fleet sub-agent | `<area>-<role>.agent.md` | `<Area> <Role>` |
 | Workflow agent | `<verb>.agent.md` or `<noun>.agent.md` | `<Verb>` or `<Noun>` |
 
