@@ -1,14 +1,14 @@
 ---
 id: architecture
-version: 0.1.0
-status: draft
-last-reviewed: 2026-02-26
+version: 0.2.0
+status: active
+last-reviewed: 2026-02-28
 ---
 
 # Architecture
 
-> **Status: draft** — Shared contract layer documented (Phase 1). Signal-flow diagrams and per-layer implementation
-> detail will be added as phases deliver live modules.
+> **Status: active** — Phase 1–4 deliverables documented. Group I (Signal Processing) modules are live as of Phase 4.
+> Group II–IV detail will be added as subsequent phases deliver live modules.
 
 Full architectural overview of the EndogenAI framework, including layer descriptions, shared contracts, and signal flow.
 
@@ -61,12 +61,12 @@ Information flows **bottom-up** (Input → Perception → Cognition → Action) 
 
 ### Group V — Interface
 
-| Component                        | Location                        | Role                                                                                                                 |
-| -------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Hono API Gateway                 | `apps/default/server/`          | BFF: MCP client (Streamable HTTP), SSE relay to browser, CORS policy, endpoint for all `/api/*` routes              |
-| OAuth 2.1 Auth Layer             | `apps/default/server/auth/`     | JWT-based local IdP stub (PKCE flow, RFC 8414/9728 metadata endpoints); replaceable with external OIDC in forks     |
-| Browser Client — Chat tab       | `apps/default/client/`          | User-facing input/output surface; SSE token streaming via `EventSource`; WCAG 2.1 AA + mobile responsive             |
-| Browser Client — Internals tab  | `apps/default/client/`          | Developer transparency: agent card browser, signal trace feed, memory state inspector, active collections viewer     |
+| Component                      | Location                    | Role                                                                                                             |
+| ------------------------------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Hono API Gateway               | `apps/default/server/`      | BFF: MCP client (Streamable HTTP), SSE relay to browser, CORS policy, endpoint for all `/api/*` routes           |
+| OAuth 2.1 Auth Layer           | `apps/default/server/auth/` | JWT-based local IdP stub (PKCE flow, RFC 8414/9728 metadata endpoints); replaceable with external OIDC in forks  |
+| Browser Client — Chat tab      | `apps/default/client/`      | User-facing input/output surface; SSE token streaming via `EventSource`; WCAG 2.1 AA + mobile responsive         |
+| Browser Client — Internals tab | `apps/default/client/`      | Developer transparency: agent card browser, signal trace feed, memory state inspector, active collections viewer |
 
 ---
 
@@ -126,22 +126,74 @@ Every module emits structured JSON logs to `stdout` (see [Logging Spec](../share
 trace context (see [Tracing Spec](../shared/utils/tracing.md)). The OpenTelemetry Collector, Prometheus, and Grafana
 stack is provisioned in `observability/`.
 
----
-
 ## Signal Flow
 
-_Signal-flow sequence diagrams will be added when Phase 3 (Signal Processing) modules are live._
+### Group I — Detailed Signal-Processing Flow (Phase 4)
 
-Narrative summary:
+The three Group I modules form an ordered pipeline. Signals travel bottom-up through the pipeline; top-down attention
+directives travel in the reverse direction from the Executive Layer (Phase 6).
 
-1. **Application Layer (Hono gateway + browser client)** receives external input from the user, authenticates
-   the request (OAuth 2.1 Bearer token), and issues a `POST /api/input` that the gateway wraps in a `Signal`
-   envelope and dispatches to the Sensory / Input Layer via the MCP backbone. Streaming token responses are
-   relayed back to the browser via SSE (`GET /api/stream`, `text/event-stream`).
-2. **Sensory / Input Layer** ingests the signal, assigns a `traceId`, normalizes it to a `Signal` envelope, and
-   dispatches it upward via MCP.
-3. **Attention & Filtering Layer** scores salience, applies relevance gates, and routes the prioritized signal. May drop
-   low-priority signals. Receives top-down priority directives from the Executive layer.
+```
+External input
+      │
+      ▼
+┌─────────────────────────────────────────────────────────────
+│  sensory-input  (port 8101)
+│
+│  1. Accept raw input (text / image / audio / api-event / sensor)
+│  2. Validate modality; assign UUID + ISO-8601 timestamp
+│  3. Build Signal envelope (signal.schema.json)
+│  4. Publish MCPContext{payload: Signal} → MCP broker
+└─────────────────────────────────────────────────────────────
+      │  MCPContext (signal/v1)
+      ▼
+┌─────────────────────────────────────────────────────────────
+│  attention-filtering  (port 8102)
+│
+│  1. Receive Signal via MCP subscription
+│  2. Score salience (heuristic rule engine; configurable weights)
+│  3. Apply top-down directives (attention.directive signals from Executive)
+│  4. Drop signals below threshold; promote high-priority signals
+│  5. Publish gated Signal → MCP broker
+└─────────────────────────────────────────────────────────────
+      │  MCPContext (signal/v1, salience-annotated)
+      ▼
+┌─────────────────────────────────────────────────────────────
+│  perception  (port 8103)
+│
+│  1. Receive gated Signal via MCP subscription
+│  2. Extract features via modality-specific extractor
+│     └─ text     → LiteLLM (entities, intent, topics, sentiment)
+│     └─ api-event → deterministic JSON schema extraction
+│     └─ image/audio/sensor → skeleton (Phase 5 enrichment)
+│  3. Fuse features (multimodal fusion when multiple modalities present)
+│  4. Embed fused representation via nomic-embed-text (Ollama)
+│  5. Persist MemoryItem to brain.perception (ChromaDB)
+│  6. Publish feature Signal → MCP broker (→ Group II)
+└─────────────────────────────────────────────────────────────
+      │  MCPContext (signal/v1, features embedded + persisted)
+      ▼
+  Group II — Cognitive Processing (Phase 5)
+```
+
+**Top-down attention path** (Phase 6 → Group I):
+
+```
+Executive Layer
+      │  attention.directive Signal
+      ▼
+  attention-filtering.modulation  (active directive store)
+      │  adjusts salience thresholds for subsequent signals
+```
+
+### Full System Narrative
+
+1. **Application Layer** receives external input, authenticates (OAuth 2.1 Bearer token), wraps in a `Signal` envelope,
+   and dispatches to `sensory-input` via the MCP backbone. Streaming token responses are relayed back to the browser via
+   SSE (`GET /api/stream`).
+2. **Sensory / Input Layer** normalizes, timestamps, and dispatches the signal upward via MCP.
+3. **Attention & Filtering Layer** scores salience, applies relevance gates, and routes the prioritised signal. Receives
+   top-down priority directives from the Executive Layer.
 4. **Perception Layer** extracts features, embeds the result into `brain.perception`, and publishes a feature `Signal`
    to the Memory and Decision-Making layers.
 5. **Memory Layer** queries and updates the appropriate timescale store; returns a context window to Working Memory.
@@ -150,6 +202,66 @@ Narrative summary:
 7. **Executive / Agent Layer** evaluates the plan against goals and policies; issues tool invocations or directs further
    reasoning via A2A tasks.
 8. **Motor / Output / Effector Layer** executes actions and dispatches feedback signals back up the stack.
+
+---
+
+## Module Networking Topology (Phase 4+)
+
+Each cognitive module runs as an **independent process** (Python FastAPI + Uvicorn). There is no shared process boundary
+between modules — all communication is over MCP context messages or A2A task RPC.
+
+### Group I service ports
+
+| Service               | Port | Protocol                 |
+| --------------------- | ---- | ------------------------ |
+| `sensory-input`       | 8101 | HTTP (FastAPI + Uvicorn) |
+| `attention-filtering` | 8102 | HTTP (FastAPI + Uvicorn) |
+| `perception`          | 8103 | HTTP (FastAPI + Uvicorn) |
+
+Module services are started via the `modules` docker-compose profile:
+
+```bash
+docker compose --profile modules up -d
+```
+
+Local development without Docker: each module runs independently with `uv run uvicorn ... --reload`. See
+[Deployment Guide](guides/deployment.md) for the full environment variable reference.
+
+### Communication routing rule
+
+> All cross-module communication routes through `infrastructure/adapters/bridge.ts`. Modules never make direct HTTP
+> calls to each other.
+
+```
+Module A ──► MCP broker (infrastructure/mcp) ──► Module B
+Module A ──► A2A server (infrastructure/a2a) ──► Module B
+             (via MCPToA2ABridge)
+```
+
+---
+
+## Inference Abstraction
+
+All LLM inference in EndogenAI is:
+
+1. **Routed through LiteLLM** — no direct calls to `openai`, `anthropic`, or `ollama` SDKs.
+2. **Config-driven** — model name, provider, and base URL are read from `inference.config.json` at the module root and
+   overridable via environment variables (`INFERENCE_MODEL`, `INFERENCE_BASE_URL`).
+3. **Dependency-injected** — all inference consumers accept an `InferencePort` Protocol, enabling unit tests to pass a
+   `StubInferenceAdapter` with no live service required.
+
+**Default local configuration (Phase 4):**
+
+| Role               | Provider                          | Model              | Env var override  |
+| ------------------ | --------------------------------- | ------------------ | ----------------- |
+| Feature extraction | Ollama (via LiteLLM)              | `llama3.2`         | `INFERENCE_MODEL` |
+| Embedding          | Ollama (via vector-store adapter) | `nomic-embed-text` | `EMBEDDING_MODEL` |
+
+**Production:** swap provider by setting `INFERENCE_MODEL=gpt-4o` or `INFERENCE_MODEL=claude-3-5-sonnet-20241022` in the
+environment — no code changes required. LiteLLM handles the translation.
+
+See [Adding a Module — Step 7](guides/adding-a-module.md#7-provide-inference-configuration-modules-that-call-llms) for
+the implementation pattern.
 
 ---
 

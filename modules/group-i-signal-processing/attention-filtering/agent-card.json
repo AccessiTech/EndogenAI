@@ -1,0 +1,12 @@
+{
+  "name": "attention-filtering",
+  "description": "Salience scoring, relevance filtering, and signal routing — the brAIn system's attentional gate and relay hub. Analogous to the Thalamus.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8102",
+    "mcp": "http://localhost:8102"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/signal.schema.json"
+}

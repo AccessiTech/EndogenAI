@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "backend": "chroma",
+  "collection": "brain.perception",
+  "chroma": {
+    "mode": "http",
+    "host": "localhost",
+    "port": 8000
+  },
+  "embedding": {
+    "provider": "ollama",
+    "model": "nomic-embed-text",
+    "base_url": "http://localhost:11434",
+    "dimensions": 768,
+    "fallback_policy": "error"
+  }
+}

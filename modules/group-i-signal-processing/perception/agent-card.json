@@ -1,0 +1,13 @@
+{
+  "name": "perception",
+  "description": "Feature extraction, pattern recognition, language understanding, multimodal fusion, and brain.perception embedding — the brAIn system's site of semantic meaning-making. Analogous to the Association Cortices.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8103",
+    "mcp": "http://localhost:8103"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "vectorCollection": "brain.perception",
+  "schema": "shared/types/signal.schema.json"
+}

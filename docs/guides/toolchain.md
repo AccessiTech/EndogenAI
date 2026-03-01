@@ -1,8 +1,8 @@
 ---
 id: guide-toolchain
-version: 0.1.0
-status: in-progress
-last-reviewed: 2026-02-24
+version: 0.2.0
+status: active
+last-reviewed: 2026-02-28
 ---
 
 # Developer Toolchain
@@ -76,6 +76,106 @@ uv run pytest
 
 Root-level Python dev dependencies are declared in [`pyproject.toml`](../../pyproject.toml) under
 `[dependency-groups] dev`. Each Python module has its own `pyproject.toml` for module-specific dependencies.
+
+---
+
+## Python Module Development (Group I and II modules)
+
+Each cognitive module under `modules/` is an independent Python package with its own managed virtual environment. The
+pattern mirrors `shared/vector-store/python/` — use it as the reference implementation.
+
+### First-time setup for a module
+
+```bash
+# Navigate to the module
+cd modules/group-i-signal-processing/<module-name>
+
+# Sync the locked environment (creates .venv/ if absent)
+uv sync
+
+# Verify tools are available
+uv run python --version
+uv run pytest --version
+```
+
+Run `uv sync` once at the start of each session if the `uv.lock` may have changed.
+
+### Daily development commands
+
+```bash
+# From the module directory:
+
+# Run all tests
+uv run pytest
+
+# Unit tests only (no Docker / services required)
+uv run pytest tests/unit/ -v
+
+# Integration tests (requires Docker + ChromaDB container)
+uv run pytest tests/integration/ -v
+
+# Run with coverage
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Lint
+uv run ruff check .
+
+# Lint + auto-fix
+uv run ruff check --fix .
+
+# Type-check
+uv run mypy src/
+
+# Format
+uv run ruff format .
+```
+
+### Running a module server locally
+
+```bash
+cd modules/group-i-signal-processing/<module-name>
+uv sync
+uv run uvicorn <module_pkg>.server:app --host 0.0.0.0 --port <port> --reload
+```
+
+Port assignments for Group I modules:
+
+| Module                | Package                           | Port |
+| --------------------- | --------------------------------- | ---- |
+| `sensory-input`       | `endogenai_sensory_input`         | 8101 |
+| `attention-filtering` | `endogenai_attention_filtering`   | 8102 |
+| `perception`          | `endogenai_perception`            | 8103 |
+
+See [Deployment Guide](deployment.md) for the full environment variable reference.
+
+### Adding a dependency to a module
+
+```bash
+# Runtime dependency
+cd modules/group-i-signal-processing/<module-name> && uv add <package>
+
+# Dev-only dependency
+cd modules/group-i-signal-processing/<module-name> && uv add --dev <package>
+```
+
+Never hand-edit `uv.lock`. Commit both `pyproject.toml` and the updated `uv.lock` together.
+
+### docker-compose profile for modules
+
+Module processes are opt-in via the `modules` compose profile:
+
+```bash
+# Start all backing services only (default)
+docker compose up -d
+
+# Start backing services + all cognitive module processes
+docker compose --profile modules up -d
+
+# Start a single module service
+docker compose --profile modules up -d sensory-input
+```
+
+See [Deployment Guide](deployment.md) for full details.
 
 ---
 
@@ -309,12 +409,12 @@ pnpm --filter @accessitech/mcp run test -- --coverage
 To enforce thresholds, add a `vitest.config.ts` to the package root:
 
 ```typescript
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'json-summary'],
+      provider: "v8",
+      reporter: ["text", "json", "json-summary"],
       thresholds: { lines: 80, functions: 80, branches: 80 },
     },
   },
@@ -333,28 +433,28 @@ uv run python scripts/testing/scan_coverage_gaps.py --dry-run
 uv run python scripts/testing/scan_coverage_gaps.py
 ```
 
-The script reports missing tooling setup (`pytest-cov` / `@vitest/coverage-v8`) with exact installation commands.
-Add new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as modules are created.
+The script reports missing tooling setup (`pytest-cov` / `@vitest/coverage-v8`) with exact installation commands. Add
+new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as modules are created.
 
 ---
 
 ## Quick Reference
 
-| What you want to check  | Command                                                  |
-| ----------------------- | -------------------------------------------------------- |
-| All hooks at once       | `uv run pre-commit run --all-files`                      |
-| TypeScript lint         | `npx eslint .`                                           |
-| Code formatting         | `npx prettier --check .`                                 |
-| Fix formatting          | `npx prettier --write .`                                 |
-| Python lint             | `uv run ruff check .`                                    |
-| Python types            | `uv run mypy .`                                          |
-| Protobuf lint           | `cd shared && buf lint`                                  |
-| Frontmatter validation  | `uv run pre-commit run validate-frontmatter --all-files` |
-| Commit message format   | `echo "<msg>" \| npx commitlint`                         |
-| Full Turborepo pipeline | `pnpm run lint && pnpm run typecheck && pnpm run test`   |
-| Python test coverage    | `cd <pkg> && uv run pytest --cov=src --cov-fail-under=80` |
-| TypeScript test coverage | `pnpm --filter <pkg> run test -- --coverage`            |
-| Scan all coverage gaps  | `uv run python scripts/testing/scan_coverage_gaps.py`   |
+| What you want to check   | Command                                                   |
+| ------------------------ | --------------------------------------------------------- |
+| All hooks at once        | `uv run pre-commit run --all-files`                       |
+| TypeScript lint          | `npx eslint .`                                            |
+| Code formatting          | `npx prettier --check .`                                  |
+| Fix formatting           | `npx prettier --write .`                                  |
+| Python lint              | `uv run ruff check .`                                     |
+| Python types             | `uv run mypy .`                                           |
+| Protobuf lint            | `cd shared && buf lint`                                   |
+| Frontmatter validation   | `uv run pre-commit run validate-frontmatter --all-files`  |
+| Commit message format    | `echo "<msg>" \| npx commitlint`                          |
+| Full Turborepo pipeline  | `pnpm run lint && pnpm run typecheck && pnpm run test`    |
+| Python test coverage     | `cd <pkg> && uv run pytest --cov=src --cov-fail-under=80` |
+| TypeScript test coverage | `pnpm --filter <pkg> run test -- --coverage`              |
+| Scan all coverage gaps   | `uv run python scripts/testing/scan_coverage_gaps.py`     |
 
 ---
 
