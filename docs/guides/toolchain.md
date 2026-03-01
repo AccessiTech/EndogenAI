@@ -140,11 +140,11 @@ uv run uvicorn <module_pkg>.server:app --host 0.0.0.0 --port <port> --reload
 
 Port assignments for Group I modules:
 
-| Module                | Package               | Port |
-| --------------------- | --------------------- | ---- |
-| `sensory-input`       | `sensory_input`       | 8101 |
-| `attention-filtering` | `attention_filtering` | 8102 |
-| `perception`          | `perception`          | 8103 |
+| Module                | Package                           | Port |
+| --------------------- | --------------------------------- | ---- |
+| `sensory-input`       | `endogenai_sensory_input`         | 8101 |
+| `attention-filtering` | `endogenai_attention_filtering`   | 8102 |
+| `perception`          | `endogenai_perception`            | 8103 |
 
 See [Deployment Guide](deployment.md) for the full environment variable reference.
 

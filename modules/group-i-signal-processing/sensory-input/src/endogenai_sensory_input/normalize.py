@@ -21,10 +21,11 @@ def normalize_payload(modality: Modality, payload: Any, encoding: str | None) ->
     Rules
     -----
     * TEXT — coerce to ``str``; strip leading/trailing whitespace.
-    * IMAGE — if bytes, base64-encode and set encoding hint; if str, return as-is
-      (assumed to be a URI or already-encoded value).
+    * IMAGE — if bytes/bytearray, base64-encode and return the encoded string; if str, return
+      as-is (assumed to be a URI or already-encoded value).  The caller is responsible for
+      recording ``encoding="base64"`` on the emitted Signal when bytes were encoded.
     * AUDIO — same as IMAGE.
-    * SENSOR — coerce dict to dict; numeric scalars passed through.
+    * SENSOR — coerce dict to dict; non-dict values wrapped in ``{"value": payload}``.
     * API_EVENT — dict passed through; non-dict coerced to ``{"value": payload}``.
     * INTERNAL / CONTROL — passed through unchanged.
 

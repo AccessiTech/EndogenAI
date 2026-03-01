@@ -10,7 +10,6 @@ authors = [{ name = "EndogenAI" }]
 dependencies = [
   "pydantic>=2.7",
   "structlog>=24.1",
-  "python-ulid>=2.2",
   "litellm>=1.40",
   "httpx>=0.27",
   "endogenai-vector-store",

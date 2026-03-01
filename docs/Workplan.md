@@ -347,14 +347,14 @@ attentional gating, and feature extraction.
 
 - [x] Implement signal ingestion for text, image, audio, API events, and sensor stream modalities
 - [x] Implement normalization, timestamping, and upward dispatch
-- [x] Wire MCP + A2A interfaces; author `agent-card.json`
+- [ ] Wire MCP + A2A interfaces; author `agent-card.json`
 - [x] Write unit and integration tests; author `README.md`
 
 ### 4.2 Attention & Filtering Layer (`modules/group-i-signal-processing/attention-filtering/`)
 
 - [x] Implement salience scoring, relevance filtering, and signal routing
 - [x] Implement top-down attention modulation interface (receives directives from Executive layer)
-- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 4.3 Perception Layer (`modules/group-i-signal-processing/perception/`)
 
@@ -362,7 +362,7 @@ attentional gating, and feature extraction.
       pipeline
 - [x] Wire `brain.perception` vector collection via shared adapter; embed extracted feature representations
 - [x] Configure `pipeline.config.json` and `vector-store.config.json`
-- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 **Deliverables**: end-to-end signal flow from raw input through perception, with features persisted to
 `brain.perception`.

@@ -123,7 +123,16 @@ endogenai-vector-store = { path = "../../../shared/vector-store/python", editabl
 from endogenai_vector_store.chroma import ChromaAdapter
 from endogenai_vector_store.models import UpsertRequest, MemoryItem
 
-adapter = ChromaAdapter(host="localhost", port=8000, collection="brain.perception")
+config = {
+    "collection_name": "brain.perception",
+}
+
+embedding_config = {
+    "provider": "ollama",
+    "model": "nomic-embed-text",
+}
+
+adapter = ChromaAdapter(config=config, embedding_config=embedding_config)
 await adapter.connect()
 await adapter.upsert(UpsertRequest(collection_name="brain.perception", items=[...]))
 ```

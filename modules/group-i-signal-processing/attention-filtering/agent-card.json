@@ -5,7 +5,7 @@
   "capabilities": ["mcp-context", "a2a-task"],
   "endpoints": {
     "a2a": "http://localhost:8102",
-    "mcp": "http://localhost:8103"
+    "mcp": "http://localhost:8102"
   },
   "wellKnown": "/.well-known/agent-card.json",
   "schema": "shared/types/signal.schema.json"
