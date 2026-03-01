@@ -12,9 +12,8 @@ tools:
   - usages
   - agent
 agents:
-  - Plan
+  - Executive Planner
   - Scaffold Module
-  - Implement
   - Test Executive
   - Docs Executive
   - Schema Executive
