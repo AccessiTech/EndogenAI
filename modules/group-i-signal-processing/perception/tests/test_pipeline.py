@@ -142,3 +142,111 @@ class TestPerceptionPipeline:
         request = vs.upsert.call_args[0][0]
         item = request.items[0]
         assert item.importance_score == pytest.approx(0.8)
+
+    @pytest.mark.asyncio
+    async def test_audio_signal_does_not_call_llm(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock()) as mock_llm:
+            result = await pipeline.process(_make_signal(modality=Modality.AUDIO, payload=b"RIFF\x00"))
+
+        mock_llm.assert_not_awaited()
+        assert result.features.modality == "audio"
+        assert result.features.scene.get("raw") is True
+
+    @pytest.mark.asyncio
+    async def test_internal_signal_extracts_structured_features(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+        payload = {"kind": "heartbeat", "seq": 42}
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock()):
+            result = await pipeline.process(_make_signal(modality=Modality.INTERNAL, payload=payload))
+
+        assert set(result.features.entities) == {"kind", "seq"}
+        assert result.features.intent == "observation"
+
+    @pytest.mark.asyncio
+    async def test_control_signal_extracts_structured_features(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+        payload = {"directive": "focus", "target": "text"}
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock()):
+            result = await pipeline.process(_make_signal(modality=Modality.CONTROL, payload=payload))
+
+        assert set(result.features.entities) == {"directive", "target"}
+
+    @pytest.mark.asyncio
+    async def test_api_event_signal_extracts_structured_features(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+        payload = {"action": "click", "element": "button", "page": "home"}
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock()):
+            result = await pipeline.process(_make_signal(modality=Modality.API_EVENT, payload=payload))
+
+        assert set(result.features.entities) == {"action", "element", "page"}
+
+    @pytest.mark.asyncio
+    async def test_embedding_model_recorded_in_result(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs, embed_model="ollama/nomic-embed-text")
+
+        llm_response = MagicMock()
+        llm_response.choices[0].message.content = '{"entities": [], "intent": "unknown", "summary": "ok", "language": null}'
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock(return_value=llm_response)):
+            result = await pipeline.process(_make_signal())
+
+        assert result.embedding_model == "ollama/nomic-embed-text"
+
+    @pytest.mark.asyncio
+    async def test_upsert_item_metadata_contains_signal_fields(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+        signal = _make_signal(modality=Modality.TEXT)
+        signal_id = signal.id
+
+        llm_response = MagicMock()
+        llm_response.choices[0].message.content = '{"entities": ["x"], "intent": "statement", "summary": "ok", "language": "en"}'
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock(return_value=llm_response)):
+            await pipeline.process(signal)
+
+        item = vs.upsert.call_args[0][0].items[0]
+        assert item.metadata["signal_id"] == signal_id
+        assert item.metadata["modality"] == "text"
+        assert item.metadata["intent"] == "statement"
+        assert item.metadata["language"] == "en"
+
+    @pytest.mark.asyncio
+    async def test_raw_embedding_text_set_on_features(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+
+        llm_response = MagicMock()
+        llm_response.choices[0].message.content = (
+            '{"entities": ["fox"], "intent": "statement", "summary": "A quick fox.", "language": "en"}'
+        )
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock(return_value=llm_response)):
+            result = await pipeline.process(_make_signal())
+
+        assert result.features.raw_embedding_text is not None
+        assert "fox" in result.features.raw_embedding_text or "A quick fox." in result.features.raw_embedding_text
+
+    @pytest.mark.asyncio
+    async def test_result_signal_id_matches_input(self) -> None:
+        vs = _make_mock_vs()
+        pipeline = PerceptionPipeline(vector_store=vs)
+        signal = _make_signal()
+
+        llm_response = MagicMock()
+        llm_response.choices[0].message.content = '{"entities": [], "intent": "unknown", "summary": "x", "language": null}'
+
+        with patch("endogenai_perception.pipeline.litellm.acompletion", new=AsyncMock(return_value=llm_response)):
+            result = await pipeline.process(signal)
+
+        assert result.signal_id == signal.id
