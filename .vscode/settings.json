@@ -29,7 +29,18 @@
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",
-        "shared/vector-store/python/.venv/lib/python3.12/site-packages"
+        "shared/vector-store/python/.venv/lib/python3.12/site-packages",
+        "modules/group-i-signal-processing/sensory-input/src",
+        "modules/group-i-signal-processing/sensory-input/.venv/lib/python3.12/site-packages",
+        "modules/group-i-signal-processing/attention-filtering/src",
+        "modules/group-i-signal-processing/attention-filtering/.venv/lib/python3.12/site-packages",
+        "modules/group-i-signal-processing/perception/src",
+        "modules/group-i-signal-processing/perception/.venv/lib/python3.12/site-packages"
     ],
-    "python.analysis.ignore": ["shared/vector-store/python/.venv/**"]
+    "python.analysis.ignore": [
+        "shared/vector-store/python/.venv/**",
+        "modules/group-i-signal-processing/sensory-input/.venv/**",
+        "modules/group-i-signal-processing/attention-filtering/.venv/**",
+        "modules/group-i-signal-processing/perception/.venv/**"
+    ]
 }
