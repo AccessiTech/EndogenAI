@@ -356,6 +356,7 @@ Copilot chat agents dropdown automatically.
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 | **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
 | **Phase-3 Executive** | full tools | Phase-3 specific orchestration and delivery tasks |
+| **Phase-4 Executive** | full tools | Phase-4 specific orchestration and delivery tasks |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 

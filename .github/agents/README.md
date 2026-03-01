@@ -108,6 +108,7 @@ Phase executives drive all deliverables for a specific phase to the milestone ga
 | **Phase 1 Executive** | `phase-1-executive.agent.md` | full | Phase 1 — Shared Contracts & Vector Store Adapter (`shared/`) | Review, GitHub |
 | **Phase 2 Executive** | `phase-2-executive.agent.md` | full | Phase 2 — Communication Infrastructure (`infrastructure/`) | Review, GitHub |
 | **Phase 3 Executive** | `phase-3-executive.agent.md` | full | Phase 3 — Development Agent Infrastructure (`.github/agents/`, `scripts/`, nested `AGENTS.md`) | Review, GitHub |
+| **Phase 4 Executive** | `phase-4-executive.agent.md` | full | Phase 4 — Group I: Signal Processing Modules (`modules/group-i-signal-processing/`) | Review, GitHub, Plan |
 
 ---
 
