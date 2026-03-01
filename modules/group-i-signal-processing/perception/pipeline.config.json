@@ -1,0 +1,33 @@
+{
+  "feature_extraction": {
+    "text": {
+      "enabled": true,
+      "llm_model": "ollama/llama3.2",
+      "system_prompt": "You are a feature extraction assistant. Extract named entities, the primary intent, and up to 5 key phrases from the user text. Return a JSON object with keys: entities (array of strings), intent (string), key_phrases (array of strings)."
+    },
+    "image": {
+      "enabled": false,
+      "pass_through_metadata": true
+    },
+    "audio": {
+      "enabled": false,
+      "pass_through_metadata": true
+    }
+  },
+  "pattern_recognition": {
+    "enabled": true,
+    "patterns": [
+      "question",
+      "command",
+      "statement",
+      "greeting",
+      "error",
+      "data",
+      "unknown"
+    ]
+  },
+  "multimodal_fusion": {
+    "enabled": true,
+    "strategy": "merge"
+  }
+}

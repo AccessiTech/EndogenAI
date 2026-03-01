@@ -1,0 +1,10 @@
+{
+  "name": "attention-filtering",
+  "description": "Scores, filters, and routes Signal envelopes based on salience, modality, and configurable attention directives.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8101",
+    "mcp": "http://localhost:8101"
+  }
+}

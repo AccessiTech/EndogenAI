@@ -1,0 +1,10 @@
+{
+  "name": "perception",
+  "description": "Extracts features, recognises patterns, and fuses multimodal signals into unified perceptual representations embedded in the brain.perception vector collection.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8102",
+    "mcp": "http://localhost:8102"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "sensory-input",
+  "description": "Ingests raw signals across text, image, audio, api-event, and sensor modalities, normalises them, and emits typed Signal envelopes.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8100",
+    "mcp": "http://localhost:8100"
+  }
+}

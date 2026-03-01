@@ -1,0 +1,14 @@
+{
+  "collection": "brain.perception",
+  "backend": "chroma",
+  "chroma": {
+    "mode": "http",
+    "host": "localhost",
+    "port": 8000
+  },
+  "embedding": {
+    "provider": "ollama",
+    "model": "nomic-embed-text",
+    "base_url": "http://localhost:11434"
+  }
+}
