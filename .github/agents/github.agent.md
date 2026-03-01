@@ -5,12 +5,12 @@ tools:
   - search
   - read
   - edit
-  - write
-  - terminal
-  - run_in_terminal
-  - changes
-  - agent
   - web
+  - execute
+  - terminal
+  - changes
+  - usages
+  - agent
 handoffs:
   - label: Review Changes
     agent: Review
