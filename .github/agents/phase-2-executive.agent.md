@@ -2,15 +2,13 @@
 name: Phase 2 Executive
 description: Drive completion of Phase 2 — Communication Infrastructure (MCP + A2A). Scoped strictly to infrastructure/mcp/, infrastructure/a2a/, infrastructure/adapters/, shared/, and docs/protocols/. Will not author Phase 3+ deliverables.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
-  - terminalLastCommand
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
+  - changes
   - usages
   - agent
 agents:

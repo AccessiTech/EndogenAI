@@ -42,18 +42,36 @@ handoffs:                       # Required. At least one handoff per agent.
 
 ## Tool Selection by Posture
 
-Choose the minimum posture that fulfils the agent's stated purpose. Do not add tools speculatively.
+Tools are specified as **toolsets** (named bundles provided by the VS Code Copilot API), not
+individual tool IDs. The toolset names are stable identifiers; individual tool names below the
+bundle boundary may be renamed between API versions without breaking the agent frontmatter.
 
-| Posture | Permitted tool IDs |
+Choose the minimum posture that fulfils the agent's stated purpose. Do not add toolsets speculatively.
+
+| Posture | Permitted toolsets |
 |---------|-------------------|
-| **Read-only** (review, plan, audit) | `codebase`, `problems`, `search`, `usages`, `changes` |
-| **Read + create** (scaffold) | adds `editFiles`, `fetch` |
-| **Full execution** (implement, debug, executive) | adds `runInTerminal`, `getTerminalOutput`, `runTests`, `terminalLastCommand` |
+| **Read-only** (review, plan, audit) | `search`, `read`, `changes`, `usages` |
+| **Read + create** (scaffold) | adds `edit`, `web` |
+| **Full execution** (implement, debug, executive) | adds `execute`, `terminal` |
 
-If an executive or implement agent is granted `execute/runInTerminal`, it inherits the Python
-`uv run`-only rule and the TypeScript `pnpm`-only rule from root `AGENTS.md`. It also inherits
-the **Writing Files from the Terminal Tool** safe-pattern rules from root `AGENTS.md` —
-never use heredocs for files > 30 lines; use small `printf >>` appends or a `/tmp/` Python script.
+**Toolset contents (reference):**
+
+| Toolset | Individual tools bundled |
+|---------|--------------------------|
+| `search` | `codebase`, `findFiles`, `findTestFiles`, `grep` |
+| `read` | `readFile`, `problems`, `terminalLastCommand`, `listDirectory` |
+| `edit` | `editFiles`, `insertEdit` |
+| `web` | `fetch` (+ web search) |
+| `execute` | `runInTerminal`, `getTerminalOutput`, `runTests` |
+| `terminal` | `runInTerminal`, `getTerminalOutput`, `terminalLastCommand` |
+
+**Govern Agent exception:** The Govern Agent has a **full execution** posture so it can
+autonomously verify, reproduce, and report on any agent in the fleet. Its mandate, however, is
+to *enforce* that all other agents use the minimum posture for their role — it must flag any
+agent that carries toolsets beyond what its stated posture requires.
+
+If an agent is granted `execute` or `terminal`, it inherits the Python `uv run`-only rule and
+the TypeScript `pnpm`-only rule from root `AGENTS.md`.
 
 ---
 

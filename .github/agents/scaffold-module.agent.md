@@ -3,10 +3,11 @@ name: Scaffold Module
 description: Generate a new cognitive module from endogenous project knowledge. Provide the module name and cognitive group.
 argument-hint: "<module-name> in <group-i|ii|iii|iv>"
 tools:
-  - codebase
-  - editFiles
-  - fetch
   - search
+  - read
+  - edit
+  - web
+  - usages
 handoffs:
   - label: Implement Module
     agent: Implement

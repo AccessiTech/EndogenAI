@@ -3,11 +3,10 @@ name: Test Review
 description: Review test quality — check for meaningful assertions, validate Testcontainers use for integration tests, and flag excessive mocking of internal collaborators.
 user-invokable: false
 tools:
-  - codebase
-  - problems
   - search
-  - usages
+  - read
   - changes
+  - usages
 handoffs:
   - label: Fix Test Quality Issues
     agent: Implement

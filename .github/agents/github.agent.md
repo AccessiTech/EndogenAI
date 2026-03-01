@@ -2,11 +2,9 @@
 name: GitHub
 description: Manage git workflows, GitHub pull requests, code reviews, and issue tracking for the EndogenAI repository.
 tools:
-  - runInTerminal
-  - getTerminalOutput
-  - terminalLastCommand
-  - codebase
-  - problems
+  - search
+  - read
+  - terminal
   - changes
 handoffs:
   - label: Review Changes

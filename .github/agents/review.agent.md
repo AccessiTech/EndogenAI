@@ -2,9 +2,9 @@
 name: Review
 description: Read-only review of changed files against EndogenAI constraints and module contracts.
 tools:
-  - codebase
-  - problems
   - search
+  - read
+  - changes
   - usages
 
 handoffs:

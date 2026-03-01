@@ -2,15 +2,12 @@
 name: Implement
 description: Execute an approved implementation plan, strictly following EndogenAI conventions.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
-  - terminalLastCommand
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - usages
 handoffs:
   - label: Review Changes

@@ -4,9 +4,10 @@ description: Generate test file stubs from TypeScript and Python source file int
 argument-hint: "[--file <source-file>]"
 user-invokable: false
 tools:
-  - codebase
-  - editFiles
   - search
+  - read
+  - edit
+  - web
   - usages
 handoffs:
   - label: Test Quality Review

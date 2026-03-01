@@ -2,14 +2,12 @@
 name: Executive Debugger
 description: Diagnose and fix runtime errors and test failures across the EndogenAI codebase, following all project conventions.
 tools:
-  - codebase
-  - editFiles
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
-  - terminalLastCommand
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - usages
 handoffs:
   - label: Review Fixes

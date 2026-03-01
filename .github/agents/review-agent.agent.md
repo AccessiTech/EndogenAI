@@ -2,11 +2,10 @@
 name: Review Agent
 description: Specialist read-only reviewer of .agent.md files — checks frontmatter schema, posture compliance, body structure, handoff graph validity, and script coupling against AGENTS.md authoring rules.
 tools:
-  - codebase
-  - problems
   - search
-  - usages
+  - read
   - changes
+  - usages
 handoffs:
   - label: Fix with Update Agent
     agent: Update Agent

@@ -2,16 +2,13 @@
 name: Phase 3 Executive
 description: Drive completion of Phase 3 — Development Agent Infrastructure. Scoped strictly to .github/agents/, scripts/docs/, scripts/testing/, scripts/schema/, recursive AGENTS.md files, and docs/Workplan.md. Will not author Phase 4+ deliverables.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - changes
-  - terminalLastCommand
   - usages
   - agent
 agents:

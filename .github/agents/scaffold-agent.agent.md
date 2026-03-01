@@ -4,11 +4,11 @@ description: Generate a new VS Code Copilot custom agent (.agent.md) for the End
 argument-hint: "<agent-name> — <one-line purpose>"
 user-invokable: false
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
   - search
+  - read
+  - edit
+  - web
+  - usages
 handoffs:
   - label: Review Agent File
     agent: Review Agent

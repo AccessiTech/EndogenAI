@@ -4,10 +4,10 @@ description: Generate initial documentation scaffolds (READMEs, JSDoc stubs, arc
 argument-hint: "[--module <module-name>]"
 user-invokable: false
 tools:
-  - codebase
-  - editFiles
-  - fetch
   - search
+  - read
+  - edit
+  - web
   - usages
 handoffs:
   - label: Completeness Review

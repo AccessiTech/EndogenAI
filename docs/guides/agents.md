@@ -39,28 +39,27 @@ fits the task — never invoke a full-execution agent when a read-only audit wil
 | **Read + create** | Reads + creates new files | Scaffolding new modules or agents |
 | **Full execution** | Reads, edits, runs terminal commands, runs tests | Implementation, debugging, executive orchestration |
 
-### Canonical tool IDs
+### Toolsets
 
-All tool names in `.agent.md` frontmatter use **bare names** (no slash-prefixed namespaces). The full alias table
-from the [VS Code custom agents docs](https://code.visualstudio.com/docs/copilot/customization/custom-agents):
+All tool references in `.agent.md` frontmatter use **toolset names** — stable named bundles provided by the
+VS Code Copilot API. Using toolsets instead of individual tool IDs makes frontmatter resilient to API-level
+renames (e.g. `runInTerminal` → `execute/runInTerminal`).
 
-| Tool ID | Aliases | Purpose |
-|---------|---------|--------|
-| `codebase` | — | Semantic codebase search |
-| `editFiles` | — | Create, edit, and delete files |
-| `runInTerminal` | — | Run shell commands |
-| `runTests` | — | Execute the test suite |
-| `getTerminalOutput` | — | Read terminal output from a prior command |
-| `terminalLastCommand` | — | Inspect the most recent terminal command |
-| `problems` | — | Read lint / compile errors (Problems panel) |
-| `usages` | — | Find symbol definitions and references |
-| `fetch` | — | Fetch content from a URL |
-| `search` | — | File and text search |
+| Toolset | Individual tools bundled | Purpose |
+|---------|-------------------------|---------|
+| `search` | `codebase`, `findFiles`, `findTestFiles`, `grep` | Search code and files |
+| `read` | `readFile`, `problems`, `terminalLastCommand`, `listDirectory` | Read files, errors, terminal state |
+| `edit` | `editFiles`, `insertEdit` | Create, edit, and delete files |
+| `web` | `fetch` + web search | Fetch URLs, web search |
+| `execute` | `runInTerminal`, `getTerminalOutput`, `runTests` | Run shell commands and tests |
+| `terminal` | `runInTerminal`, `getTerminalOutput`, `terminalLastCommand` | Full terminal read/write access |
 | `changes` | — | Read current git diff |
+| `usages` | — | Find symbol definitions and references |
 | `agent` | — | Invoke another agent as a subagent (see [Subagent model](#subagent-model)) |
 
-> **Note:** The `search/codebase`, `edit/editFiles`, `execute/runInTerminal`, etc. prefixed forms are **not**
-> recognised by VS Code — all unrecognised tool names are silently ignored. Always use the bare form above.
+> **Note:** Individual tool names like `codebase`, `editFiles`, and `runInTerminal` still work at runtime but
+> are not the canonical form — use toolset names in all new and updated `.agent.md` files. Slash-prefixed
+> forms (`search/codebase`, `edit/editFiles`, etc.) are also not used here.
 
 ---
 
@@ -85,8 +84,16 @@ A subagent that should never appear in the user-facing dropdown (only invokable 
 # Executive frontmatter example
 ---
 name: Docs Executive
-tools: ['codebase', 'editFiles', 'runInTerminal', 'runTests', 'getTerminalOutput',
-        'problems', 'terminalLastCommand', 'usages', 'fetch', 'changes', 'agent']
+tools:
+  - search
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
+  - changes
+  - usages
+  - agent
 agents:
   - Docs Scaffold
   - Docs Completeness Review
@@ -99,7 +106,12 @@ agents:
 ---
 name: Docs Scaffold
 user-invokable: false
-tools: ['codebase', 'editFiles', 'usages', 'fetch']
+tools:
+  - search
+  - read
+  - edit
+  - web
+  - usages
 ---
 ```
 

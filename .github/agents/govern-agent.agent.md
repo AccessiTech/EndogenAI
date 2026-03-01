@@ -3,11 +3,15 @@ name: Govern Agent
 description: Read-only fleet-wide compliance audit of .github/agents/ against AGENTS.md guardrails, posture rules, naming conventions, and body structure requirements.
 user-invokable: false
 tools:
-  - codebase
-  - problems
   - search
-  - usages
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - changes
+  - usages
+  - agent
 handoffs:
   - label: Fix with Update Agent
     agent: Update Agent

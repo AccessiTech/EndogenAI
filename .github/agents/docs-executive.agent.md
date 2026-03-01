@@ -2,18 +2,15 @@
 name: Docs Executive
 description: Orchestrate all documentation work across EndogenAI. Delegates to docs sub-agents, produces a gap report, and hands off to Review.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
-  - changes
-  - terminalLastCommand
-  - usages
+  - read
+  - edit
+  - execute
+  - terminal
+  - web
   - agent
+  - changes
+  - usages
 agents:
   - Docs Scaffold
   - Docs Completeness Review

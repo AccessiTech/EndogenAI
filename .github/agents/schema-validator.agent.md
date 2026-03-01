@@ -3,11 +3,10 @@ name: Schema Validator
 description: Validate all JSON Schema files in shared/ and run Protobuf lint. Driven by scripts/schema/validate_all_schemas.py and buf lint. Read-only except for minor formatting fixes.
 user-invokable: false
 tools:
-  - codebase
-  - problems
-  - runInTerminal
-  - getTerminalOutput
   - search
+  - read
+  - execute
+  - terminal
   - usages
 handoffs:
   - label: Back to Schema Executive

@@ -3,14 +3,11 @@ name: Test Coverage
 description: Identify untested code paths, map coverage gaps to module contracts, and enforce per-module coverage thresholds.
 user-invokable: false
 tools:
-  - codebase
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
+  - read
+  - execute
+  - terminal
   - changes
-  - terminalLastCommand
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold

@@ -1,4 +1,13 @@
 {
+    // Override the language association for .agent.md files so that VS Code's
+    // prompts-diagnostics-provider does not validate them. The chat extension
+    // discovers agents by path pattern (.github/agents/*.agent.md), not by
+    // language ID, so all agents remain fully functional. This suppresses the
+    // false-positive "tool renamed" and "unknown agent" diagnostics that
+    // fluctuate in the Problems panel.
+    "files.associations": {
+        "*.agent.md": "markdown"
+    },
     "chat.tools.terminal.autoApprove": {
         "npx prettier": true,
         "uv": true,

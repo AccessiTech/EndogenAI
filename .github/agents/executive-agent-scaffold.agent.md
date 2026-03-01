@@ -2,13 +2,12 @@
 name: Agent Scaffold Executive
 description: Orchestrate VS Code Copilot agent creation — prepare a brief, delegate to Scaffold Agent, validate, and hand off to review.
 tools:
-  - codebase
-  - editFiles
-  - problems
   - search
-  - runInTerminal
-  - getTerminalOutput
-  - terminalLastCommand
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - agent
 agents:
   - Scaffold Agent

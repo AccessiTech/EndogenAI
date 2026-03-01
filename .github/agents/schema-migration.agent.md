@@ -3,10 +3,10 @@ name: Schema Migration
 description: Guide safe, backwards-compatible schema evolution. Inventories downstream consumers of changed schemas, assesses breaking change risk, and records migration notes in shared/schemas/CHANGELOG.md.
 user-invokable: false
 tools:
-  - codebase
-  - editFiles
-  - problems
   - search
+  - read
+  - edit
+  - web
   - usages
 handoffs:
   - label: Back to Schema Executive

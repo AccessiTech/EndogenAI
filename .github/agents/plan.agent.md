@@ -2,10 +2,11 @@
 name: Plan
 description: Survey the workplan and codebase, then produce a scoped implementation plan before any code is written.
 tools:
-  - codebase
-  - fetch
   - search
-  - problems
+  - read
+  - web
+  - changes
+  - usages
 handoffs:
   - label: Start Implementation
     agent: Implement

@@ -2,15 +2,13 @@
 name: Schema Executive
 description: Orchestrate schema authoring and safe migration for EndogenAI. Enforces the schemas-first constraint — no implementation agent may reference a new contract until the schema exists and passes validation.
 tools:
-  - codebase
-  - editFiles
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - changes
-  - terminalLastCommand
   - usages
   - agent
 agents:

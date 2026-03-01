@@ -2,13 +2,12 @@
 name: Executive Planner
 description: Orchestrate planning across all phases — survey codebase and workplan status, reconcile reality with the plan, and update docs/Workplan.md to reflect accurate current state and next priorities.
 tools:
-  - codebase
-  - editFiles
-  - problems
   - search
+  - read
+  - edit
+  - web
   - changes
   - usages
-  - fetch
 handoffs:
   - label: Implement Workplan Update
     agent: Executive Planner

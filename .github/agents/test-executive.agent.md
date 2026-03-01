@@ -2,15 +2,13 @@
 name: Test Executive
 description: Orchestrate the full testing lifecycle for EndogenAI. Runs coverage scan, delegates to scaffold and review sub-agents, and ensures all tests pass before handoff.
 tools:
-  - codebase
-  - editFiles
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
   - changes
-  - terminalLastCommand
   - usages
   - agent
 agents:

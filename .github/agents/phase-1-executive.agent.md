@@ -2,15 +2,13 @@
 name: Phase 1 Executive
 description: Drive completion of Phase 1 — Shared Contracts & Vector Store Adapter. Scoped strictly to shared/schemas/, shared/types/, shared/utils/, and shared/vector-store/. Will not author Phase 2+ deliverables.
 tools:
-  - codebase
-  - editFiles
-  - fetch
-  - problems
-  - runInTerminal
-  - getTerminalOutput
-  - runTests
   - search
-  - terminalLastCommand
+  - read
+  - edit
+  - web
+  - execute
+  - terminal
+  - changes
   - usages
   - agent
 agents:
