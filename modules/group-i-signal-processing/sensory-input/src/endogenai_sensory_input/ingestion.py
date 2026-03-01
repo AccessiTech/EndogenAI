@@ -93,6 +93,16 @@ class SignalIngestor:
 
         normalised_payload = normalize_payload(raw.modality, raw.payload, raw.encoding)
 
+        # Infer encoding for binary IMAGE/AUDIO payloads that were base64-encoded,
+        # but only when no encoding was explicitly provided by the caller.
+        inferred_encoding = raw.encoding
+        if (
+            raw.encoding is None
+            and raw.modality in (Modality.IMAGE, Modality.AUDIO)
+            and isinstance(raw.payload, (bytes, bytearray))
+        ):
+            inferred_encoding = "base64"
+
         signal = Signal(
             id=signal_id,
             type=_MODALITY_TYPE_PREFIX.get(raw.modality, f"{raw.modality.value}.input"),
@@ -105,7 +115,7 @@ class SignalIngestor:
             timestamp=now,
             ingested_at=now,
             payload=normalised_payload,
-            encoding=raw.encoding,
+            encoding=inferred_encoding,
             session_id=raw.session_id,
             priority=raw.priority,
             metadata=raw.metadata,

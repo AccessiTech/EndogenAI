@@ -60,11 +60,11 @@ docker compose --profile modules up -d sensory-input
 
 ### Group I port assignments
 
-| Module                | Service name          | Port     | Package               |
-| --------------------- | --------------------- | -------- | --------------------- |
-| Sensory / Input       | `sensory-input`       | **8101** | `sensory_input`       |
-| Attention & Filtering | `attention-filtering` | **8102** | `attention_filtering` |
-| Perception            | `perception`          | **8103** | `perception`          |
+| Module                | Service name          | Port     | Package                           |
+| --------------------- | --------------------- | -------- | --------------------------------- |
+| Sensory / Input       | `sensory-input`       | **8101** | `endogenai_sensory_input`         |
+| Attention & Filtering | `attention-filtering` | **8102** | `endogenai_attention_filtering`   |
+| Perception            | `perception`          | **8103** | `endogenai_perception`            |
 
 ### Run a module without Docker (local development)
 

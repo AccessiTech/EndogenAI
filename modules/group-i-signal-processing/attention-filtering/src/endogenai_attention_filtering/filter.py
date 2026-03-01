@@ -20,6 +20,7 @@ Usage
 from __future__ import annotations
 
 import time
+from datetime import UTC, datetime
 
 import structlog
 
@@ -137,9 +138,8 @@ class AttentionFilter:
 
         # TTL check
         if signal.ttl is not None:
-            age_ms = (time.monotonic() * 1000) - (
-                signal.ingested_at.timestamp() * 1000 if signal.ingested_at else 0
-            )
+            ingested = signal.ingested_at or datetime.now(tz=UTC)
+            age_ms = (datetime.now(tz=UTC) - ingested).total_seconds() * 1000
             if age_ms > signal.ttl:
                 self._logger.debug("signal_ttl_expired", signal_id=signal.id)
                 return None

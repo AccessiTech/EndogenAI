@@ -156,6 +156,18 @@ class TestSignalIngestorExtras:
         signal = ingestor.ingest(raw)
         assert signal.encoding == "pcm16"
 
+    def test_base64_encoding_inferred_for_image_bytes(self) -> None:
+        ingestor = SignalIngestor()
+        raw = RawInput(modality=Modality.IMAGE, payload=b"\x89PNG")
+        signal = ingestor.ingest(raw)
+        assert signal.encoding == "base64"
+
+    def test_base64_encoding_inferred_for_audio_bytes_no_hint(self) -> None:
+        ingestor = SignalIngestor()
+        raw = RawInput(modality=Modality.AUDIO, payload=b"\xff\xfb")
+        signal = ingestor.ingest(raw)
+        assert signal.encoding == "base64"
+
     def test_default_module_id_is_sensory_input(self) -> None:
         ingestor = SignalIngestor()
         signal = ingestor.ingest(RawInput(modality=Modality.TEXT, payload="x"))
