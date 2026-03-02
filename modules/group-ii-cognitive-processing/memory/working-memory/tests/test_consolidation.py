@@ -41,8 +41,9 @@ async def test_dispatch_routes_to_stm_without_triple() -> None:
     dispatcher = ConsolidationDispatcher(a2a_client=mock_client)
     target = await dispatcher.dispatch(item)
 
+    send_task: AsyncMock = mock_client.send_task  # type: ignore[assignment]
     assert target == "brain.short-term-memory"
-    mock_client.send_task.assert_awaited_once_with(
+    send_task.assert_awaited_once_with(
         "consolidate_item", {"item": item.model_dump()}
     )
 
@@ -57,8 +58,9 @@ async def test_dispatch_routes_to_episodic_with_triple() -> None:
     dispatcher = ConsolidationDispatcher(a2a_client=mock_client)
     target = await dispatcher.dispatch(item)
 
+    send_task: AsyncMock = mock_client.send_task  # type: ignore[assignment]
     assert target == "brain.episodic-memory"
-    mock_client.send_task.assert_awaited_once_with(
+    send_task.assert_awaited_once_with(
         "write_event", {"event": item.model_dump()}
     )
 
