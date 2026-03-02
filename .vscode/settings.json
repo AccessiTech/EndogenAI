@@ -25,7 +25,8 @@
         "printf": true,
         "uniq": true,
         "git fetch": true,
-        "git rebase": true
+        "git rebase": true,
+        "git reset": true
     },
     "python.analysis.extraPaths": [
         "shared/vector-store/python/src",
