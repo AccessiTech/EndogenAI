@@ -37,7 +37,7 @@ class KuzuGraphStore:
         if self._conn is not None:
             return
         try:
-            import kuzu
+            import kuzu  # type: ignore[import-not-found]
 
             self._db = kuzu.Database(self._db_path)
             self._conn = kuzu.Connection(self._db)

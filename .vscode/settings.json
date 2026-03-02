@@ -29,6 +29,8 @@
         "git reset": true
     },
     "python.analysis.extraPaths": [
+        "shared/a2a/python/src",
+        "shared/a2a/python/.venv/lib/python3.12/site-packages",
         "shared/vector-store/python/src",
         "shared/vector-store/python/.venv/lib/python3.12/site-packages",
         "modules/group-i-signal-processing/sensory-input/src",
@@ -36,12 +38,31 @@
         "modules/group-i-signal-processing/attention-filtering/src",
         "modules/group-i-signal-processing/attention-filtering/.venv/lib/python3.12/site-packages",
         "modules/group-i-signal-processing/perception/src",
-        "modules/group-i-signal-processing/perception/.venv/lib/python3.12/site-packages"
+        "modules/group-i-signal-processing/perception/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/memory/working-memory/src",
+        "modules/group-ii-cognitive-processing/memory/working-memory/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/memory/short-term-memory/src",
+        "modules/group-ii-cognitive-processing/memory/short-term-memory/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/memory/long-term-memory/src",
+        "modules/group-ii-cognitive-processing/memory/long-term-memory/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/memory/episodic-memory/src",
+        "modules/group-ii-cognitive-processing/memory/episodic-memory/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/affective/src",
+        "modules/group-ii-cognitive-processing/affective/.venv/lib/python3.12/site-packages",
+        "modules/group-ii-cognitive-processing/reasoning/src",
+        "modules/group-ii-cognitive-processing/reasoning/.venv/lib/python3.12/site-packages"
     ],
     "python.analysis.ignore": [
+        "shared/a2a/python/.venv/**",
         "shared/vector-store/python/.venv/**",
         "modules/group-i-signal-processing/sensory-input/.venv/**",
         "modules/group-i-signal-processing/attention-filtering/.venv/**",
-        "modules/group-i-signal-processing/perception/.venv/**"
+        "modules/group-i-signal-processing/perception/.venv/**",
+        "modules/group-ii-cognitive-processing/memory/working-memory/.venv/**",
+        "modules/group-ii-cognitive-processing/memory/short-term-memory/.venv/**",
+        "modules/group-ii-cognitive-processing/memory/long-term-memory/.venv/**",
+        "modules/group-ii-cognitive-processing/memory/episodic-memory/.venv/**",
+        "modules/group-ii-cognitive-processing/affective/.venv/**",
+        "modules/group-ii-cognitive-processing/reasoning/.venv/**"
     ]
 }
