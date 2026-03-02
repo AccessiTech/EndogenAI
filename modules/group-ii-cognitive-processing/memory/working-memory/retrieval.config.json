@@ -1,0 +1,8 @@
+{
+  "sources": ["brain.short-term-memory", "brain.long-term-memory", "brain.episodic-memory"],
+  "topKPerSource": 10,
+  "mergeStrategy": "importance-rank-merge",
+  "minImportanceScore": 0.1,
+  "embeddingModel": "nomic-embed-text",
+  "ollamaBaseUrl": "http://localhost:11434"
+}

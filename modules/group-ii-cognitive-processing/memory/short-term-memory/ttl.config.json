@@ -1,0 +1,6 @@
+{
+  "defaultTTLSeconds": 1800,
+  "maxItemsBeforeConsolidation": 500,
+  "consolidationTrigger": "ttl-or-threshold",
+  "sessionKeyPrefix": "session:"
+}

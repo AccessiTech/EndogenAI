@@ -7,8 +7,9 @@ last-reviewed: 2026-02-28
 
 # Architecture
 
-> **Status: active** — Phase 1–4 deliverables documented. Group I (Signal Processing) modules are live as of Phase 4.
-> Group II–IV detail will be added as subsequent phases deliver live modules.
+> **Status: active** — Phase 1–5 deliverables documented. Group I (Signal Processing) modules are live as of Phase 4;
+> Group II (Cognitive Processing) modules are live as of Phase 5.
+> Group III–IV detail will be added as subsequent phases deliver live modules.
 
 Full architectural overview of the EndogenAI framework, including layer descriptions, shared contracts, and signal flow.
 
@@ -218,6 +219,20 @@ between modules — all communication is over MCP context messages or A2A task R
 | `attention-filtering` | 8102 | HTTP (FastAPI + Uvicorn) |
 | `perception`          | 8103 | HTTP (FastAPI + Uvicorn) |
 
+### Group II service ports
+
+Each Group II module runs a **FastAPI + Uvicorn A2A server** (JSON-RPC 2.0 on `POST /tasks`) and a **FastMCP SSE server**
+(MCP tools on `GET /sse`), both co-hosted in a single `server.py` process.
+
+| Service              | A2A Port | MCP (FastMCP SSE) Port |
+| -------------------- | -------- | ---------------------- |
+| `working-memory`     | 8201     | 8301                   |
+| `short-term-memory`  | 8202     | 8302                   |
+| `long-term-memory`   | 8203     | 8303                   |
+| `episodic-memory`    | 8204     | 8304                   |
+| `affective`          | 8205     | 8305                   |
+| `reasoning`          | 8206     | 8306                   |
+
 Module services are started via the `modules` docker-compose profile:
 
 ```bash
@@ -229,14 +244,19 @@ Local development without Docker: each module runs independently with `uv run uv
 
 ### Communication routing rule
 
-> All cross-module communication routes through `infrastructure/adapters/bridge.ts`. Modules never make direct HTTP
-> calls to each other.
+> All cross-module communication routes through the A2A JSON-RPC 2.0 protocol. Modules never make raw or custom
+> HTTP calls to each other — all outbound cross-module calls use `A2AClient` from `shared/a2a/python/`.
 
 ```
-Module A ──► MCP broker (infrastructure/mcp) ──► Module B
-Module A ──► A2A server (infrastructure/a2a) ──► Module B
-             (via MCPToA2ABridge)
+Module A ──► A2AClient (shared/a2a/python) ──► Module B A2A server (POST /tasks)
 ```
+
+**Phase 5 note**: Each module IS its own A2A server (FastAPI + Uvicorn, JSON-RPC 2.0) and its own MCP server
+(FastMCP SSE). There is no central broker process running at this layer. The `MCPToA2ABridge`
+(`infrastructure/adapters/bridge.ts`) and the central `infrastructure/mcp` + `infrastructure/a2a` broker roles
+are composed in Phase 8 by the application-host layer, which becomes the single orchestrating surface above all
+module agents. The per-module servers built here require no refactoring at that point — the app host simply
+routes to them.
 
 ---
 

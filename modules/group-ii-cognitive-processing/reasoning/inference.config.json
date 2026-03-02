@@ -1,0 +1,7 @@
+{
+  "defaultModel": "ollama/mistral",
+  "litellmApiBase": "http://localhost:11434",
+  "maxTokens": 1024,
+  "temperature": 0.2,
+  "traceRetentionHours": 24
+}

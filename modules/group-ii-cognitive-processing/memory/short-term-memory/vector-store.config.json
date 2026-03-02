@@ -1,0 +1,6 @@
+{
+  "backend": "chromadb",
+  "collection": "brain.short-term-memory",
+  "host": "localhost",
+  "port": 8000
+}

@@ -1,0 +1,9 @@
+{
+  "maxItems": 20,
+  "tokenBudget": 8000,
+  "evictionPolicy": "compound-priority",
+  "decayHalfLifeSeconds": 300,
+  "contextualRelevanceWeight": 0.4,
+  "importanceScoreWeight": 0.6,
+  "tieBreaker": "oldest-createdAt"
+}

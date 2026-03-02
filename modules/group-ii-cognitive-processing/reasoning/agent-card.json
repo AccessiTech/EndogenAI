@@ -1,0 +1,11 @@
+{
+  "name": "reasoning",
+  "description": "Prefrontal Cortex analogue — performs logical inference, causal reasoning, planning under uncertainty, and conflict resolution. Implements deductive, inductive, and abductive reasoning pipelines, forward simulation for planning, and competing-hypothesis resolution. Analogous to the dorsolateral PFC (abstract reasoning, planning, cognitive flexibility), the anterior cingulate cortex (conflict detection, error monitoring), and the orbitofrontal cortex (value computation under uncertainty).",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8206",
+    "mcp": "http://localhost:8306"
+  },
+  "wellKnown": "/.well-known/agent-card.json"
+}

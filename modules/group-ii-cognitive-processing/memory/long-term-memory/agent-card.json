@@ -1,0 +1,12 @@
+{
+  "name": "long-term-memory",
+  "description": "Persistent semantic world model. Stores consolidated facts, learned associations, and decontextualised knowledge indexed by semantic similarity. Primary retrieval source for the working memory loader and reasoning module.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8203",
+    "mcp": "http://localhost:8303"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/memory-item.schema.json"
+}

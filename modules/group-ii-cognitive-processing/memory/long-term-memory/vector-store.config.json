@@ -1,0 +1,7 @@
+{
+  "backend": "chromadb",
+  "collection": "brain.long-term-memory",
+  "host": "localhost",
+  "port": 8000,
+  "productionBackend": "qdrant"
+}

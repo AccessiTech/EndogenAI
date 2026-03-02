@@ -1,0 +1,6 @@
+{
+  "urgencyThreshold": 0.7,
+  "noveltyDecayRate": 0.1,
+  "curiosityBoostFactor": 1.5,
+  "drivePersistedAcrossSessions": false
+}

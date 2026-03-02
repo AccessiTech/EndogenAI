@@ -1,0 +1,6 @@
+{
+  "backend": "chromadb",
+  "collection": "brain.reasoning",
+  "host": "localhost",
+  "port": 8000
+}

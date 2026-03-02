@@ -1,0 +1,6 @@
+{
+  "backend": "chromadb",
+  "collection": "brain.episodic-memory",
+  "host": "localhost",
+  "port": 8000
+}

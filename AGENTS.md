@@ -115,6 +115,8 @@ shared/
   types/            # Shared type definitions (signal, memory-item, reward-signal)
   utils/            # Logging, tracing, validation specs
   vector-store/     # Backend-agnostic vector store adapter (Python + TypeScript)
+  a2a/
+    python/         # Approved outbound A2A client package (endogenai-a2a) — JSON-RPC 2.0
 
 infrastructure/     # MCP server, A2A agent coordination, adapter bridges (Phase 2+)
 
@@ -149,10 +151,12 @@ docker compose up -d
 
 # 3. Sync each Python sub-package you're working in
 cd shared/vector-store/python && uv sync && cd -
+cd shared/a2a/python && uv sync && cd -
 
 # 4. Verify
 pnpm run lint && pnpm run typecheck
 cd shared/vector-store/python && uv run ruff check . && uv run mypy src/
+cd shared/a2a/python && uv run ruff check . && uv run mypy src/
 ```
 
 > Ollama must be running at `http://localhost:11434` for embedding tests. Pull the default model:
@@ -353,10 +357,15 @@ Copilot chat agents dropdown automatically.
 | **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
 | **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |
 | **Govern Agent** | read-only | Fleet-wide compliance audit of `.github/agents/` against all guardrails |
+| **Docs Executive Researcher** | read + create | Pre-planning; invoked by Phase Executives to research codebase and docs state, write a phase-scoped research brief to `docs/research/`, and hand back to the invoking executive before workplan authoring |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |
 | **Phase-2 Executive** | full tools | Phase-2 specific orchestration and delivery tasks |
 | **Phase-3 Executive** | full tools | Phase-3 specific orchestration and delivery tasks |
 | **Phase-4 Executive** | full tools | Phase-4 specific orchestration and delivery tasks |
+| **Phase 5 Executive** | full tools | Phase 5 top-level orchestration — sequences Memory → Motivation → Reasoning domain executives |
+| **Phase 5 Memory Executive** | full tools | Phase 5 memory stack delivery — working, short-term, long-term, and episodic memory (§§5.1–5.4) |
+| **Phase 5 Motivation Executive** | full tools | Phase 5 affective/motivational layer delivery — reward signals, emotional weighting, urgency scoring (§5.5) |
+| **Phase 5 Reasoning Executive** | full tools | Phase 5 reasoning layer delivery — DSPy inference, causal planning, LiteLLM-routed LLM calls (§5.6) |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 
@@ -376,4 +385,5 @@ For a new agent: **Scaffold Agent → (approve scaffold) → Review → commit**
 | [`docs/guides/adding-a-module.md`](docs/guides/adding-a-module.md) | Step-by-step module scaffolding guide |
 | [`docs/guides/toolchain.md`](docs/guides/toolchain.md) | Full toolchain command reference |
 | [`shared/vector-store/README.md`](shared/vector-store/README.md) | Vector store adapter pattern and collection registry |
+| [`shared/a2a/python/README.md`](shared/a2a/python/README.md) | Approved outbound A2A client (`endogenai-a2a`) — JSON-RPC 2.0 `send_task` / `get_task` |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Branch naming, PR guidelines, and coding standards |

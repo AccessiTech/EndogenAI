@@ -113,6 +113,157 @@ services:
       retries: 5
 
 # ---------------------------------------------------------------------------
+# Group II Cognitive Processing Modules (profile: modules)
+# Start with: docker compose --profile modules up -d
+# ---------------------------------------------------------------------------
+  working-memory:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/memory/working-memory/Dockerfile
+    ports:
+      - "8201:8201"
+      - "8301:8301"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
+      - STM_A2A_URL=http://short-term-memory:8202
+      - EPISODIC_A2A_URL=http://episodic-memory:8204
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8201/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  short-term-memory:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/memory/short-term-memory/Dockerfile
+    ports:
+      - "8202:8202"
+      - "8302:8302"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - REDIS_URL=redis://redis:6379
+      - LTM_A2A_URL=http://long-term-memory:8203
+      - EPISODIC_A2A_URL=http://episodic-memory:8204
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8202/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  long-term-memory:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/memory/long-term-memory/Dockerfile
+    ports:
+      - "8203:8203"
+      - "8303:8303"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    volumes:
+      - ltm_kuzu_data:/tmp
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - KUZU_DB_PATH=/tmp/endogenai_ltm.kuzu
+      - SEED_DOCUMENTS_PATH=resources/static/knowledge/
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8203/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  episodic-memory:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/memory/episodic-memory/Dockerfile
+    ports:
+      - "8204:8204"
+      - "8304:8304"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      long-term-memory:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - LTM_A2A_URL=http://long-term-memory:8203
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8204/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  affective:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/affective/Dockerfile
+    ports:
+      - "8205:8205"
+      - "8305:8305"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      working-memory:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - WM_A2A_URL=http://working-memory:8201
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8205/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  reasoning:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-ii-cognitive-processing/reasoning/Dockerfile
+    ports:
+      - "8206:8206"
+      - "8306:8306"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+      - INFERENCE_MODEL=ollama/mistral
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8206/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# ---------------------------------------------------------------------------
 # Named Volumes
 # ---------------------------------------------------------------------------
 volumes:
@@ -121,3 +272,4 @@ volumes:
   redis_data:
   prometheus_data:
   grafana_data:
+  ltm_kuzu_data:

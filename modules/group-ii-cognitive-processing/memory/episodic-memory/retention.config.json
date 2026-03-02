@@ -1,0 +1,6 @@
+{
+  "maxEpisodesPerSession": 10000,
+  "distillationMinClusterSize": 3,
+  "distillationScheduleCron": "0 * * * *",
+  "retentionDays": 90
+}
