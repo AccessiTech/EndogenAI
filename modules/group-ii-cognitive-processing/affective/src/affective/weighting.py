@@ -28,7 +28,9 @@ class WeightingDispatcher:
     """Dispatches importanceScore boost cues to working memory via A2A.
 
     In production this sends HTTP POST to the working-memory A2A endpoint.
-    The A2AClient is injected so tests can mock it without network I/O.
+    An ``A2AClient`` is created automatically from ``a2a_url`` when no client is
+    injected; pass ``a2a_client`` explicitly in tests to inject a mock and avoid
+    network I/O.
     """
 
     def __init__(
@@ -37,7 +39,10 @@ class WeightingDispatcher:
         a2a_client: A2AClient | None = None,
     ) -> None:
         self._a2a_url = a2a_url
-        self._a2a_client = a2a_client
+        # Always have a real client in production; tests may inject a mock.
+        self._a2a_client: A2AClient = (
+            a2a_client if a2a_client is not None else A2AClient(url=a2a_url)
+        )
 
     def _compute_importance_boost(self, signal: RewardSignal) -> float:
         """Map reward signal value to an importanceScore delta.
@@ -76,33 +81,22 @@ class WeightingDispatcher:
             logger.debug("weighting.skip_below_threshold", signal_id=signal.id, boost=boost)
             return {"status": "skipped", "reason": "below_threshold"}
 
-        if self._a2a_client is not None:
-            try:
-                await self._a2a_client.send_task(
-                    _BOOST_TASK_TYPE,
-                    {
-                        "item_id": signal.associated_memory_item_id,
-                        "reward_value": boost,
-                        "signal_id": signal.id,
-                    },
-                )
-                logger.info(
-                    "weighting.boost_dispatched",
-                    signal_id=signal.id,
-                    memory_item_id=signal.associated_memory_item_id,
-                    boost=boost,
-                )
-                return {"status": "dispatched", "boost": boost}
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("weighting.dispatch_error", error=str(exc), signal_id=signal.id)
-                return {"status": "error", "error": str(exc)}
-        else:
-            # No client injected — log intent only (useful in unit tests)
+        try:
+            await self._a2a_client.send_task(
+                _BOOST_TASK_TYPE,
+                {
+                    "item_id": signal.associated_memory_item_id,
+                    "reward_value": boost,
+                    "signal_id": signal.id,
+                },
+            )
             logger.info(
-                "weighting.boost_intent",
+                "weighting.boost_dispatched",
                 signal_id=signal.id,
                 memory_item_id=signal.associated_memory_item_id,
                 boost=boost,
-                a2a_url=self._a2a_url,
             )
-            return {"status": "intent_logged", "boost": boost}
+            return {"status": "dispatched", "boost": boost}
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("weighting.dispatch_error", error=str(exc), signal_id=signal.id)
+            return {"status": "error", "error": str(exc)}

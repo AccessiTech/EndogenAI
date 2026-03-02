@@ -62,13 +62,23 @@ class TestWeightingDispatcher:
         assert result["status"] == "skipped"
         assert result["reason"] == "below_threshold"
 
-    async def test_dispatch_boost_intent_logged_without_client(self) -> None:
+    async def test_dispatch_boost_returns_error_on_transport_failure(self) -> None:
+        """When the A2A client raises, dispatch_boost returns status=error."""
+        from unittest.mock import AsyncMock, MagicMock
+
+        from endogenai_a2a import A2AClient
+        from endogenai_a2a.exceptions import A2AError
+
         memory_id = str(uuid.uuid4())
         signal = _make_signal(value=0.6, memory_item_id=memory_id)
-        dispatcher = WeightingDispatcher()  # no client → logs intent
+
+        mock_client = MagicMock(spec=A2AClient)
+        mock_client.send_task = AsyncMock(side_effect=A2AError("connection refused"))
+
+        dispatcher = WeightingDispatcher(a2a_client=mock_client)
         result = await dispatcher.dispatch_boost(signal)
-        assert result["status"] == "intent_logged"
-        assert result["boost"] == pytest.approx(0.5, abs=0.1)
+        assert result["status"] == "error"
+        assert "connection refused" in str(result["error"])
 
     async def test_dispatch_boost_calls_a2a_client(self, mocker: object) -> None:
         """When an A2AClient is injected, send_task is called with correct args."""
