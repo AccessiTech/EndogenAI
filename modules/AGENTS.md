@@ -68,12 +68,19 @@ Derive the `name` and `description` from the corresponding `resources/neuroanato
 
 Before marking a module as complete, verify:
 
-- [ ] Module registers its capabilities with the MCP broker (`infrastructure/mcp/`)
-- [ ] Module exposes an A2A task endpoint handled by the A2A server (`infrastructure/a2a/`)
-- [ ] All cross-module communication routes through `infrastructure/adapters/bridge.ts` — no direct HTTP calls
-      between modules
-- [ ] `agent-card.json` endpoint URLs resolve in the local `docker-compose` environment
-- [ ] Integration tests cover at least one round-trip MCP context exchange and one A2A task delegation
+- [ ] Module runs a **per-module FastAPI + Uvicorn A2A server** (JSON-RPC 2.0, `POST /`) whose handler is
+      `a2a_handler.py`; the server is declared as `server.py` in the module `src/` package
+- [ ] Module runs a **per-module FastMCP SSE server** (MCP tools, `GET /sse`) whose tool list is `mcp_tools.py`;
+      the server is co-hosted in `server.py`
+- [ ] All **outbound** cross-module A2A calls use `shared/a2a/python/` `A2AClient` (JSON-RPC 2.0 `tasks/send`);
+      no raw `httpx` calls or custom JSON payloads to other modules
+- [ ] `agent-card.json` `endpoints.a2a` and `endpoints.mcp` URLs resolve in the local `docker-compose` environment
+- [ ] Integration tests cover at least one round-trip A2A task delegation using `A2AClient`
+
+> **Phase 6 note**: The `MCPToA2ABridge` (`infrastructure/adapters/bridge.ts`) and central MCP broker
+> (`infrastructure/mcp`) are composed in Phase 8 by the application-host layer, which becomes the single
+> orchestrating surface above all module agents. Module servers built in Phase 5 require no refactoring —
+> the app host routes to them.
 
 ---
 

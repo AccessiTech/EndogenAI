@@ -66,6 +66,25 @@ Missing any of these keys will cause a validation error caught by `scripts/schem
 
 ---
 
+## a2a Package Constraints
+
+`shared/a2a/python/` (`endogenai-a2a`) is the **only** approved mechanism for outbound A2A calls
+from Python modules.
+
+- **Every** cross-module A2A call must use `A2AClient.send_task()` — no raw `httpx` posts, no
+  custom JSON envelopes, no module-local HTTP helpers.
+- `A2AClient` speaks JSON-RPC 2.0: `tasks/send` and `tasks/get` are the only methods.
+- To add a dependency on this package from a module, declare it in `pyproject.toml`:
+  ```toml
+  dependencies = ["endogenai-a2a"]
+  [tool.uv.sources]
+  endogenai-a2a = { path = "<relative-path-to>/shared/a2a/python", editable = true }
+  ```
+- Do **not** call this package from TypeScript — the TypeScript A2A surface uses the
+  `infrastructure/a2a` package and `infrastructure/adapters/bridge.ts`.
+
+---
+
 ## vector-store Constraints
 
 The `shared/vector-store/` adapter is the **only** permitted entry point to vector storage.
@@ -88,4 +107,7 @@ cd shared && buf lint
 # Vector store adapters
 cd shared/vector-store/python && uv run ruff check . && uv run mypy src/ && uv run pytest
 (cd shared/vector-store/typescript && pnpm run test)
+
+# A2A client package
+cd shared/a2a/python && uv run ruff check . && uv run mypy src/ && uv run pytest
 ```
