@@ -1,0 +1,12 @@
+{
+  "name": "short-term-memory",
+  "description": "Session-scoped transient memory store. Records recent experience with TTL governance; consolidates important items into long-term or episodic memory when the session ends or the buffer threshold is reached.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8202",
+    "mcp": "http://localhost:8302"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/memory-item.schema.json"
+}

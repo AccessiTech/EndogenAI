@@ -1,0 +1,6 @@
+{
+  "backend": "chromadb",
+  "collection": "brain.affective",
+  "host": "localhost",
+  "port": 8000
+}

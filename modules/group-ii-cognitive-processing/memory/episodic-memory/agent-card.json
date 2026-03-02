@@ -1,0 +1,12 @@
+{
+  "name": "episodic-memory",
+  "description": "Autobiographical event log. Records discrete, temporally ordered events carrying full what-where-when context. Supports semantic episode search, timeline reconstruction, and periodic distillation of recurring patterns into long-term memory.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8204",
+    "mcp": "http://localhost:8304"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/memory-item.schema.json"
+}

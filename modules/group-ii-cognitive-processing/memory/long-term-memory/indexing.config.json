@@ -1,0 +1,9 @@
+{
+  "importanceThreshold": 0.5,
+  "chunkingStrategy": "frontmatter-aware",
+  "chunkOverlapTokens": 50,
+  "maxChunkTokens": 512,
+  "seedDocuments": "resources/static/knowledge/",
+  "graphBackend": "kuzu",
+  "sqlBackend": "sqlite"
+}

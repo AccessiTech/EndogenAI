@@ -1,0 +1,12 @@
+{
+  "name": "working-memory",
+  "description": "Assembles and manages the active context window — the agent's immediate focus of attention. Retrieval-augmented: draws from short-term, long-term, and episodic stores, scoring items by importance and token budget before delivery.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8201",
+    "mcp": "http://localhost:8301"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/memory-item.schema.json"
+}

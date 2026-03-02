@@ -1,0 +1,12 @@
+{
+  "name": "affective",
+  "description": "Limbic System analogue — generates reward signals, computes emotional weighting, and emits drive-based urgency scores that modulate memory consolidation and decision-making priorities. Encodes dopaminergic reward prediction error (RPE), incentive salience, and hypothalamic drive variables (urgency, novelty, threat) for the broader cognitive architecture.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8205",
+    "mcp": "http://localhost:8305"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/types/reward-signal.schema.json"
+}
