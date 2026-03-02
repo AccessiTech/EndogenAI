@@ -448,30 +448,85 @@ inference records.
 
 **Goal**: Implement the agent's executive identity, runtime orchestration, and environment effectors.
 
+**Research references**:
+- `docs/research/phase-6-neuroscience-executive-output.md` (D1)
+- `docs/research/phase-6-technologies-executive-output.md` (D2)
+- `docs/research/phase-6-synthesis-workplan.md` (D3)
+- `docs/research/phase-6-detailed-workplan.md` (D4 — implementation spec)
+
+### 6.0 Pre-Implementation Gates (must complete before §§6.1–6.3 begin)
+
+- [ ] **Phase 5 gate**: confirm §§5.1–5.4 memory modules are operational (`uv run pytest` passes for
+      working-memory, short-term-memory, long-term-memory, episodic-memory)
+- [ ] **Schemas-first**: land 5 new shared schemas in `shared/schemas/` before any Phase 6 code:
+      `executive-goal.schema.json`, `skill-pipeline.schema.json`, `action-spec.schema.json`,
+      `motor-feedback.schema.json`, `policy-decision.schema.json` — all passing `buf lint` and
+      `scripts/schema/validate_all_schemas.py`
+- [ ] **Temporal vs. Prefect spike**: run spike per `docs/research/phase-6-detailed-workplan.md §8`;
+      record decision in `docs/research/temporal-prefect-spike.md` before §6.2 implementation
+- [ ] **OPA deployment decision**: resolve embedded vs. standalone HTTP (recommendation: standalone
+      at `localhost:8181`); add `opa` service to `docker-compose.yml`
+- [ ] **Collection registry**: add `brain.executive-agent` entry to
+      `shared/vector-store/collection-registry.json`
+- [ ] **Docker Compose**: add `temporal` (ports 7233, 8233) and `opa` (port 8181) services to
+      `docker-compose.yml`
+- [ ] **Scaffold directory**: create `modules/group-iii-executive-output/` tree per D4 §3
+
 ### 6.1 Executive / Agent Layer (`modules/group-iii-executive-output/executive-agent/`)
 
-- [ ] Implement agent identity management and self-model
-- [ ] Implement persistent goal stack with prioritization and lifecycle management
-- [ ] Implement policy engine with value evaluation and top-down modulation dispatch
+- [ ] Implement agent identity management and self-model (`identity.py`; loads `identity.config.json`;
+      append-only writes to `brain.executive-agent`)
+- [ ] Implement persistent goal stack with prioritization and lifecycle management (`goal_stack.py`;
+      7-state FSM: PENDING → EVALUATING → COMMITTED → EXECUTING → COMPLETED / FAILED / DEFERRED)
+- [ ] Implement BDI interpreter loop (`deliberation.py`; option-generation → value scoring →
+      policy evaluation → intention commitment → reconsideration check)
+- [ ] Implement OPA policy engine client (`policy.py`; three Rego policies: `identity.rego`,
+      `goals.rego`, `actions.rego`; HTTP client to standalone OPA server)
+- [ ] Implement `MotorFeedback` receiver (`feedback.py`; updates goal score; emits `RewardSignal`
+      to affective module; closes actor-critic loop)
 - [ ] Wire `brain.executive-agent` collection; embed goals, values, policies, and identity state
-- [ ] Configure `identity.config.json` and `vector-store.config.json`
+- [ ] Configure `identity.config.json`, `vector-store.config.json`, `embedding.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 6.2 Agent Execution (Runtime) Layer (`modules/group-iii-executive-output/agent-runtime/`)
 
-- [ ] Implement task decomposition, tool/function selection, and skill pipeline execution via Temporal (primary) or
-      Prefect (fallback)
-- [ ] Implement sequencing and inter-module coordination
-- [ ] Configure tool registry
+- [ ] Implement goal decomposition into ordered `SkillPipeline` via LiteLLM Activity
+      (`decomposer.py`; falls back to local LiteLLM call if Phase 5 reasoning module not yet
+      operational)
+- [ ] Implement durable `IntentionWorkflow` via Temporal (`workflow.py`; Signal=abort,
+      Update=revise_plan, Query=get_status; strict determinism: all I/O in Activities)
+- [ ] Implement Prefect circuit-breaker fallback (`prefect_fallback.py`; triggered after
+      `maxTemporalConnectRetries` failures; same pipeline interface as Temporal variant)
+- [ ] Implement unified orchestrator selector (`orchestrator.py`; primary/fallback routing)
+- [ ] Implement tool registry with A2A `/.well-known/agent-card.json` discovery
+      (`tool_registry.py`; periodic health checks)
+- [ ] Implement Temporal Activities (`activities.py`: `decompose_goal`, `dispatch_to_motor_output`,
+      `emit_partial_feedback`)
+- [ ] Configure `orchestrator.config.json` and `tool-registry.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 6.3 Motor / Output / Effector Layer (`modules/group-iii-executive-output/motor-output/`)
 
-- [ ] Implement API call dispatch, message delivery, file writes, rendered output generation, and control signal
-      emission
-- [ ] Implement upward feedback confirmation loop
-- [ ] Configure output channel definitions
+- [ ] Implement channel-based action dispatcher (`dispatcher.py`; corollary discharge pre-action
+      signal; concurrent batch dispatch via `asyncio.gather`)
+- [ ] Implement channel handlers: `http_channel.py`, `a2a_channel.py`, `file_channel.py`,
+      `render_channel.py` (LiteLLM-backed)
+- [ ] Implement PMd-analogue channel selector (`channel_selector.py`; context-dependent routing)
+- [ ] Implement three-tier error policy (`error_policy.py`: tier 1 retry, tier 2 circuit-breaker,
+      tier 3 escalate to executive-agent A2A)
+- [ ] Implement `MotorFeedback` emission after every dispatch (`feedback.py`; active push to
+      executive-agent A2A `receive_feedback`; deviation_score computed from predicted vs. actual)
+- [ ] Configure `channels.config.json` and `error-policy.config.json`
 - [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+
+### 6.4 End-to-End Integration
+
+- [ ] Write `test_integration_full_pipeline` spanning all three modules: push `GoalItem` to
+      executive-agent A2A → verify Temporal Workflow created → confirm `ActionSpec` dispatched by
+      motor-output → verify `MotorFeedback` returned to executive-agent → assert goal reaches
+      `COMPLETED` lifecycle state
+- [ ] Declare M6 milestone: agent produces a measurable environmental output from a goal input;
+      all Gate 0–3 checks pass (per `docs/research/phase-6-detailed-workplan.md §10`)
 
 **Deliverables**: end-to-end decision-to-action pipeline verified; agent can receive a goal, reason about it, and
 produce a measurable environmental output.
