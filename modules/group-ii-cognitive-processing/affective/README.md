@@ -57,7 +57,7 @@ salience, and hypothalamic drive variables (urgency, novelty, threat).
 
 ## Cross-Module Dependencies
 
-- **working-memory** (`http://localhost:8051`): receives `apply_affective_boost` A2A tasks when
+- **working-memory** (`http://localhost:8201`): receives `apply_affective_boost` A2A tasks when
   high-valence reward signals are emitted (routed via `infrastructure/adapters/bridge.ts`).
 - **brain.affective** collection in ChromaDB: receives embedded reward signal history and
   emotional state snapshots.

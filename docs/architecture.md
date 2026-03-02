@@ -221,7 +221,7 @@ between modules — all communication is over MCP context messages or A2A task R
 
 ### Group II service ports
 
-Each Group II module runs a **FastAPI + Uvicorn A2A server** (JSON-RPC 2.0 on `POST /`) and a **FastMCP SSE server**
+Each Group II module runs a **FastAPI + Uvicorn A2A server** (JSON-RPC 2.0 on `POST /tasks`) and a **FastMCP SSE server**
 (MCP tools on `GET /sse`), both co-hosted in a single `server.py` process.
 
 | Service              | A2A Port | MCP (FastMCP SSE) Port |
@@ -248,7 +248,7 @@ Local development without Docker: each module runs independently with `uv run uv
 > HTTP calls to each other — all outbound cross-module calls use `A2AClient` from `shared/a2a/python/`.
 
 ```
-Module A ──► A2AClient (shared/a2a/python) ──► Module B A2A server (POST /)
+Module A ──► A2AClient (shared/a2a/python) ──► Module B A2A server (POST /tasks)
 ```
 
 **Phase 5 note**: Each module IS its own A2A server (FastAPI + Uvicorn, JSON-RPC 2.0) and its own MCP server

@@ -2,8 +2,11 @@
 
 Python client for A2A (Agent-to-Agent) task delegation between EndogenAI cognitive modules.
 
-Implements the JSON-RPC 2.0 task protocol over HTTP, with methods for `tasks/send` and
-`tasks/get`. All Python Group II modules use this package instead of raw `httpx` calls.
+Implements the JSON-RPC 2.0 task protocol over HTTP. `send_task()` maps to `tasks/send` and is
+fully wired end-to-end for all Phase 5 modules. `get_task()` maps to `tasks/get` and is
+implemented in the client, but Phase 5 module servers do not yet handle `tasks/get` requests —
+server-side support is scheduled for Phase 6. All Python Group II modules use this package
+instead of raw `httpx` calls.
 
 ## Usage
 

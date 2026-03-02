@@ -73,7 +73,8 @@ from Python modules.
 
 - **Every** cross-module A2A call must use `A2AClient.send_task()` — no raw `httpx` posts, no
   custom JSON envelopes, no module-local HTTP helpers.
-- `A2AClient` speaks JSON-RPC 2.0: `tasks/send` and `tasks/get` are the only methods.
+- `A2AClient` speaks JSON-RPC 2.0. Phase 5 servers handle `tasks/send` only; `get_task()` is
+  implemented in the client but requires server-side `tasks/get` handling (wired in Phase 6).
 - To add a dependency on this package from a module, declare it in `pyproject.toml`:
   ```toml
   dependencies = ["endogenai-a2a"]
