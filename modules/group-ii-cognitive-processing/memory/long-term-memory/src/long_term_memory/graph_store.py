@@ -95,14 +95,27 @@ class KuzuGraphStore:
         logger.debug("graph_edge_written", src=src, predicate=predicate, dst=dst)
 
     def query_neighbours(self, entity_id: str, depth: int = 1) -> list[GraphEdge]:
-        """Return neighbouring edges up to `depth` hops from `entity_id`."""
+        """Return neighbouring edges up to `depth` hops from `entity_id`.
+
+        For depth=1 a single-hop query returns relation properties directly.
+        For depth>1 the variable-length path is UNWIND-ed into individual hop
+        relations; source_entity_id is the traversal root and target_entity_id
+        is the terminal node of the full path.
+        """
         if depth < 1 or depth > 3:
             raise ValueError(f"depth must be between 1 and 3, got {depth}")
-        result = self._execute(
-            f"MATCH (s:Entity {{entity_id: $eid}})-[r:Relation*1..{depth}]->(t:Entity) "
-            "RETURN s.entity_id, r, t.entity_id",
-            {"eid": entity_id},
-        )
+        if depth == 1:
+            query = (
+                "MATCH (s:Entity {entity_id: $eid})-[r:Relation]->(t:Entity) "
+                "RETURN s.entity_id, r.predicate, r.strength, r.source_item_id, t.entity_id"
+            )
+        else:
+            query = (
+                f"MATCH (s:Entity {{entity_id: $eid}})-[r:Relation*1..{depth}]->(t:Entity) "
+                "UNWIND r AS rel "
+                "RETURN s.entity_id, rel.predicate, rel.strength, rel.source_item_id, t.entity_id"
+            )
+        result = self._execute(query, {"eid": entity_id})
         edges: list[GraphEdge] = []
         if result is None:
             return edges
@@ -112,7 +125,9 @@ class KuzuGraphStore:
                 GraphEdge(
                     source_entity_id=str(row[0]),
                     predicate=str(row[1]),
-                    target_entity_id=str(row[2]),
+                    strength=float(row[2]) if row[2] is not None else 1.0,
+                    source_item_id=str(row[3]) if row[3] else None,
+                    target_entity_id=str(row[4]),
                 )
             )
         return edges

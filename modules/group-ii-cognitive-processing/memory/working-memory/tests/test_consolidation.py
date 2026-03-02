@@ -59,7 +59,7 @@ async def test_dispatch_routes_to_episodic_with_triple() -> None:
 
     assert target == "brain.episodic-memory"
     mock_client.send_task.assert_awaited_once_with(
-        "write_event", {"item": item.model_dump()}
+        "write_event", {"event": item.model_dump()}
     )
 
 

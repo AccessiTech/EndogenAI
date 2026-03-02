@@ -54,12 +54,18 @@ class A2AHandler:
                 ).model_dump()
 
             case "apply_affective_boost":
-                updated = self._store.update(
-                    payload["item_id"],
-                    {"importance_score": min(float(payload.get("reward_value", 0.1)), 1.0)},
-                )
+                item_id: str = payload["item_id"]
+                reward_value = float(payload.get("reward_value", 0.0))
+                # Read current score, apply reward_value as a delta, clamp to [0.0, 1.0]
+                # so that negative RPE can decay importance without going below zero.
+                current_items = [i for i in self._store.list_active() if i.id == item_id]
+                if not current_items:
+                    raise ValueError(f"Item not found: {item_id!r}")
+                current_score = current_items[0].importance_score
+                new_score = max(0.0, min(1.0, current_score + reward_value))
+                updated = self._store.update(item_id, {"importance_score": new_score})
                 if updated is None:
-                    raise ValueError(f"Item not found: {payload['item_id']!r}")
+                    raise ValueError(f"Item not found: {item_id!r}")
                 return updated.model_dump()
 
             case _:

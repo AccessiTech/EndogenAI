@@ -63,7 +63,13 @@ class ConsolidationDispatcher:
 
         try:
             client = self._get_client(target_url)
-            await client.send_task(task_type, {"item": item.model_dump()})
+            # episodic write_event expects key "event"; STM consolidate_item expects "item"
+            task_payload = (
+                {"event": item.model_dump()}
+                if task_type == "write_event"
+                else {"item": item.model_dump()}
+            )
+            await client.send_task(task_type, task_payload)
             logger.info("wm_eviction_dispatched", item_id=item.id, target=target)
         except Exception:
             logger.exception("wm_eviction_dispatch_failed", item_id=item.id)

@@ -68,7 +68,7 @@ Derive the `name` and `description` from the corresponding `resources/neuroanato
 
 Before marking a module as complete, verify:
 
-- [ ] Module runs a **per-module FastAPI + Uvicorn A2A server** (JSON-RPC 2.0, `POST /`) whose handler is
+- [ ] Module runs a **per-module FastAPI + Uvicorn A2A server** (JSON-RPC 2.0, `POST /tasks`) whose handler is
       `a2a_handler.py`; the server is declared as `server.py` in the module `src/` package
 - [ ] Module runs a **per-module FastMCP SSE server** (MCP tools, `GET /sse`) whose tool list is `mcp_tools.py`;
       the server is co-hosted in `server.py`
