@@ -347,14 +347,14 @@ attentional gating, and feature extraction.
 
 - [x] Implement signal ingestion for text, image, audio, API events, and sensor stream modalities
 - [x] Implement normalization, timestamping, and upward dispatch
-- [ ] Wire MCP + A2A interfaces; author `agent-card.json`
+- [x] Wire MCP + A2A interfaces; author `agent-card.json`
 - [x] Write unit and integration tests; author `README.md`
 
 ### 4.2 Attention & Filtering Layer (`modules/group-i-signal-processing/attention-filtering/`)
 
 - [x] Implement salience scoring, relevance filtering, and signal routing
 - [x] Implement top-down attention modulation interface (receives directives from Executive layer)
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 4.3 Perception Layer (`modules/group-i-signal-processing/perception/`)
 
@@ -362,7 +362,7 @@ attentional gating, and feature extraction.
       pipeline
 - [x] Wire `brain.perception` vector collection via shared adapter; embed extracted feature representations
 - [x] Configure `pipeline.config.json` and `vector-store.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 **Deliverables**: end-to-end signal flow from raw input through perception, with features persisted to
 `brain.perception`.
@@ -377,67 +377,67 @@ attentional gating, and feature extraction.
 
 ### 5.1 Working Memory (`modules/group-ii-cognitive-processing/memory/working-memory/`)
 
-- [ ] Implement in-process KV store with read, write, evict operations
-- [ ] Implement retrieval-augmented loader: queries `brain.short-term-memory`, `brain.long-term-memory`, and
+- [x] Implement in-process KV store with read, write, evict operations
+- [x] Implement retrieval-augmented loader: queries `brain.short-term-memory`, `brain.long-term-memory`, and
       `brain.episodic-memory` to assemble context window per turn; respect token budget
-- [ ] Implement consolidation pipeline: dispatch evicted items via STM's A2A `consolidate_item` endpoint; STM
+- [x] Implement consolidation pipeline: dispatch evicted items via STM's A2A `consolidate_item` endpoint; STM
       routes to `brain.episodic-memory` or `brain.long-term-memory` (WM does not write to those collections directly)
-- [ ] Configure `capacity.config.json` and `retrieval.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Configure `capacity.config.json` and `retrieval.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.2 Short-Term Memory (`modules/group-ii-cognitive-processing/memory/short-term-memory/`)
 
-- [ ] Implement session-scoped record store with TTL management (Redis 7 backend; `redis:7-alpine`)
-- [ ] Wire `brain.short-term-memory` collection; embed session records via Ollama `nomic-embed-text`
-- [ ] Implement near-duplicate novelty detection (DG pattern separation analogue): query nearest neighbour before
+- [x] Implement session-scoped record store with TTL management (Redis 7 backend; `redis:7-alpine`)
+- [x] Wire `brain.short-term-memory` collection; embed session records via Ollama `nomic-embed-text`
+- [x] Implement near-duplicate novelty detection (DG pattern separation analogue): query nearest neighbour before
       write; cosine similarity > 0.9 → update existing item rather than create new
-- [ ] Implement consolidation pipeline: SCAN→SCORE→GATE→EMBED→PRUNE — promote scored items to
+- [x] Implement consolidation pipeline: SCAN→SCORE→GATE→EMBED→PRUNE — promote scored items to
       `brain.episodic-memory` (items with `sessionId + sourceTaskId + createdAt`) or `brain.long-term-memory`
-- [ ] Implement semantic search over current session to serve working memory loader
-- [ ] Configure `ttl.config.json`, `vector-store.config.json`, `embedding.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Implement semantic search over current session to serve working memory loader
+- [x] Configure `ttl.config.json`, `vector-store.config.json`, `embedding.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.3 Long-Term Memory (`modules/group-ii-cognitive-processing/memory/long-term-memory/`)
 
-- [ ] Implement configurable vector DB adapter for `brain.long-term-memory` (ChromaDB default, Qdrant for production)
-- [ ] Implement knowledge graph adapter (Kuzu default, Neo4j for production)
-- [ ] Implement SQL adapter for structured fact storage (SQLite default, PostgreSQL for production)
-- [ ] Implement embedding pipeline with frontmatter-aware section chunking (respects `brain-structure.md` region
+- [x] Implement configurable vector DB adapter for `brain.long-term-memory` (ChromaDB default, Qdrant for production)
+- [x] Implement knowledge graph adapter (Kuzu default, Neo4j for production)
+- [x] Implement SQL adapter for structured fact storage (SQLite default, PostgreSQL for production)
+- [x] Implement embedding pipeline with frontmatter-aware section chunking (respects `brain-structure.md` region
       boundaries)
-- [ ] Implement semantic + hybrid retrieval (vector + keyword) with re-ranking
-- [ ] Implement boot-time seed pipeline: chunk and embed all `resources/static/knowledge/` documents via LlamaIndex
-- [ ] Configure `vector-store.config.json`, `embedding.config.json`, `indexing.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Implement semantic + hybrid retrieval (vector + keyword) with re-ranking
+- [x] Implement boot-time seed pipeline: chunk and embed all `resources/static/knowledge/` documents via LlamaIndex
+- [x] Configure `vector-store.config.json`, `embedding.config.json`, `indexing.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.4 Episodic Memory (`modules/group-ii-cognitive-processing/memory/episodic-memory/`)
 
-- [ ] Implement ordered event log with temporal indexing; enforce what-where-when immutability contract
+- [x] Implement ordered event log with temporal indexing; enforce what-where-when immutability contract
       (`sessionId`, `sourceTaskId`, `createdAt`, `affectiveValence` required on all episodic items; content frozen
       at write time)
-- [ ] Wire `brain.episodic-memory` collection; embed episode records for semantic + temporal composite queries
-- [ ] Implement temporal replay, semantic episode search, and composite queries
-- [ ] Implement episodic distillation pipeline: cluster recurring patterns and promote to `brain.long-term-memory`
+- [x] Wire `brain.episodic-memory` collection; embed episode records for semantic + temporal composite queries
+- [x] Implement temporal replay, semantic episode search, and composite queries
+- [x] Implement episodic distillation pipeline: cluster recurring patterns and promote to `brain.long-term-memory`
       via LTM A2A `write_item`; runs on schedule (cron hourly) or explicit trigger
-- [ ] Configure `vector-store.config.json`, `embedding.config.json`, `retention.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Configure `vector-store.config.json`, `embedding.config.json`, `retention.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.5 Affective / Motivational Layer (`modules/group-ii-cognitive-processing/affective/`)
 
-- [ ] Implement reward signal generation, emotional weighting, urgency scoring, and prioritization cue dispatch
-- [ ] Wire `brain.affective` collection; embed reward and emotional state history
-- [ ] Configure `drive.config.json` and `vector-store.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Implement reward signal generation, emotional weighting, urgency scoring, and prioritization cue dispatch
+- [x] Wire `brain.affective` collection; embed reward and emotional state history
+- [x] Configure `drive.config.json` and `vector-store.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 5.6 Decision-Making & Reasoning Layer (`modules/group-ii-cognitive-processing/reasoning/`)
 
-- [ ] Implement logical reasoning, causal inference, planning under uncertainty, and conflict resolution via DSPy
+- [x] Implement logical reasoning, causal inference, planning under uncertainty, and conflict resolution via DSPy
       (`ChainOfThought`, `ProgramOfThought`, `ReAct`, `MultiChainComparison`)
-- [ ] Integrate `guidance` package for constrained/structured generation in inhibitory-control contexts; wired
+- [x] Integrate `guidance` package for constrained/structured generation in inhibitory-control contexts; wired
       into `inference.py` — no standalone module file required
-- [ ] Wire `brain.reasoning` collection; embed inference traces, plans, and causal models
-- [ ] Route all LLM calls through LiteLLM
-- [ ] Configure `strategy.config.json` and `vector-store.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Wire `brain.reasoning` collection; embed inference traces, plans, and causal models
+- [x] Route all LLM calls through LiteLLM
+- [x] Configure `inference.config.json` and `vector-store.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 **Deliverables**: full memory stack operational with seed pipeline verified, reasoning layer producing traceable
 inference records.
