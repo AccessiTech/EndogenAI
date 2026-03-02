@@ -1,9 +1,9 @@
 ---
 id: neuroanatomy-frontal-lobe
-version: 0.1.0
+version: 0.2.0
 status: stub
 authority: descriptive
-last-reviewed: 2026-02-24
+last-reviewed: 2026-03-02
 seed-collection: brain.long-term-memory
 chunking: section-boundary
 maps-to-modules:
@@ -67,16 +67,43 @@ Key subregions and their module implications:
 ## Key Design Notes
 
 - **Agent identity**: the Executive / Agent Layer holds a persistent self-model — the agent's identity, role,
-  capabilities, and behavioral constraints.
-- **Persistent goal stack**: goals survive across sessions; implement priority ordering with lifecycle management
-  (creation, activation, completion, suspension, abandonment).
-- **Policy engine**: value evaluation must gate all actions against defined policies before dispatch — analogous to
-  frontal inhibitory control.
+  capabilities, and behavioral constraints. Implemented in `identity.py`; persists append-only to
+  `brain.executive-agent` ChromaDB collection.
+- **BDI interpreter loop**: the `deliberation.py` module runs the Beliefs-Desires-Intentions loop: option generation
+  → value scoring (OFC analogue) → OPA policy evaluation → intention commitment (BG direct pathway analogue) →
+  reconsideration check. Cycle period is configurable via `identity.config.json`.
+- **OPA policy engine**: three-tier Rego policy set (`policies/identity.rego`, `policies/goals.rego`,
+  `policies/actions.rego`) enforces identity integrity, goal capacity, and action permissions. Corresponds to
+  frontal inhibitory control (IFG) and ACC conflict detection. Runs as standalone HTTP server at
+  `localhost:8181` (add `opa` service to `docker-compose.yml`).
+- **Goal stack FSM**: 7-state lifecycle (PENDING → EVALUATING → COMMITTED → EXECUTING → COMPLETED / FAILED /
+  DEFERRED) managed by `goal_stack.py`. Capacity constraint (`maxActiveGoals = 5`) mirrors DLPFC working memory
+  limits.
+- **BG pathway analogues**: BG direct pathway = `commit_intention` (disinhibit execution); indirect pathway =
+  `enforce_capacity` (suppress competing goals); hyperdirect pathway = `abort_goal` (stop signal cancels full
+  execution queue immediately).
+- **Persistent goal stack**: goals survive across sessions; priority ordering with lifecycle management.
+- **Policy engine**: value evaluation must gate all actions before dispatch — analogous to frontal inhibitory control.
 - **Top-down modulation dispatch**: this layer sends attention directives, goal priors, and policy constraints downward
   to all other layers.
 - **Social cognition hooks**: the self-model should include representations of user context and expected interactional
   norms.
 - **Vector store**: embed goals, values, policies, and identity state into `brain.executive-agent`.
+
+## Phase 6 Implementation References
+
+| Region | Phase 6 construct | File |
+|---|---|---|
+| DLPFC (BA 9/46) | Goal stack active maintenance | `goal_stack.py` |
+| OFC (BA 11–14) | Value scoring of goal candidates | `deliberation.py` |
+| vmPFC (BA 10–12) | Fast heuristic pre-filter | `deliberation.py` |
+| ACC (BA 24/32) | OPA `violations[]` → escalation | `policy.py` |
+| BG direct | `commit_intention` disinhibition | `goal_stack.py`, `a2a_handler.py` |
+| BG indirect | `enforce_capacity` suppression | `goal_stack.py` |
+| BG hyperdirect | `abort_goal` stop signal | `goal_stack.py`, `a2a_handler.py` |
+| Dopamine RPE | `MotorFeedback.reward_signal` updates priority | `feedback.py` |
+
+See `docs/research/phase-6-neuroscience-executive-output.md §2` for full derivation.
 
 ## References
 

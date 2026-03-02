@@ -1,9 +1,9 @@
 ---
 id: neuroanatomy-cerebellum
-version: 0.1.0
+version: 0.2.0
 status: stub
 authority: descriptive
-last-reviewed: 2026-02-24
+last-reviewed: 2026-03-02
 seed-collection: brain.long-term-memory
 chunking: section-boundary
 maps-to-modules:
@@ -70,14 +70,41 @@ Key subregions:
 
 ## Key Design Notes
 
-- **Agent Runtime Layer** (anterior/posterior cerebellum analogy): orchestrates task decomposition, tool selection, and
-  skill pipeline execution — smooth, coordinated multi-step workflows analogous to cerebellar motor coordination.
-  Temporal (primary) or Prefect (fallback) for orchestration.
-- **Motor Output Layer** (cerebellar output analogy): delivers refined, reliable actions into the environment — API
-  calls, message dispatch, file writes. Implements the "efference copy" pattern: confirms action execution and
-  dispatches feedback upward.
-- **Error correction loop**: the Motor Output Layer must confirm action outcomes and dispatch success/failure signals
-  back up the stack — analogous to the olivocerebellar error signal.
+- **Agent Runtime Layer** (cerebrocerebellum analogy): orchestrates task decomposition (`decomposer.py`), tool
+  selection (`tool_registry.py`), and durable skill pipeline execution via Temporal `IntentionWorkflow`
+  (`workflow.py`). Temporal Workers correspond to cerebellar interneurons — they process Activities atomically and
+  replay deterministically from Event History after failure, analogous to Purkinje cell learned corrections.
+- **Temporal as inverse model**: the `decompose_goal` Activity builds a `SkillPipeline` (goal → motor plan) before
+  execution begins — direct analogue to the cerebellar inverse model computing the motor command needed to achieve
+  a target state. Implemented via LiteLLM Activity in `activities.py`.
+- **pre-SMA decomposition phase**: the decomposition `Activity` runs before any dispatch Activity, corresponding to
+  pre-SMA sequencing that precedes M1 execution. Bereitschaftspotential analogue: `tool_registry.py` pre-fetches
+  agent-card metadata during decomposition so tools are ready before execution begins.
+- **Prefect fallback**: if Temporal server is unreachable after `maxTemporalConnectRetries`, `orchestrator.py`
+  routes to `prefect_fallback.py` — Prefect `@flow`/`@task` circuit-breaker pattern. Result checkpointing
+  mirrors cerebellar LTD (long-term depression of error-prone pathways).
+- **Marr-Albus climbing fibre**: execution errors logged per step as `skill_feedback` events; structured for Phase 7
+  skill refinement (Adaptive Systems layer).
+- **Motor Output Layer** (spinocerebellum / cerebellar output analogy): delivers refined, reliable actions —
+  `dispatcher.py` implements corollary discharge (`predicted_outcome` field) and dispatches `MotorFeedback` after
+  every action. Corresponds to the spinocerebellar real-time correction loop.
+- **Olivocerebellar error signal** → `MotorFeedback.deviation_score`: computed from cosine similarity between
+  `predicted_outcome` and `actual_outcome`; forwarded to executive-agent to update goal priority weights.
+
+## Phase 6 Implementation References
+
+| Region | Phase 6 construct | File |
+|---|---|---|
+| Cerebrocerebellum | `IntentionWorkflow` durable orchestration | `workflow.py` |
+| Cerebellar inverse model | `decompose_goal` LiteLLM Activity | `activities.py` |
+| Purkinje cell / LTD | Prefect fallback path after Temporal errors | `prefect_fallback.py` |
+| Marr-Albus climbing fibre | Per-step `skill_feedback` error log | `activities.py` |
+| pre-SMA sequencing | Decomposition Activity before execution | `decomposer.py` |
+| Bereitschaftspotential | Agent-card pre-fetch during decomposition | `tool_registry.py` |
+| Spinocerebellum (real-time) | `MotorFeedback` after every dispatch | `feedback.py` (motor-output) |
+| Olivocerebellar error signal | `deviation_score` field in `MotorFeedback` | `dispatcher.py` |
+
+See `docs/research/phase-6-neuroscience-executive-output.md §3` for full derivation.
 - **Procedural skill registry**: frequently-executed tool pipelines should be cached/optimized over time — analogous to
   cerebellar procedural learning.
 - **Temporal precision**: action sequencing must respect ordering constraints and timing dependencies defined by the
