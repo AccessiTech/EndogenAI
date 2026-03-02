@@ -7,6 +7,8 @@ tools:
   - read
   - edit
   - web
+  - terminal
+  - execute
   - changes
   - usages
 handoffs:
@@ -89,9 +91,32 @@ divergence between the architectural intent and what is currently implemented.
 ### Step 5 — Optionally fetch external context
 
 If the phase involves a library, protocol, or pattern not yet used in the
-codebase (e.g. DSPy, A2A protocol version, Guidance), use `web` to fetch
-the current upstream documentation summary. Record the source URL and date
-in the brief.
+codebase (e.g. DSPy, A2A protocol version, Guidance), use the following
+workflow — **do not hold page content in agent context**:
+
+1. **Validate URLs with `web` first.** Projects move and URLs rot. Before
+   adding any URL to a manifest, fetch it with the `web` tool to confirm it
+   resolves and contains relevant content. Record the verified URL.
+
+2. **Create or update the phase manifest** at
+   `scripts/fetch_manifests/<phase-slug>.json`. Each entry:
+   ```json
+   { "url": "https://...", "out": "docs/research/sources/<phase-slug>/<slug>.md", "note": "brief description" }
+   ```
+   Check whether a manifest already exists before creating one.
+
+3. **Run the fetch script via `terminal`**:
+   ```bash
+   uv run python scripts/fetch_source.py --manifest scripts/fetch_manifests/<phase-slug>.json
+   ```
+   The script fetches and writes each source immediately — no page content
+   enters agent context. Re-runs are safe (files are overwritten).
+
+4. **Verify output** — the script exits `1` on any failure. Check the output
+   for `✗ failed` lines and fix those manifest entries (usually a URL change),
+   then re-run.
+
+5. **Record source URLs and fetch date** in the research brief under §6.
 
 ### Step 6 — Write the research brief
 

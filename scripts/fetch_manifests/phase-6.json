@@ -1,0 +1,77 @@
+[
+  {
+    "url": "https://en.wikipedia.org/wiki/Frontal_lobe",
+    "out": "docs/research/sources/phase-6/bio-frontal-lobe.md",
+    "note": "bio: frontal lobe anatomy, PFC sub-regions (DLPFC/OFC/vmPFC/ACC), executive functions"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Prefrontal_cortex",
+    "out": "docs/research/sources/phase-6/bio-prefrontal-cortex.md",
+    "note": "bio: PFC structure/function, goal-directed behavior, Miller & Cohen integrative theory"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Cerebellum",
+    "out": "docs/research/sources/phase-6/bio-cerebellum.md",
+    "note": "bio: cerebellar cortex, Purkinje cells, Marr-Albus model, forward/inverse models, supervised learning"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Motor_cortex",
+    "out": "docs/research/sources/phase-6/bio-motor-cortex.md",
+    "note": "bio: M1/PMC/SMA hierarchy, corticospinal tract, skill learning"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Basal_ganglia",
+    "out": "docs/research/sources/phase-6/bio-basal-ganglia.md",
+    "note": "bio: direct/indirect/hyperdirect pathways, 5 loops, actor-critic"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Supplementary_motor_area",
+    "out": "docs/research/sources/phase-6/bio-supplementary-motor-area.md",
+    "note": "bio: SMA vs pre-SMA, Bereitschaftspotential, sequence planning"
+  },
+  {
+    "url": "https://docs.temporal.io/workflows",
+    "out": "docs/research/sources/phase-6/tech-temporal-workflows.md",
+    "note": "tech: Temporal workflow definition/type/execution, durable execution, event history"
+  },
+  {
+    "url": "https://docs.temporal.io/activities",
+    "out": "docs/research/sources/phase-6/tech-temporal-activities.md",
+    "note": "tech: Temporal activities, idempotency, Worker execution, ActivityTaskCompleted"
+  },
+  {
+    "url": "https://docs.temporal.io/encyclopedia/workflow-message-passing",
+    "out": "docs/research/sources/phase-6/tech-temporal-message-passing.md",
+    "note": "tech: Temporal Signals/Queries/Updates decision matrix"
+  },
+  {
+    "url": "https://www.openpolicyagent.org/docs/latest/",
+    "out": "docs/research/sources/phase-6/tech-opa.md",
+    "note": "tech: OPA Rego language, rule patterns, complete/partial/OR, server mode"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Belief%E2%80%93desire%E2%80%93intention_software_model",
+    "out": "docs/research/sources/phase-6/tech-bdi-model.md",
+    "note": "tech: BDI Beliefs/Desires/Intentions, interpreter loop, hierarchical plans"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Intelligent_agent",
+    "out": "docs/research/sources/phase-6/tech-intelligent-agent.md",
+    "note": "tech: Russell & Norvig 5 agent types, layered architectures, agentic AI"
+  },
+  {
+    "url": "https://docs.prefect.io/v3/develop/write-workflows",
+    "out": "docs/research/sources/phase-6/tech-prefect-workflows.md",
+    "note": "tech: Prefect workflow/task patterns, fallback orchestration"
+  },
+  {
+    "url": "https://a2a-protocol.org/latest/topics/what-is-a2a/",
+    "out": "docs/research/sources/phase-6/tech-a2a-spec.md",
+    "note": "tech: A2A protocol overview, key concepts, agent cards — a2a-protocol.org (migrated from google.github.io/A2A)"
+  },
+  {
+    "url": "https://a2a-protocol.org/latest/topics/agent-discovery/",
+    "out": "docs/research/sources/phase-6/tech-a2a-discovery.md",
+    "note": "tech: A2A agent discovery spec, well-known URI, agent card schema — a2a-protocol.org"
+  }
+]
