@@ -10,6 +10,12 @@ last-reviewed: "2025-07-14"
 Unified vector store abstraction for all EndogenAI modules. Provides a common interface to ChromaDB (default), Qdrant
 (production), and pgvector — with Ollama-powered embeddings by default.
 
+## Purpose
+
+The vector store adapter decouples all EndogenAI cognitive modules from any specific vector database backend. Every module that needs to embed or retrieve semantic content depends on this package rather than calling ChromaDB, Qdrant, or pgvector directly. The adapter enforces a single embedding provider configuration (default: `nomic-embed-text` via Ollama) and a canonical collection registry (`brain.*`) across all sub-modules, ensuring consistent embedding dimensions and collection naming throughout the system.
+
+---
+
 ## Directory layout
 
 ```
