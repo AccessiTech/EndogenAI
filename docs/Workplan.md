@@ -614,7 +614,7 @@ _Service port: 8171. Builds first — no ML dependencies; activates Phase 6 obse
 - [x] Author `observability/prometheus-rules/metacognition.yml` — 4 alert rules: `TaskConfidenceLow`,
       `DeviationAnomalyHigh`, `EscalationRateElevated`, `PolicyDenialRateHigh`; copy to
       `observability/prometheus-rules/`
-- [x] Configure `monitoring.config.json` (`confidence_threshold`, `anomaly_zscore_threshold`,
+- [x] Configure `monitoring.config.json` (`confidence_threshold`, `deviation_error_threshold`,
       `rolling_window_size`, `alert_window_minutes`, `metrics_export`, `escalation_enabled`)
 - [x] Wire MCP resources (`confidence/current`, `anomalies/recent`, `report/session`) + A2A tasks
       (`evaluate_output` inbound, `request_correction` outbound); author `agent-card.json`; write tests;

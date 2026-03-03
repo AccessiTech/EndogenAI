@@ -155,7 +155,7 @@ Gate 1 commit time):
 | Alert | Condition |
 |-------|-----------|
 | `TaskConfidenceLow` | `brain_metacognition_task_confidence < threshold` sustained |
-| `DeviationAnomalyHigh` | `brain_metacognition_deviation_zscore > anomaly_zscore_threshold` |
+| `DeviationAnomalyHigh` | `brain_metacognition_deviation_zscore > 2.5` (hardcoded in alert rule) |
 | `EscalationRateElevated` | `rate(brain_metacognition_escalation_total[5m]) > threshold` |
 | `PolicyDenialRateHigh` | `brain_metacognition_policy_denial_rate > threshold` |
 
@@ -163,7 +163,7 @@ Reference `prometheus.yml` `rule_files` entry — confirm it is present before d
 
 ### Config and metadata files
 
-- `monitoring.config.json` — `confidence_threshold`, `anomaly_zscore_threshold`,
+- `monitoring.config.json` — `confidence_threshold`, `deviation_error_threshold`,
   `rolling_window_size`, `alert_window_minutes`, `metrics_export`, `escalation_enabled`
 - `agent-card.json` — `neuroanatomicalAnalogue` derived from `association-cortices.md` and `prefrontal-cortex.md`
 - `pyproject.toml` — `opentelemetry-api>=1.24.0`, `opentelemetry-sdk>=1.24.0`,
