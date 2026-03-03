@@ -1459,3 +1459,246 @@ No further approvals are required before implementation begins, subject to Gate 
 | 4 | Temporal Workflow ID strategy | **`goal_id_with_attempt`** (`"{goal_id}-{n}"`) | Zero-padded attempt suffix (e.g. `"{uuid}-001"`); retry-safe; stored on `GoalItem.workflow_id`; correlation trivial in logs |
 | 5 | `MotorFeedback` delivery | **Active push** | `motor-output/feedback.py` calls `executive-agent` A2A `receive_feedback` after every dispatch; blocking for `escalate=True`, fire-and-forget with 3-retry backoff for normal completions |
 | 6 | Phase 5 reasoning stub | **Local LiteLLM fallback in `agent-runtime`** | Phase 5 reasoning module confirmed not yet operational; `decompose_goal` Activity calls LiteLLM directly (see §5.6); do NOT call Phase 5 A2A/MCP endpoints; replace when Phase 5 reasoning becomes available |
+
+## Copilot Review
+
+PR #21 was reviewed by GitHub Copilot (review `3879547061`, 2026-03-02). Copilot flagged
+10 concerns across 99 of 109 changed files. All 10 are genuine implementation bugs — none
+should be dismissed. Each is categorised below with the required remediation.
+
+---
+
+### Concerns to Address
+
+#### 1. Dockerfile COPY paths are outside the build context
+
+**File**: `modules/group-iii-executive-output/executive-agent/Dockerfile` (lines 11–13)
+
+**Issue**: `COPY ../../../shared/vector-store/python` and
+`COPY ../../../shared/a2a/python` use paths relative to the Dockerfile, but
+`docker-compose.yml` sets the build context to the repo root. Docker COPY paths must be
+relative to the build context, so these paths will be rejected at build time.
+
+**Fix**: Change both COPY lines to be relative to the repo root:
+```dockerfile
+COPY shared/vector-store/python /shared/vector-store/python
+COPY shared/a2a/python /shared/a2a/python
+```
+Apply the same correction to the equivalent Dockerfiles in `agent-runtime/` and
+`motor-output/` if present.
+
+---
+
+#### 2. `FileChannel` initialised with empty `allowed_base_paths`
+
+**File**: `modules/group-iii-executive-output/motor-output/src/motor_output/dispatcher.py`
+(lines 50–55)
+
+**Issue**: The `Dispatcher` passes `allowed_file_paths or []` to `FileChannel`. When
+`allowed_file_paths` is `None` (the common default), the channel receives an empty list and
+`_is_allowed()` always returns `False`, silently disabling all file writes.
+
+**Fix**: Pass `None` directly (or omit the argument) so `FileChannel` falls back to its
+own `_ALLOWED_BASE_PATHS` default:
+```python
+ChannelType.FILE: FileChannel(allowed_base_paths=allowed_file_paths),
+```
+
+---
+
+#### 3. `_is_allowed()` vulnerable to path-prefix trick
+
+**File**: `modules/group-iii-executive-output/motor-output/src/motor_output/channels/file_channel.py`
+(lines 28–33)
+
+**Issue**: The allowed-path guard uses `str(resolved).startswith(str(allowed_base))`.
+A path like `/tmp-not-allowed/evil` would pass an `/tmp` base check because the string
+prefix matches. This is a path-traversal security issue.
+
+**Fix**: Use `Path.relative_to()` (raises `ValueError` if the target is outside the base)
+or `os.path.commonpath()`:
+```python
+def _is_allowed(self, target: Path) -> bool:
+    resolved = target.resolve()
+    for base in self._allowed_base_paths:
+        try:
+            resolved.relative_to(base.resolve())
+            return True
+        except ValueError:
+            continue
+    return False
+```
+
+---
+
+#### 4. OPA policy cache described as LRU but implemented as unbounded dict
+
+**File**: `modules/group-iii-executive-output/executive-agent/src/executive_agent/policy.py`
+(lines 53–57)
+
+**Issue**: The docstring says "LRU, max 100" but the cache is a plain `dict`. Once it
+reaches 100 entries it stops caching new decisions (but never evicts old ones), so
+long-running processes silently degrade to no caching without error.
+
+**Fix**: Use `functools.lru_cache`, `cachetools.LRUCache`, or a manual `collections.OrderedDict`
+eviction, and update the docstring to match whichever approach is chosen.
+
+---
+
+#### 5. `docker-compose.yml` env var names don't match what `motor-output/server.py` reads
+
+**File**: `docker-compose.yml` (lines 380–381)
+
+**Issue**: The `motor-output` service is given `EXECUTIVE_AGENT_A2A_URL` and
+`AGENT_RUNTIME_A2A_URL`, but `server.py` reads `EXECUTIVE_AGENT_URL` and
+`AGENT_RUNTIME_URL`. The configured container-DNS URLs are ignored; the server falls back
+to `localhost` defaults and cannot reach co-located services.
+
+**Fix** (accept Copilot's suggested change):
+```yaml
+- EXECUTIVE_AGENT_URL=http://executive-agent:8161
+- AGENT_RUNTIME_URL=http://agent-runtime:8162
+```
+Alternatively, update `server.py` to read the `*_A2A_URL` names — pick one convention and
+apply it consistently across all three modules.
+
+---
+
+#### 6. `workflow.py` returns `status="completed"` when aborted during plan revision
+
+**File**: `modules/group-iii-executive-output/agent-runtime/src/agent_runtime/workflow.py`
+(lines 72–85)
+
+**Issue**: When an abort signal arrives while the inner revision loop is running, the loop
+breaks but execution falls through to `return {"status": "completed", ...}`. The caller
+receives a false success signal for an aborted workflow.
+
+**Fix**: Check `self._abort_requested` after the revision loop and return an aborted result:
+```python
+if self._abort_requested:
+    return {"status": "aborted", "goal_id": goal_id, "results": results}
+```
+This check should also be present at the top of the main loop for consistency.
+
+---
+
+#### 7. `tool_registry.py` reads capabilities from the wrong JSON field
+
+**File**: `modules/group-iii-executive-output/agent-runtime/src/agent_runtime/tool_registry.py`
+(lines 93–96)
+
+**Issue**: `SkillEntry.capabilities` is populated from the agent-card top-level
+`"capabilities"` field instead of the per-skill `"capabilities"` field. All skills
+registered from the same agent-card inherit identical capability lists, breaking
+capability-based filtering and losing skill-specific metadata.
+
+**Fix** (accept Copilot's suggested change):
+```python
+capabilities=skill_data.get("capabilities", []),
+```
+
+---
+
+#### 8. `policy.py` "Fail open" comment contradicts fail-closed behaviour
+
+**File**: `modules/group-iii-executive-output/executive-agent/src/executive_agent/policy.py`
+
+**Issue**: The comment inside the OPA exception handler says something to the effect of
+"fail open" but the implementation returns `allow=False` on OPA communication errors
+(fail-closed). This misalignment will mislead reviewers and future maintainers; it is also
+a potential security decision that should be explicit.
+
+**Fix**: Decide on the intended behaviour and align code and comment:
+- **Fail-closed** (recommended for safety): remove the "fail open" comment; document
+  that OPA unavailability blocks goal execution.
+- **Fail-open** (if desired): set `allow=True` on communication errors and document the
+  risk explicitly with a `# nosec` or equivalent annotation.
+
+---
+
+#### 9. `load_bundle()` calls the wrong OPA endpoint and uses the wrong content-type
+
+**File**: `modules/group-iii-executive-output/executive-agent/src/executive_agent/policy.py`
+(lines 121–130)
+
+**Issue**: `load_bundle()` sends a `PUT` to `/v1/policies/endogenai` with
+`Content-Type: application/x-tar` and claims to upload a `.tar.gz` bundle. The OPA
+`/v1/policies/{id}` endpoint expects raw Rego source text (`text/plain`); bundles are
+configured via the OPA server's `bundle` plugin (not a runtime HTTP push). Using the wrong
+endpoint with the wrong content-type will result in a silent failure or an OPA parse error.
+
+**Fix** — choose one:
+- **Single Rego policy**: send `PUT /v1/policies/endogenai` with the `.rego` file contents
+  as `text/plain`.
+- **Bundle (preferred for production)**: remove `load_bundle()` entirely; configure OPA's
+  `--bundle /policies` flag (already wired via the `docker-compose.yml` volume mount) so
+  OPA loads Rego files at startup without a runtime push call.
+
+The `docker-compose.yml` already mounts `./modules/group-iii-executive-output/executive-agent/policies`
+at `/policies` with the `--bundle /policies` flag pattern — use that and remove the HTTP
+bundle upload machinery.
+
+---
+
+#### 10. `error-policy.config.json` key names don't match what `server.py` reads
+
+**File**: `modules/group-iii-executive-output/motor-output/src/motor_output/server.py`
+(lines 56–60)
+
+**Issue**: `error-policy.config.json` uses top-level keys `"tier1"`, `"tier2"`, `"tier3"`
+(as specified in §6.4 of this workplan), but `server.py` reads with `raw.get("retry", {})`
+and `raw.get("circuitBreaker", {})`. The configured retry and circuit-breaker settings are
+silently ignored and defaults are always used.
+
+**Fix**: Update `server.py` to read the tier-based structure that matches the config file:
+```python
+error_policy_config = {
+    "tier1": raw.get("tier1", {}),
+    "tier2": raw.get("tier2", {}),
+    "tier3": raw.get("tier3", {}),
+}
+```
+The `error-policy.config.json` schema in §6.4 of this workplan is the source of truth —
+do not change the config file format.
+
+---
+
+### Summary
+
+| # | File | Severity | Action |
+|---|------|----------|--------|
+| 1 | `executive-agent/Dockerfile` | High — blocks Docker build | Fix COPY paths to be relative to repo root build context |
+| 2 | `motor-output/dispatcher.py` | High — disables file channel | Pass `None` to `FileChannel` instead of empty list |
+| 3 | `motor-output/channels/file_channel.py` | High — security (path traversal) | Replace `startswith()` with `Path.relative_to()` |
+| 4 | `executive-agent/policy.py` (cache) | Medium — silent perf degradation | Use `OrderedDict` or `lru_cache` for actual LRU eviction |
+| 5 | `docker-compose.yml` env vars | High — motor-output cannot reach peers | Rename to `EXECUTIVE_AGENT_URL` / `AGENT_RUNTIME_URL` |
+| 6 | `agent-runtime/workflow.py` | High — false success on abort | Return `status="aborted"` when `_abort_requested` after revision loop |
+| 7 | `agent-runtime/tool_registry.py` | Medium — broken capability filtering | Read `skill_data.get("capabilities", [])` not top-level card field |
+| 8 | `executive-agent/policy.py` (comment) | Medium — misleading comment / security ambiguity | Align comment with fail-closed behaviour |
+| 9 | `executive-agent/policy.py` (bundle) | High — OPA bundle upload broken | Use startup bundle mount or fix endpoint + content-type |
+| 10 | `motor-output/server.py` | High — error policy config ignored | Read `tier1`/`tier2`/`tier3` keys matching config schema |
+
+All ten concerns are genuine bugs. None should be ignored. Items 1, 3, 5, 6, 9, 10 are
+blockers for a functioning stack; items 2, 4, 7, 8 are correctness issues that should be
+resolved in the same pass before merge.
+
+---
+
+### Resolutions (2026-03-02)
+
+All 10 issues were addressed in 6 sequential commits on `feature/phase-6-executive`
+immediately following the review. The changes are ready for re-review.
+
+| # | Commit | Resolution |
+|---|--------|------------|
+| 1 | `b28a7ec` | `executive-agent/Dockerfile`: COPY paths changed to repo-root-relative (`shared/vector-store/python`, `shared/a2a/python`) |
+| 4 | `5ff507a` | `policy.py`: `_cache` type changed to `collections.OrderedDict`; `move_to_end()` on hit; oldest entry evicted (`popitem(last=False)`) when at capacity |
+| 8 | `5ff507a` | `policy.py`: "Fail open" comment corrected to "Fail-closed" with explicit rationale — OPA unavailability blocks goal execution by design |
+| 9 | `5ff507a` + `e4c3420` | `policy.py`: `load_bundle()` deprecated (no-op + warning); `load_policy()` added — PUTs a single `.rego` file as `text/plain` to `/v1/policies/{id}`. `docker-compose.yml`: OPA service augmented with `--bundle /policies` flag and a read-only volume mount of `executive-agent/policies/` so all Rego files load at startup without any HTTP push |
+| 6 | `523c610` | `workflow.py`: `_abort_requested` check added after the revision inner loop; returns `{"status": "aborted", ...}` before the outer `break` |
+| 7 | `e6db417` | `tool_registry.py`: `SkillEntry.capabilities` now reads `skill_data.get("capabilities", [])` (per-skill field) instead of `card.get("capabilities", [])` (agent-card root field) |
+| 2 | `905853e` | `dispatcher.py`: `allowed_file_paths or []` replaced with `allowed_file_paths` (passes `None` through so `FileChannel` uses `_ALLOWED_BASE_PATHS`) |
+| 3 | `905853e` | `file_channel.py`: `_is_allowed()` rewritten using `Path.relative_to()` (raises `ValueError` outside base) replacing `str.startswith()` prefix check |
+| 10 | `8cbb49b` | `server.py`: `raw.get("retry", {})` corrected to `raw.get("retryPolicy", {})` to match `error-policy.config.json` top-level key |
+| 5 | `e4c3420` | `docker-compose.yml` motor-output service: `EXECUTIVE_AGENT_A2A_URL` renamed to `EXECUTIVE_AGENT_URL`; unused `AGENT_RUNTIME_A2A_URL` removed |
+
