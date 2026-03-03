@@ -1463,8 +1463,9 @@ No further approvals are required before implementation begins, subject to Gate 
 ## Copilot Review
 
 PR #21 was reviewed by GitHub Copilot (review `3879547061`, 2026-03-02). Copilot flagged
-10 concerns across 99 of 109 changed files. All 10 are genuine implementation bugs — none
-should be dismissed. Each is categorised below with the required remediation.
+15 concerns across 99 of 109 changed files (10 visible in the review UI + 5 initially
+hidden). All 15 are genuine implementation bugs — none should be dismissed. Each is
+categorised below with the required remediation.
 
 ---
 
@@ -1663,6 +1664,97 @@ do not change the config file format.
 
 ---
 
+#### 11. `docker-compose.yml` — agent-runtime env var names don't match server.py
+
+**File**: `docker-compose.yml` (lines 361–362)
+
+**Issue**: The `agent-runtime` service is given `EXECUTIVE_AGENT_A2A_URL` and
+`MOTOR_OUTPUT_A2A_URL`, but `agent_runtime/server.py` reads `EXECUTIVE_AGENT_URL` and
+`MOTOR_OUTPUT_URL`. The container-DNS URLs for both peers are ignored; the server defaults
+to `localhost` and cannot reach either service inside the Docker network.
+
+**Fix**: Rename to match the server:
+```yaml
+- EXECUTIVE_AGENT_URL=http://executive-agent:8161
+- MOTOR_OUTPUT_URL=http://motor-output:8163
+```
+
+---
+
+#### 12. `feedback.py` — `goal_id` silently defaults to empty string
+
+**File**: `modules/group-iii-executive-output/motor-output/src/motor_output/feedback.py`
+(line ~88)
+
+**Issue**: `build_feedback()` uses `action_spec.goal_id or ""`. An empty `goal_id` in
+`MotorFeedback` violates the `motor-feedback.schema.json` `format: uuid` constraint,
+will cause a `KeyError` (or silent miss) in executive-agent's goal FSM lookup, and
+breaks log correlation. The schema requires goal_id to be present.
+
+**Fix**: Raise `ValueError` when `goal_id` is absent, so the failure surfaces at call
+site rather than propagating as malformed feedback:
+```python
+if not action_spec.goal_id:
+    raise ValueError("ActionSpec.goal_id is required to build MotorFeedback — cannot dispatch without a goal context.")
+```
+
+---
+
+#### 13. `mcp_tools.py` — `"nullable": True` is not valid JSON Schema draft-07
+
+**File**: `modules/group-iii-executive-output/motor-output/src/motor_output/mcp_tools.py`
+(line 36)
+
+**Issue**: `"nullable"` is an OpenAPI 3.0 extension, not a JSON Schema draft-07 keyword.
+MCP clients (and `buf lint` / schema validators) that strictly parse draft-07 will reject
+the schema or silently ignore the nullability intent.
+
+**Fix**: Express nullability via a union type array:
+```python
+"channel": {"type": ["string", "null"]},
+```
+
+---
+
+#### 14. `docker-compose.yml` — `TEMPORAL_URL` env var is set but never consumed
+
+**File**: `docker-compose.yml` (line 359) and
+`modules/group-iii-executive-output/agent-runtime/src/agent_runtime/server.py`
+
+**Issue**: The agent-runtime service declares `TEMPORAL_URL=temporal:7233` as an env var,
+but `server.py` never reads it. `OrchestratorConfig.temporal_server_url` is populated
+only from the static `orchestrator.config.json` file (default `localhost:7233`). Inside
+the Docker network the Temporal server hostname is `temporal`, not `localhost`, so the
+worker will fail to connect even though the env var is correctly set.
+
+**Fix**: In `server.py`, after loading `OrchestratorConfig` from the config file, apply
+an env-var override for `temporal_server_url`:
+```python
+temporal_url_override = os.getenv("TEMPORAL_URL")
+if temporal_url_override:
+    config.temporal_server_url = temporal_url_override
+```
+
+---
+
+#### 15. `motor-output/Dockerfile` — shared path-dependency packages never copied
+
+**File**: `modules/group-iii-executive-output/motor-output/Dockerfile` (line 10)
+
+**Issue**: `pyproject.toml` declares `endogenai-vector-store` and `endogenai-a2a` as local
+path dependencies (`path = "../../../shared/..."`, editable). The Dockerfile only copies
+`pyproject.toml` and `src/` — the shared packages are never present in the image, so
+`uv sync` will fail with a dependency resolution error at build time.
+
+**Fix**: Add COPY instructions for the shared packages before `uv sync`, using
+build-context-relative paths (build context = repo root):
+```dockerfile
+COPY shared/vector-store/python /shared/vector-store/python
+COPY shared/a2a/python /shared/a2a/python
+```
+
+---
+
 ### Summary
 
 | # | File | Severity | Action |
@@ -1671,15 +1763,20 @@ do not change the config file format.
 | 2 | `motor-output/dispatcher.py` | High — disables file channel | Pass `None` to `FileChannel` instead of empty list |
 | 3 | `motor-output/channels/file_channel.py` | High — security (path traversal) | Replace `startswith()` with `Path.relative_to()` |
 | 4 | `executive-agent/policy.py` (cache) | Medium — silent perf degradation | Use `OrderedDict` or `lru_cache` for actual LRU eviction |
-| 5 | `docker-compose.yml` env vars | High — motor-output cannot reach peers | Rename to `EXECUTIVE_AGENT_URL` / `AGENT_RUNTIME_URL` |
+| 5 | `docker-compose.yml` env vars (motor-output) | High — motor-output cannot reach peers | Rename to `EXECUTIVE_AGENT_URL` / `AGENT_RUNTIME_URL` |
 | 6 | `agent-runtime/workflow.py` | High — false success on abort | Return `status="aborted"` when `_abort_requested` after revision loop |
 | 7 | `agent-runtime/tool_registry.py` | Medium — broken capability filtering | Read `skill_data.get("capabilities", [])` not top-level card field |
 | 8 | `executive-agent/policy.py` (comment) | Medium — misleading comment / security ambiguity | Align comment with fail-closed behaviour |
 | 9 | `executive-agent/policy.py` (bundle) | High — OPA bundle upload broken | Use startup bundle mount or fix endpoint + content-type |
 | 10 | `motor-output/server.py` | High — error policy config ignored | Read `tier1`/`tier2`/`tier3` keys matching config schema |
+| 11 | `docker-compose.yml` env vars (agent-runtime) | High — agent-runtime cannot reach peers | Rename to `EXECUTIVE_AGENT_URL` / `MOTOR_OUTPUT_URL` |
+| 12 | `motor-output/feedback.py` | High — malformed feedback / schema violation | Raise `ValueError` when `goal_id` is absent |
+| 13 | `motor-output/mcp_tools.py` | Medium — invalid JSON Schema draft-07 | Replace `"nullable": True` with `"type": ["string", "null"]` |
+| 14 | `docker-compose.yml` + `agent-runtime/server.py` | High — Temporal unreachable in Docker | Wire `TEMPORAL_URL` env override into orchestrator config loading |
+| 15 | `motor-output/Dockerfile` | High — Docker build fails (uv sync) | COPY shared packages before `uv sync` |
 
-All ten concerns are genuine bugs. None should be ignored. Items 1, 3, 5, 6, 9, 10 are
-blockers for a functioning stack; items 2, 4, 7, 8 are correctness issues that should be
+All 15 concerns are genuine bugs. None should be ignored. Items 1, 2, 3, 5, 6, 9, 10, 11, 12, 14, 15 are
+blockers for a functioning stack; items 4, 7, 8, 13 are correctness/quality issues that should be
 resolved in the same pass before merge.
 
 ---
@@ -1701,4 +1798,14 @@ immediately following the review. The changes are ready for re-review.
 | 3 | `905853e` | `file_channel.py`: `_is_allowed()` rewritten using `Path.relative_to()` (raises `ValueError` outside base) replacing `str.startswith()` prefix check |
 | 10 | `8cbb49b` | `server.py`: `raw.get("retry", {})` corrected to `raw.get("retryPolicy", {})` to match `error-policy.config.json` top-level key |
 | 5 | `e4c3420` | `docker-compose.yml` motor-output service: `EXECUTIVE_AGENT_A2A_URL` renamed to `EXECUTIVE_AGENT_URL`; unused `AGENT_RUNTIME_A2A_URL` removed |
+
+Issues 11–15 (5 hidden comment threads) were subsequently identified and resolved:
+
+| # | Commit | Resolution |
+|---|--------|------------|
+| 11 | `fdf74bb` | `docker-compose.yml` agent-runtime service: `EXECUTIVE_AGENT_A2A_URL` → `EXECUTIVE_AGENT_URL`, `MOTOR_OUTPUT_A2A_URL` → `MOTOR_OUTPUT_URL` |
+| 12 | `fc39e36` | `feedback.py`: `action_spec.goal_id or ""` replaced with a `ValueError` guard — missing `goal_id` surfaces immediately at call site |
+| 13 | `fc39e36` | `mcp_tools.py`: `"nullable": True` (OpenAPI extension) replaced with `"type": ["string", "null"]` (valid JSON Schema draft-07 union) |
+| 14 | `6ea5ef3` | `server.py`: `TEMPORAL_URL` env var override applied to `OrchestratorConfig.temporal_server_url` after config file load |
+| 15 | `824887b` | `motor-output/Dockerfile`: `COPY shared/vector-store/python` and `COPY shared/a2a/python` added before `uv sync` |
 
