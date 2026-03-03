@@ -9,8 +9,9 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml ./
 
 # Copy shared packages (path dependencies)
-COPY ../../../shared/vector-store/python /shared/vector-store/python
-COPY ../../../shared/a2a/python /shared/a2a/python
+# Paths are relative to the repo-root build context set in docker-compose.yml
+COPY shared/vector-store/python /shared/vector-store/python
+COPY shared/a2a/python /shared/a2a/python
 
 # Sync dependencies via uv
 RUN uv sync --no-dev
