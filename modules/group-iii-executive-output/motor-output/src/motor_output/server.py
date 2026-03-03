@@ -55,7 +55,8 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     error_policy_config = ErrorPolicyConfig()
     if _ERROR_POLICY_PATH.exists():
         raw = json.loads(_ERROR_POLICY_PATH.read_text())
-        retry_cfg = raw.get("retry", {})
+        # Top-level keys match error-policy.config.json: retryPolicy / circuitBreaker / escalation
+        retry_cfg = raw.get("retryPolicy", {})
         cb_cfg = raw.get("circuitBreaker", {})
         esc_cfg = raw.get("escalation", {})
         error_policy_config = ErrorPolicyConfig.model_validate(
