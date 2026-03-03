@@ -1,0 +1,13 @@
+{
+  "discoveryStrategy": "well-known-uri",
+  "discoveryTargets": [
+    "http://localhost:8161",
+    "http://localhost:8163",
+    "http://localhost:8151",
+    "http://localhost:8152",
+    "http://localhost:8153",
+    "http://localhost:8154"
+  ],
+  "healthCheckIntervalSeconds": 30,
+  "registryPersistencePath": ".tool-registry.json"
+}
