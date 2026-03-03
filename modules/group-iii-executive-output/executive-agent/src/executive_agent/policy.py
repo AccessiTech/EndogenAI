@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import OrderedDict
 from datetime import UTC, datetime
 from typing import Any
 
@@ -42,7 +43,8 @@ class PolicyEngine:
     def __init__(self, base_url: str = _OPA_BASE_URL, timeout: float = 5.0) -> None:
         self._base_url = base_url.rstrip("/")
         self._client = httpx.AsyncClient(base_url=self._base_url, timeout=timeout)
-        self._cache: dict[str, PolicyDecision] = {}
+        # LRU cache: OrderedDict with a fixed capacity; oldest entries are evicted first.
+        self._cache: OrderedDict[str, PolicyDecision] = OrderedDict()
 
     async def evaluate_policy(
         self,
@@ -52,13 +54,15 @@ class PolicyEngine:
     ) -> PolicyDecision:
         """Evaluate a policy rule and return a PolicyDecision.
 
-        Caches allow=True decisions for identical inputs within this session (LRU, max 100).
+        Caches allow=True decisions for identical inputs within this session.
+        Eviction policy: LRU, maximum ``_DECISION_CACHE_SIZE`` entries.
         Cache key = SHA-256(package + rule + canonical JSON of input_data).
         """
         cache_key = _hash_input(package, rule, input_data)
 
         if cache_key in self._cache:
             cached = self._cache[cache_key]
+            self._cache.move_to_end(cache_key)  # keep LRU order fresh
             logger.debug("policy.cache_hit", package=package, rule=rule)
             return cached.model_copy(update={"cached": True})
 
@@ -71,7 +75,8 @@ class PolicyEngine:
             result = response.json()
         except httpx.HTTPError as exc:
             logger.error("policy.opa_http_error", url=url, error=str(exc))
-            # Fail open — return allow=False on communication error
+            # Fail-closed: OPA unavailability blocks goal execution.
+            # allow=False ensures no action proceeds without an explicit permit.
             return PolicyDecision(
                 allow=False,
                 violations=[f"OPA communication error: {exc}"],
@@ -105,9 +110,15 @@ class PolicyEngine:
             input_hash=cache_key,
         )
 
-        # Cache positive decisions only (deny = do not cache, may change)
-        if allow and len(self._cache) < _DECISION_CACHE_SIZE:
-            self._cache[cache_key] = decision
+        # Cache positive decisions only (deny = do not cache, may change).
+        # LRU eviction: if at capacity, drop the least-recently-used entry first.
+        if allow:
+            if cache_key in self._cache:
+                self._cache.move_to_end(cache_key)
+            else:
+                if len(self._cache) >= _DECISION_CACHE_SIZE:
+                    self._cache.popitem(last=False)  # evict oldest
+                self._cache[cache_key] = decision
 
         logger.info(
             "policy.evaluated",
@@ -118,17 +129,40 @@ class PolicyEngine:
         )
         return decision
 
-    async def load_bundle(self, bundle_path: str) -> None:
-        """PUT a Rego bundle to OPA for hot-reload. bundle_path = /path/to/bundle.tar.gz."""
-        with open(bundle_path, "rb") as fh:
-            data = fh.read()
+    async def load_policy(self, policy_path: str, policy_id: str = "endogenai") -> None:
+        """Upload a single Rego source file to OPA via PUT /v1/policies/{id}.
+
+        OPA's /v1/policies/{id} endpoint expects raw Rego source as text/plain.
+        For multi-policy bundles served at startup, configure the OPA "--bundle"
+        flag in docker-compose.yml instead of calling this method.
+
+        Args:
+            policy_path: Path to a .rego source file on the local filesystem.
+            policy_id:   OPA policy identifier (default ``"endogenai"``).
+        """
+        with open(policy_path) as fh:
+            rego_source = fh.read()
         response = await self._client.put(
-            "/v1/policies/endogenai",
-            content=data,
-            headers={"Content-Type": "application/x-tar"},
+            f"/v1/policies/{policy_id}",
+            content=rego_source.encode(),
+            headers={"Content-Type": "text/plain"},
         )
         response.raise_for_status()
-        logger.info("policy.bundle_loaded", bundle_path=bundle_path)
+        logger.info("policy.policy_loaded", policy_path=policy_path, policy_id=policy_id)
+
+    async def load_bundle(self, bundle_path: str) -> None:  # pragma: no cover
+        """Deprecated: use load_policy() for single Rego files or configure OPA
+        with --bundle /policies at startup for directory bundles.
+
+        This method is retained for backwards compatibility but is a no-op;
+        calling it logs a deprecation warning.
+        """
+        logger.warning(
+            "policy.load_bundle_deprecated",
+            bundle_path=bundle_path,
+            suggestion="Use load_policy() for a single .rego file, or configure "
+                       "OPA --bundle /policies in docker-compose.yml.",
+        )
 
     async def health_check(self) -> bool:
         """GET /health — raises RuntimeError if OPA is unreachable."""
