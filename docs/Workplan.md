@@ -693,6 +693,9 @@ rebinding attacks as required by the MCP transport security spec, and provides a
 - [ ] Store refresh token in `HttpOnly` cookie (never `localStorage`); access token in memory only
 - [ ] Write unit tests for token issuance, validation, PKCE flow, clock-skew tolerance, and expiry; author
       `README.md`
+- [ ] Add optional Keycloak Docker Compose profile (`docker-compose.keycloak.yml`) as a reference OIDC
+      implementation; document usage and PKCE configuration in `README.md`; label clearly as non-required
+      boilerplate (production forks replace the JWT stub with this or another OIDC provider)
 
 #### 8.2 Verification
 
@@ -809,6 +812,8 @@ documentation complete and cross-linked.
 
 ## Phase 10 — Neuromorphic Layer (Optional / Pluggable)
 
+> **Deferred to v2.** Phase 10 is not in scope for v1. Checklist items are retained for reference only.
+
 **Goal**: Evaluate and integrate spiking-neuron computation as an independently deployable, non-blocking extension.
 
 - [ ] Prototype BindsNET (PyTorch-native, lowest barrier to entry) on a representative Perception sub-task
@@ -838,25 +843,18 @@ documentation complete and cross-linked.
 
 ## Open Questions & Deferred Decisions
 
-- **A2A version lock**: confirm which A2A spec release to align to before Phase 2 begins.
-- **Temporal vs. Prefect**: run a comparative spike during Phase 6 before committing to Temporal for `agent-runtime/`.
-- **Graph store selection**: ~~Kuzu vs. alternatives~~ — Kuzu (embedded) is confirmed as the default for
-  `long-term-memory/graph-store/`; Neo4j is the production swap-out. Storage-limits validation deferred to Phase 5
-  close (see `docs/research/phase-5-detailed-workplan.md` §13 OQ resolution).
-- **WebMCP evaluation**: ~~resolved in Phase 8 planning~~ — `webmcp.dev` is a library that makes existing websites
-  controllable *by* external MCP clients (e.g. Claude Desktop); it is the reverse of what EndogenAI needs, and the
-  underlying `WebMCP/webmcp` GitHub project is pre-production (1 star, no releases). The boilerplate uses the MCP
-  **Streamable HTTP** transport (spec 2025-06-18) via the Hono BFF gateway instead. Closed.
-- **Client-side framework**: the boilerplate SPA defaults to React (Vite + `@vitejs/plugin-react`); confirm whether
-  Preact is preferred (identical API, ~3 kB vs ~45 kB gzipped) — defer final decision to Phase 8.3 start.
-- **External IdP integration**: the Phase 8.2 JWT stub is the minimum viable auth layer; production forks replace it
-  with an OIDC provider (Keycloak, Auth0, Okta). Decide before Phase 8.2 closes whether the boilerplate should
-  include an optional Keycloak Docker Compose profile as a second reference implementation.
-- **SSE proxy compatibility**: some corporate proxies and browser extensions buffer SSE streams, breaking real-time
-  token rendering. Determine whether a long-polling fallback for `GET /api/stream` is required in the boilerplate
-  or left to forks — defer to Phase 8.3.
-- **Neuromorphic prioritization**: decide if Phase 10 is in-scope for v1 or deferred to v2.
-- **Agent fleet scope**: confirm whether all four Phase 3 sub-fleets (docs, testing, schema, planner) are in-scope
-  together or should be time-boxed and delivered incrementally within Phase 3.
-- **Phase-3 Executive agent**: determine whether a dedicated Phase-3 Executive agent should be scaffolded to drive
-  Phase 3 delivery, or whether the existing Plan → Implement → Review workflow is sufficient.
+- **Client-side framework**: React (`@vitejs/plugin-react`) is the confirmed default for the boilerplate SPA.
+  Preact is documented as a supported drop-in swap (identical API, ~3 kB vs ~45 kB gzipped) in `README.md`.
+  No further decision required — targeted research for any remaining React/Preact trade-offs is scoped to
+  Phase 8.3 planning.
+- **External IdP integration**: **decided** — the boilerplate includes an optional Keycloak Docker Compose
+  profile (`docker-compose.keycloak.yml`) as a reference OIDC implementation alongside the JWT stub. This allows
+  production forks to adopt a full OIDC provider (Keycloak, Auth0, Okta) without starting from scratch. The JWT
+  stub remains the minimum viable default; the Keycloak profile is opt-in and clearly labelled as non-required.
+  Checklist item added to §8.2.
+- **SSE proxy compatibility**: long-polling fallback for `GET /api/stream` is deferred. The limitation (corporate
+  proxy / extension buffering of SSE streams) will be documented in the Phase 8 `README.md` as a known fork
+  concern. Targeted research on mitigations is scoped to Phase 8.3 planning.
+- **Neuromorphic prioritization**: Phase 10 is explicitly **deferred to v2**. No neuromorphic work is in scope
+  for v1. Phase 10 checklist items are retained for reference but will not be scheduled until a v2 roadmap is
+  opened.
