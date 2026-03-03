@@ -1,0 +1,102 @@
+[
+  {
+    "url": "https://en.wikipedia.org/wiki/Thalamus",
+    "out": "docs/research/sources/phase-8/bio-thalamus.md",
+    "note": "bio/8.1: Thalamus as BFF relay hub — sensory gating, thalamocortical circuits, relay vs. active modulation; analogy for Hono API gateway as the brain's sensory relay between external world and cortex"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Blood%E2%80%93brain_barrier",
+    "out": "docs/research/sources/phase-8/bio-blood-brain-barrier.md",
+    "note": "bio/8.2: BBB as authentication/access-control layer — selective permeability, tight junctions, active transport, circumventricular organ 'public endpoints'; analogy for MCP OAuth 2.1 auth layer"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Global_workspace_theory",
+    "out": "docs/research/sources/phase-8/bio-global-workspace-theory.md",
+    "note": "bio/8.1+8.3: Global Workspace Theory (Baars 1988) — consciousness as broadcast mechanism; workspace neurons in PFC/parietal as relay relaying information globally; analogy for SSE broadcast and MCP event relay"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Predictive_coding",
+    "out": "docs/research/sources/phase-8/bio-predictive-coding.md",
+    "note": "bio/8.1+8.3: Predictive coding (Friston) — continuous streaming of predictions and error signals up/down cortical hierarchy; analogy for SSE token streaming and real-time signal trace feed"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Default_mode_network",
+    "out": "docs/research/sources/phase-8/bio-default-mode-network.md",
+    "note": "bio/8.3: Default Mode Network — introspective, self-referential processing; medial PFC and posterior cingulate as 'internals panel'; analogy for Internals transparency tab (agent cards, memory inspector)"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Interoception",
+    "out": "docs/research/sources/phase-8/bio-interoception.md",
+    "note": "bio/8.4: Interoception — brain's ability to sense its own internal state (heartrate, organ signals); insular cortex, ACC; analogy for observability: OTel traces, Grafana dashboards, structured logging as brain's self-monitoring"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Topographic_map_(neuroanatomy)",
+    "out": "docs/research/sources/phase-8/bio-topographic-map.md",
+    "note": "bio/8.5: Cortical topographic maps (somatotopic, retinotopic, tonotopic) — organized spatial registry of sensory resource representations; analogy for MCP Resource Registry URI patterns and per-layer resource definitions"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Sensory_gating",
+    "out": "docs/research/sources/phase-8/bio-sensory-gating.md",
+    "note": "bio/8.1+8.2: Sensory gating — thalamo-cortical filtering of redundant or irrelevant stimuli; P50 suppression; GABA interneurons as gatekeepers; analogy for CORS policy, Origin validation, and Bearer token authentication on API routes"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Consciousness",
+    "out": "docs/research/sources/phase-8/bio-consciousness.md",
+    "note": "bio/8.3: Consciousness and phenomenal awareness — user interface of the brain; neural correlates of consciousness (NCC); attention and working memory as preconditions for conscious access; analogy for browser chat client as the system's conscious surface"
+  },
+  {
+    "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports",
+    "out": "docs/research/sources/phase-8/tech-mcp-streamable-http-transport.md",
+    "note": "tech/8.1: MCP Streamable HTTP transport spec 2025-06-18 — POST for client messages, GET for SSE streams, Mcp-Session-Id, Last-Event-ID resumability, Origin validation security requirement, backwards compat with 2024-11-05 HTTP+SSE"
+  },
+  {
+    "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization",
+    "out": "docs/research/sources/phase-8/tech-mcp-authorization.md",
+    "note": "tech/8.2: MCP Authorization spec 2025-06-18 — OAuth 2.1 (draft-ietf-oauth-v2-1-13), RFC 9728 Protected Resource Metadata, RFC 8414 AS Metadata, RFC 7591 Dynamic Client Registration, PKCE requirement, WWW-Authenticate 401 responses"
+  },
+  {
+    "url": "https://hono.dev/docs/",
+    "out": "docs/research/sources/phase-8/tech-hono-overview.md",
+    "note": "tech/8.1: Hono framework overview — ultrafast RegExpRouter, Web Standards, multi-runtime (Node.js via @hono/node-server), built-in CORS/Bearer Auth/JWT/Streaming/SSE middleware, TypeScript-first, RPC mode via hc client"
+  },
+  {
+    "url": "https://hono.dev/docs/getting-started/nodejs",
+    "out": "docs/research/sources/phase-8/tech-hono-nodejs.md",
+    "note": "tech/8.1: Hono Node.js adapter (@hono/node-server) — serve() adapter, port configuration, static file serving, environment setup for Phase 8 BFF server on localhost:3001"
+  },
+  {
+    "url": "https://hono.dev/docs/helpers/streaming",
+    "out": "docs/research/sources/phase-8/tech-hono-streaming.md",
+    "note": "tech/8.1: Hono streaming helper — streamText(), streamSSE(), SSE event format, abort signal handling, keep-alive; directly relevant to GET /api/stream SSE relay endpoint"
+  },
+  {
+    "url": "https://hono.dev/docs/middleware/builtin/cors",
+    "out": "docs/research/sources/phase-8/tech-hono-cors.md",
+    "note": "tech/8.1: Hono CORS middleware — origin allowlist, credentials, headers; implementation pattern for MCP spec §2.0.1 Origin validation requirement"
+  },
+  {
+    "url": "https://vitejs.dev/guide/",
+    "out": "docs/research/sources/phase-8/tech-vite-guide.md",
+    "note": "tech/8.3: Vite guide — scaffolding React/TypeScript SPA, HMR, plugin-react, build output optimization, chunk splitting; relevant to apps/default/client/ scaffold and <200 kB initial chunk requirement"
+  },
+  {
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventSource",
+    "out": "docs/research/sources/phase-8/tech-eventsource-api.md",
+    "note": "tech/8.1+8.3: EventSource Web API — SSE client in browser; event types (message, error, open), readyState, reconnection behaviour, Last-Event-ID header propagation; used in Chat tab for token streaming"
+  },
+  {
+    "url": "https://www.w3.org/WAI/standards-guidelines/wcag/",
+    "out": "docs/research/sources/phase-8/tech-wcag21-overview.md",
+    "note": "tech/8.3: WCAG 2.1 overview — AA success criteria; semantic HTML, ARIA live regions for streamed content, keyboard navigation, focus management, color contrast 4.5:1/3:1; directly governs browser client accessibility requirements"
+  },
+  {
+    "url": "https://opentelemetry.io/docs/languages/js/",
+    "out": "docs/research/sources/phase-8/tech-otel-js-sdk.md",
+    "note": "tech/8.4: OpenTelemetry JavaScript SDK — traces, metrics, logs; OTLP exporter; instrumentation for Hono/Node.js; W3C TraceContext propagation for gateway→module span stitching"
+  },
+  {
+    "url": "https://modelcontextprotocol.io/specification/2025-06-18/server/resources",
+    "out": "docs/research/sources/phase-8/tech-mcp-resources.md",
+    "note": "tech/8.5: MCP Resources spec 2025-06-18 — resource URIs, resource templates, list/read operations, subscriptions, resource contents (text/blob); informs URI registry patterns for Phase 8.5 MCP Resource Registry"
+  }
+]
