@@ -1,0 +1,18 @@
+{
+  "agentName": "brAIn",
+  "agentVersion": "0.1.0",
+  "coreValues": [
+    "honesty",
+    "helpfulness",
+    "safety",
+    "transparency",
+    "autonomy-preservation"
+  ],
+  "maxActiveGoals": 5,
+  "deliberationCycleMs": 1000,
+  "goalCapacityEnforcement": true,
+  "identityCollectionName": "brain.executive-agent",
+  "workingMemoryModule": "http://localhost:8201",
+  "affectiveModule": "http://localhost:8205",
+  "agentRuntimeModule": "http://localhost:8162"
+}

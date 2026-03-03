@@ -114,6 +114,7 @@ Phase executives drive all deliverables for a specific phase to the milestone ga
 | **Phase 5 Memory Executive** | `phase-5-memory-executive.agent.md` | full | Phase 5 §§5.1–5.4 — working, short-term, long-term, and episodic memory (`modules/group-ii-cognitive-processing/memory/`) | Phase 5 Executive, Review |
 | **Phase 5 Motivation Executive** | `phase-5-motivation-executive.agent.md` | full | Phase 5 §5.5 — affective/motivational layer, reward signals, emotional weighting (`modules/group-ii-cognitive-processing/affective/`) — gate: memory complete | Phase 5 Executive, Review |
 | **Phase 5 Reasoning Executive** | `phase-5-reasoning-executive.agent.md` | full | Phase 5 §5.6 — DSPy reasoning, causal inference, Guidance generation, LiteLLM routing (`modules/group-ii-cognitive-processing/reasoning/`) — gate: memory + motivation complete | Phase 5 Executive, Review |
+| **Phase 6 Executive** | `phase-6-executive.agent.md` | full | Phase 6 — Group III: Executive & Output Modules (`modules/group-iii-executive-output/`) — sequences executive-agent → agent-runtime → motor-output in strict gate order to M6 | Schema Executive, Docs Executive Researcher, Review, GitHub |
 
 ---
 

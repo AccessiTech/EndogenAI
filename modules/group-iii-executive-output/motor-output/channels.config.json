@@ -1,0 +1,32 @@
+{
+  "channels": {
+    "http": {
+      "enabled": true,
+      "defaultTimeout": 30,
+      "maxConnections": 20,
+      "retryOnStatusCodes": [429, 500, 502, 503, 504]
+    },
+    "a2a": {
+      "enabled": true,
+      "defaultTimeout": 60,
+      "maxConnections": 10,
+      "rpcVersion": "2.0"
+    },
+    "file": {
+      "enabled": true,
+      "allowedBasePaths": ["/tmp", "/var/endogenai/outputs"],
+      "maxFileSizeBytes": 10485760
+    },
+    "render": {
+      "enabled": true,
+      "defaultModel": "ollama/mistral",
+      "maxTokens": 2048,
+      "temperature": 0.3
+    }
+  },
+  "corollaryDischarge": {
+    "enabled": true,
+    "preActionSignalUrl": "http://localhost:8161/tasks",
+    "deviationThreshold": 0.5
+  }
+}

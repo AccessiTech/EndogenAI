@@ -1,0 +1,26 @@
+{
+  "retryPolicy": {
+    "maxAttempts": 3,
+    "backoffMultiplier": 2.0,
+    "initialDelaySeconds": 1.0,
+    "maxDelaySeconds": 30.0,
+    "retryableExceptions": [
+      "httpx.ConnectError",
+      "httpx.TimeoutException",
+      "httpx.RemoteProtocolError"
+    ]
+  },
+  "circuitBreaker": {
+    "enabled": true,
+    "failureThreshold": 5,
+    "recoveryTimeSeconds": 60,
+    "halfOpenMaxCalls": 2
+  },
+  "escalation": {
+    "enabled": true,
+    "executiveAgentUrl": "http://localhost:8161",
+    "escalateOnMaxRetriesExceeded": true,
+    "escalateOnCircuitOpen": true,
+    "escalateOnUnrecoverableError": true
+  }
+}

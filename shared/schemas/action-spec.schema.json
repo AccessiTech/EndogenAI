@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/action-spec.schema.json",
+  "title": "ActionSpec",
+  "description": "A single parameterised action ready for dispatch by motor-output. Represents the M1 population-coded action command. Includes a corollary discharge predicted_outcome for pre-action signal emission.",
+  "type": "object",
+  "required": ["action_id", "type", "params", "goal_id", "created_at"],
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique action identifier (UUID v4). Used to correlate ActionSpec with MotorFeedback."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["dispatch", "query", "notify", "write", "render"],
+      "description": "Semantic action type. 'dispatch' = effector call; 'query' = read-only; 'notify' = signal; 'write' = filesystem/DB; 'render' = structured output generation."
+    },
+    "channel": {
+      "type": "string",
+      "enum": ["http", "a2a", "file", "render", "control-signal"],
+      "description": "Transport channel. Mapped by channel_selector.py (PMd analogue) from ActionSpec.channel + runtime context."
+    },
+    "params": {
+      "type": "object",
+      "description": "Channel-specific dispatch parameters. Schema is channel-dependent.",
+      "additionalProperties": true
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Optional client-supplied idempotency key. If provided, motor-output skips dispatch and returns cached MotorFeedback if the same key was seen within the deduplication window."
+    },
+    "predicted_outcome": {
+      "type": "object",
+      "description": "Corollary discharge payload: expected output before dispatch. Compared against actual_outcome in MotorFeedback to compute deviation_score.",
+      "additionalProperties": true
+    },
+    "goal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ExecutiveGoal this action serves. Required for actor-critic feedback routing."
+    },
+    "step_id": {
+      "type": "string",
+      "description": "The SkillStep within the SkillPipeline that generated this ActionSpec."
+    },
+    "pipeline_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The SkillPipeline this action belongs to."
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum seconds allowed for dispatch before the error policy tier-1 retry triggers."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this ActionSpec was created."
+    }
+  }
+}

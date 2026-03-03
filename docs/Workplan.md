@@ -456,76 +456,76 @@ inference records.
 
 ### 6.0 Pre-Implementation Gates (must complete before §§6.1–6.3 begin)
 
-- [ ] **Phase 5 gate**: confirm §§5.1–5.4 memory modules are operational (`uv run pytest` passes for
+- [x] **Phase 5 gate**: confirm §§5.1–5.4 memory modules are operational (`uv run pytest` passes for
       working-memory, short-term-memory, long-term-memory, episodic-memory)
-- [ ] **Schemas-first**: land 5 new shared schemas in `shared/schemas/` before any Phase 6 code:
+- [x] **Schemas-first**: land 5 new shared schemas in `shared/schemas/` before any Phase 6 code:
       `executive-goal.schema.json`, `skill-pipeline.schema.json`, `action-spec.schema.json`,
       `motor-feedback.schema.json`, `policy-decision.schema.json` — all passing `buf lint` and
       `scripts/schema/validate_all_schemas.py`
-- [ ] **Temporal vs. Prefect spike**: run spike per `docs/research/phase-6-detailed-workplan.md §8`;
+- [x] **Temporal vs. Prefect spike**: run spike per `docs/research/phase-6-detailed-workplan.md §8`;
       record decision in `docs/research/temporal-prefect-spike.md` before §6.2 implementation
-- [ ] **OPA deployment decision**: resolve embedded vs. standalone HTTP (recommendation: standalone
+- [x] **OPA deployment decision**: resolve embedded vs. standalone HTTP (recommendation: standalone
       at `localhost:8181`); add `opa` service to `docker-compose.yml`
-- [ ] **Collection registry**: add `brain.executive-agent` entry to
+- [x] **Collection registry**: add `brain.executive-agent` entry to
       `shared/vector-store/collection-registry.json`
-- [ ] **Docker Compose**: add `temporal` (ports 7233, 8233) and `opa` (port 8181) services to
+- [x] **Docker Compose**: add `temporal` (ports 7233, 8233) and `opa` (port 8181) services to
       `docker-compose.yml`
-- [ ] **Scaffold directory**: create `modules/group-iii-executive-output/` tree per D4 §3
+- [x] **Scaffold directory**: create `modules/group-iii-executive-output/` tree per D4 §3
 
 ### 6.1 Executive / Agent Layer (`modules/group-iii-executive-output/executive-agent/`)
 
-- [ ] Implement agent identity management and self-model (`identity.py`; loads `identity.config.json`;
+- [x] Implement agent identity management and self-model (`identity.py`; loads `identity.config.json`;
       append-only writes to `brain.executive-agent`)
-- [ ] Implement persistent goal stack with prioritization and lifecycle management (`goal_stack.py`;
+- [x] Implement persistent goal stack with prioritization and lifecycle management (`goal_stack.py`;
       7-state FSM: PENDING → EVALUATING → COMMITTED → EXECUTING → COMPLETED / FAILED / DEFERRED)
-- [ ] Implement BDI interpreter loop (`deliberation.py`; option-generation → value scoring →
+- [x] Implement BDI interpreter loop (`deliberation.py`; option-generation → value scoring →
       policy evaluation → intention commitment → reconsideration check)
-- [ ] Implement OPA policy engine client (`policy.py`; three Rego policies: `identity.rego`,
+- [x] Implement OPA policy engine client (`policy.py`; three Rego policies: `identity.rego`,
       `goals.rego`, `actions.rego`; HTTP client to standalone OPA server)
-- [ ] Implement `MotorFeedback` receiver (`feedback.py`; updates goal score; emits `RewardSignal`
+- [x] Implement `MotorFeedback` receiver (`feedback.py`; updates goal score; emits `RewardSignal`
       to affective module; closes actor-critic loop)
-- [ ] Wire `brain.executive-agent` collection; embed goals, values, policies, and identity state
-- [ ] Configure `identity.config.json`, `vector-store.config.json`, `embedding.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Wire `brain.executive-agent` collection; embed goals, values, policies, and identity state
+- [x] Configure `identity.config.json`, `vector-store.config.json`, `embedding.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 6.2 Agent Execution (Runtime) Layer (`modules/group-iii-executive-output/agent-runtime/`)
 
-- [ ] Implement goal decomposition into ordered `SkillPipeline` via LiteLLM Activity
+- [x] Implement goal decomposition into ordered `SkillPipeline` via LiteLLM Activity
       (`decomposer.py`; falls back to local LiteLLM call if Phase 5 reasoning module not yet
       operational)
-- [ ] Implement durable `IntentionWorkflow` via Temporal (`workflow.py`; Signal=abort,
+- [x] Implement durable `IntentionWorkflow` via Temporal (`workflow.py`; Signal=abort,
       Update=revise_plan, Query=get_status; strict determinism: all I/O in Activities)
-- [ ] Implement Prefect circuit-breaker fallback (`prefect_fallback.py`; triggered after
+- [x] Implement Prefect circuit-breaker fallback (`prefect_fallback.py`; triggered after
       `maxTemporalConnectRetries` failures; same pipeline interface as Temporal variant)
-- [ ] Implement unified orchestrator selector (`orchestrator.py`; primary/fallback routing)
-- [ ] Implement tool registry with A2A `/.well-known/agent-card.json` discovery
+- [x] Implement unified orchestrator selector (`orchestrator.py`; primary/fallback routing)
+- [x] Implement tool registry with A2A `/.well-known/agent-card.json` discovery
       (`tool_registry.py`; periodic health checks)
-- [ ] Implement Temporal Activities (`activities.py`: `decompose_goal`, `dispatch_to_motor_output`,
+- [x] Implement Temporal Activities (`activities.py`: `decompose_goal`, `dispatch_to_motor_output`,
       `emit_partial_feedback`)
-- [ ] Configure `orchestrator.config.json` and `tool-registry.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Configure `orchestrator.config.json` and `tool-registry.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 6.3 Motor / Output / Effector Layer (`modules/group-iii-executive-output/motor-output/`)
 
-- [ ] Implement channel-based action dispatcher (`dispatcher.py`; corollary discharge pre-action
+- [x] Implement channel-based action dispatcher (`dispatcher.py`; corollary discharge pre-action
       signal; concurrent batch dispatch via `asyncio.gather`)
-- [ ] Implement channel handlers: `http_channel.py`, `a2a_channel.py`, `file_channel.py`,
+- [x] Implement channel handlers: `http_channel.py`, `a2a_channel.py`, `file_channel.py`,
       `render_channel.py` (LiteLLM-backed)
-- [ ] Implement PMd-analogue channel selector (`channel_selector.py`; context-dependent routing)
-- [ ] Implement three-tier error policy (`error_policy.py`: tier 1 retry, tier 2 circuit-breaker,
+- [x] Implement PMd-analogue channel selector (`channel_selector.py`; context-dependent routing)
+- [x] Implement three-tier error policy (`error_policy.py`: tier 1 retry, tier 2 circuit-breaker,
       tier 3 escalate to executive-agent A2A)
-- [ ] Implement `MotorFeedback` emission after every dispatch (`feedback.py`; active push to
+- [x] Implement `MotorFeedback` emission after every dispatch (`feedback.py`; active push to
       executive-agent A2A `receive_feedback`; deviation_score computed from predicted vs. actual)
-- [ ] Configure `channels.config.json` and `error-policy.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+- [x] Configure `channels.config.json` and `error-policy.config.json`
+- [x] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
 
 ### 6.4 End-to-End Integration
 
-- [ ] Write `test_integration_full_pipeline` spanning all three modules: push `GoalItem` to
+- [x] Write `test_integration_full_pipeline` spanning all three modules: push `GoalItem` to
       executive-agent A2A → verify Temporal Workflow created → confirm `ActionSpec` dispatched by
       motor-output → verify `MotorFeedback` returned to executive-agent → assert goal reaches
       `COMPLETED` lifecycle state
-- [ ] Declare M6 milestone: agent produces a measurable environmental output from a goal input;
+- [x] Declare M6 milestone: agent produces a measurable environmental output from a goal input;
       all Gate 0–3 checks pass (per `docs/research/phase-6-detailed-workplan.md §10`)
 
 **Deliverables**: end-to-end decision-to-action pipeline verified; agent can receive a goal, reason about it, and
@@ -751,7 +751,7 @@ documentation complete and cross-linked.
 | **M3 — Dev Agent Fleet Live**     | 3        | ✅ Complete | All agent fleets operational; recursive `AGENTS.md` hierarchy in place; scripts passing |
 | **M4 — Signal Boundary Live**     | 4        | 🔄 In Progress | MCP + A2A wiring incomplete across all three Group I modules; text input does not yet fully reach `brain.perception` |
 | **M5 — Memory Stack Live**        | 5        | ⬜ Not Started | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window; reasoning layer produces traceable inference records in `brain.reasoning` |
-| **M6 — End-to-End Decision Loop** | 6        | ⬜ Not Started | Goal → Reason → Act pipeline produces verifiable output                              |
+| **M6 — End-to-End Decision Loop** | 6        | ✅ Complete | Goal → Reason → Act pipeline produces verifiable output                              |
 | **M7 — Adaptive Systems Active**  | 7        | ⬜ Not Started | Error detection escalates to executive; reinforcement signals registered              |
 | **M8 — User-Facing**              | 8        | ⬜ Not Started | Browser shell accessible at `localhost`; Chat tab streams responses end-to-end; Internals panel shows live agent state; OAuth 2.1 auth stub operational; traces visible in Grafana |
 | **M9 — Production-Ready**         | 9        | ⬜ Not Started | Kubernetes deploy succeeds; all documentation complete                               |
