@@ -296,6 +296,10 @@ services:
       - "--addr=0.0.0.0:8181"
       - "--log-format=json"
       - "--set=decision_logs.console=true"
+      - "--bundle"
+      - "/policies"   # Load Rego policy bundle from mounted volume at startup
+    volumes:
+      - ./modules/group-iii-executive-output/executive-agent/policies:/policies:ro
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8181/health"]
       interval: 10s
@@ -377,8 +381,9 @@ services:
       executive-agent:
         condition: service_healthy
     environment:
-      - EXECUTIVE_AGENT_A2A_URL=http://executive-agent:8161
-      - AGENT_RUNTIME_A2A_URL=http://agent-runtime:8162
+      - EXECUTIVE_AGENT_URL=http://executive-agent:8161
+      # AGENT_RUNTIME_URL is reserved for future use; motor-output currently
+      # receives tasks from agent-runtime via A2A, not by calling it directly.
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8163/.well-known/agent-card.json')"]
       interval: 10s
