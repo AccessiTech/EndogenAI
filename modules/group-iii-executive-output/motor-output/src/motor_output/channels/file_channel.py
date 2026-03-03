@@ -26,11 +26,19 @@ class FileChannel:
         ]
 
     def _is_allowed(self, target: Path) -> bool:
+        """Return True iff *target* resolves to a path inside an allowed base.
+
+        Uses Path.relative_to() rather than startswith() to prevent prefix-trick
+        path-traversal (e.g. /tmp-evil/ passing a /tmp base check).
+        """
         resolved = target.resolve()
-        return any(
-            str(resolved).startswith(str(base.resolve()))
-            for base in self._allowed_bases
-        )
+        for base in self._allowed_bases:
+            try:
+                resolved.relative_to(base.resolve())
+                return True
+            except ValueError:
+                continue
+        return False
 
     async def dispatch(
         self,

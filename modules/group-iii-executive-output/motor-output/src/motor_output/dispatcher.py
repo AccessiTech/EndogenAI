@@ -46,11 +46,14 @@ class Dispatcher:
         self._corollary_discharge_enabled = corollary_discharge_enabled
         self._records: dict[str, DispatchRecord] = {}
 
-        # Initialise channel handlers
+        # Initialise channel handlers.
+        # Pass allowed_file_paths=None when unset so FileChannel falls back to its own
+        # _ALLOWED_BASE_PATHS default instead of receiving an empty allow-list (which
+        # would silently disable all file writes).
         self._channels: dict[ChannelType, Any] = {
             ChannelType.HTTP: HTTPChannel(),
             ChannelType.A2A: A2AChannel(),
-            ChannelType.FILE: FileChannel(allowed_base_paths=allowed_file_paths or []),
+            ChannelType.FILE: FileChannel(allowed_base_paths=allowed_file_paths),
             ChannelType.RENDER: RenderChannel(model=render_model),
         }
 
