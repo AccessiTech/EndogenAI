@@ -42,6 +42,8 @@ logger: structlog.BoundLogger = structlog.get_logger(__name__)
 _PORT = int(os.getenv("AR_PORT", "8162"))
 _MOTOR_OUTPUT_URL = os.getenv("MOTOR_OUTPUT_URL", "http://localhost:8163")
 _EXECUTIVE_AGENT_URL = os.getenv("EXECUTIVE_AGENT_URL", "http://localhost:8161")
+# TEMPORAL_URL is applied as an override after config file load (see lifespan).
+_TEMPORAL_URL_OVERRIDE = os.getenv("TEMPORAL_URL")
 _CONFIG_PATH = Path(
     os.getenv(
         "ORCHESTRATOR_CONFIG",
@@ -106,6 +108,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             motor_output_url=_MOTOR_OUTPUT_URL,
             executive_agent_url=_EXECUTIVE_AGENT_URL,
         )
+
+    # Apply TEMPORAL_URL env override so the Docker service name ("temporal")
+    # is used inside the container network instead of the default "localhost".
+    if _TEMPORAL_URL_OVERRIDE and _orchestrator:
+        _orchestrator._config.temporal_server_url = _TEMPORAL_URL_OVERRIDE
 
     # ── Decomposer ────────────────────────────────────────────────────────
     _decomposer = PipelineDecomposer(tool_registry=_tool_registry)
