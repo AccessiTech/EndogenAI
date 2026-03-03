@@ -264,6 +264,129 @@ services:
       start_period: 20s
 
 # ---------------------------------------------------------------------------
+# Phase 6 Infrastructure: Temporal Workflow Server + OPA Policy Engine
+# Start with: docker compose up temporal opa -d
+# ---------------------------------------------------------------------------
+  temporal:
+    image: temporalio/auto-setup:latest
+    restart: unless-stopped
+    ports:
+      - "7233:7233"   # Temporal gRPC (Worker + SDK)
+      - "8233:8233"   # Temporal Web UI
+    environment:
+      - DB=sqlite
+      - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/dynamicconfig.yaml
+    volumes:
+      - temporal_data:/tmp/temporal
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health", "--address", "localhost:7233"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  opa:
+    image: openpolicyagent/opa:latest
+    restart: unless-stopped
+    ports:
+      - "8181:8181"   # OPA REST API
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "--log-format=json"
+      - "--set=decision_logs.console=true"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8181/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ---------------------------------------------------------------------------
+# Group III Executive & Output Modules (profile: modules)
+# Start with: docker compose --profile modules up -d
+# ---------------------------------------------------------------------------
+  executive-agent:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-iii-executive-output/executive-agent/Dockerfile
+    ports:
+      - "8161:8161"   # A2A JSON-RPC server
+      - "8261:8261"   # MCP SSE server
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      opa:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+      - OPA_URL=http://opa:8181
+      - AGENT_RUNTIME_A2A_URL=http://agent-runtime:8162
+      - AFFECTIVE_A2A_URL=http://affective:8205
+      - WORKING_MEMORY_A2A_URL=http://working-memory:8201
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8161/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  agent-runtime:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-iii-executive-output/agent-runtime/Dockerfile
+    ports:
+      - "8162:8162"   # A2A JSON-RPC server
+      - "8262:8262"   # MCP SSE server
+    depends_on:
+      temporal:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      executive-agent:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_URL=temporal:7233
+      - OLLAMA_URL=http://ollama:11434
+      - EXECUTIVE_AGENT_A2A_URL=http://executive-agent:8161
+      - MOTOR_OUTPUT_A2A_URL=http://motor-output:8163
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8162/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  motor-output:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-iii-executive-output/motor-output/Dockerfile
+    ports:
+      - "8163:8163"   # A2A JSON-RPC server
+      - "8263:8263"   # MCP SSE server
+    depends_on:
+      agent-runtime:
+        condition: service_healthy
+      executive-agent:
+        condition: service_healthy
+    environment:
+      - EXECUTIVE_AGENT_A2A_URL=http://executive-agent:8161
+      - AGENT_RUNTIME_A2A_URL=http://agent-runtime:8162
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8163/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# ---------------------------------------------------------------------------
 # Named Volumes
 # ---------------------------------------------------------------------------
 volumes:
@@ -273,3 +396,4 @@ volumes:
   prometheus_data:
   grafana_data:
   ltm_kuzu_data:
+  temporal_data:
