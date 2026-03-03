@@ -3,8 +3,8 @@
   "$id": "https://endogenai.accessitech.com/shared/vector-store/collection-registry.json",
   "title": "CollectionRegistry",
   "description": "Authoritative registry of every vector store collection used by EndogenAI. Collections follow the brain.<module-name> naming convention. The vector store adapter bootstrap process reads this file to provision all missing collections at startup. Do NOT create ad-hoc collections — add them here first.",
-  "version": "0.1.0",
-  "updatedAt": "2025-07-14",
+  "version": "0.2.0",
+  "updatedAt": "2026-03-02",
   "collections": [
     {
       "name": "brain.sensory-input",
@@ -82,9 +82,9 @@
       "name": "brain.executive-agent",
       "moduleId": "executive-agent",
       "layer": "prefrontal",
-      "description": "Task decompositions, sub-task states, and inter-agent delegation records produced by the executive planner.",
-      "memoryType": "working",
-      "notes": "Stores A2ATask objects and their outcomes as MemoryItems for retrospective planning."
+      "description": "Goals, values, policies, and identity state managed by the executive-agent BDI loop. Stores goal items, BDI plan templates, OFC value scores, and self-model deltas for retrospective planning.",
+      "memoryType": "long-term",
+      "notes": "Append-only identity writes (reconsolidation analogue). Access via endogenai_vector_store; collection: brain.executive-agent."
     },
     {
       "name": "brain.agent-runtime",

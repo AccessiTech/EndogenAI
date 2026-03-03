@@ -52,7 +52,14 @@
         "modules/group-ii-cognitive-processing/affective/src",
         "modules/group-ii-cognitive-processing/affective/.venv/lib/python3.12/site-packages",
         "modules/group-ii-cognitive-processing/reasoning/src",
-        "modules/group-ii-cognitive-processing/reasoning/.venv/lib/python3.12/site-packages"
+        "modules/group-ii-cognitive-processing/reasoning/.venv/lib/python3.12/site-packages",
+        "modules/group-iii-executive-output/executive-agent/src",
+        "modules/group-iii-executive-output/executive-agent/.venv/lib/python3.12/site-packages",
+        "modules/group-iii-executive-output/agent-runtime/src",
+        "modules/group-iii-executive-output/agent-runtime/.venv/lib/python3.12/site-packages",
+        "modules/group-iii-executive-output/motor-output/src",
+        "modules/group-iii-executive-output/motor-output/.venv/lib/python3.12/site-packages",
+        "modules/group-iii-executive-output/.venv/lib/python3.12/site-packages"
     ],
     "python.analysis.ignore": [
         "shared/a2a/python/.venv/**",
@@ -65,6 +72,10 @@
         "modules/group-ii-cognitive-processing/memory/long-term-memory/.venv/**",
         "modules/group-ii-cognitive-processing/memory/episodic-memory/.venv/**",
         "modules/group-ii-cognitive-processing/affective/.venv/**",
-        "modules/group-ii-cognitive-processing/reasoning/.venv/**"
+        "modules/group-ii-cognitive-processing/reasoning/.venv/**",
+        "modules/group-iii-executive-output/executive-agent/.venv/**",
+        "modules/group-iii-executive-output/agent-runtime/.venv/**",
+        "modules/group-iii-executive-output/motor-output/.venv/**",
+        "modules/group-iii-executive-output/.venv/**"
     ]
 }

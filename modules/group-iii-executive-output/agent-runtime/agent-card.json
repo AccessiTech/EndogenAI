@@ -1,0 +1,37 @@
+{
+  "name": "agent-runtime",
+  "description": "Motor planning and task execution layer. Decomposes committed intentions into ordered skill pipelines, selects and registers tools via A2A agent-card discovery, and orchestrates durable execution via Temporal (primary) or Prefect (fallback). Pre-stages tool parameters before execution begins.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8162",
+    "mcp": "http://localhost:8262"
+  },
+  "skills": [
+    {
+      "id": "agent_runtime.execute_intention",
+      "name": "Execute Intention",
+      "description": "Decompose a committed intention into a skill pipeline and orchestrate durable execution via Temporal or Prefect."
+    },
+    {
+      "id": "agent_runtime.decompose",
+      "name": "Decompose Goal",
+      "description": "Decompose a goal into an ordered SkillPipeline without executing it."
+    },
+    {
+      "id": "agent_runtime.abort_execution",
+      "name": "Abort Execution",
+      "description": "Send an abort signal to a running Temporal Workflow."
+    },
+    {
+      "id": "agent_runtime.get_execution_status",
+      "name": "Get Execution Status",
+      "description": "Query the status of a running or completed Temporal Workflow."
+    },
+    {
+      "id": "agent_runtime.list_tools",
+      "name": "List Tools",
+      "description": "Return all registered skills/tools in the tool registry."
+    }
+  ]
+}

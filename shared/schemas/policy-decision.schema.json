@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/policy-decision.schema.json",
+  "title": "PolicyDecision",
+  "description": "OPA policy evaluation result returned by executive-agent policy.py. Encodes an allow/deny decision with violation explanations. Derived from ACC policy-violation detection analogue.",
+  "type": "object",
+  "required": ["allow", "violations", "package", "rule", "evaluated_at"],
+  "additionalProperties": false,
+  "properties": {
+    "allow": {
+      "type": "boolean",
+      "description": "True if the policy evaluation permits the requested action or goal; false if any violation was triggered."
+    },
+    "violations": {
+      "type": "array",
+      "description": "Human-readable violation messages produced by the Rego violations[] set. Empty when allow=true.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "explanation": {
+      "type": "string",
+      "description": "Optional narrative explanation of the decision, suitable for logging or user-facing output."
+    },
+    "package": {
+      "type": "string",
+      "description": "OPA package evaluated, e.g. 'endogenai.goals' or 'endogenai.actions'.",
+      "examples": ["endogenai.identity", "endogenai.goals", "endogenai.actions"]
+    },
+    "rule": {
+      "type": "string",
+      "description": "OPA rule evaluated within the package, e.g. 'allow' or 'violations'.",
+      "examples": ["allow", "violations"]
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this policy decision was evaluated."
+    },
+    "cached": {
+      "type": "boolean",
+      "description": "True if this result was returned from the LRU cache rather than a live OPA evaluation.",
+      "default": false
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the policy input document. Used as LRU cache key."
+    }
+  }
+}

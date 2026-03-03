@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/motor-feedback.schema.json",
+  "title": "MotorFeedback",
+  "description": "Action outcome reported by motor-output back to executive-agent. Closes the spinocerebellar corollary-discharge feedback loop. Carries a RewardSignal-compatible dict for actor-critic credit assignment.",
+  "type": "object",
+  "required": [
+    "action_id",
+    "goal_id",
+    "channel",
+    "actual_outcome",
+    "deviation_score",
+    "success",
+    "escalate",
+    "reward_signal",
+    "dispatched_at",
+    "completed_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ActionSpec.action_id this feedback corresponds to."
+    },
+    "goal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ExecutiveGoal this action served."
+    },
+    "channel": {
+      "type": "string",
+      "enum": ["http", "a2a", "file", "render", "control-signal"],
+      "description": "The channel that dispatched this action."
+    },
+    "predicted_outcome": {
+      "type": "object",
+      "description": "The corollary discharge prediction from ActionSpec.predicted_outcome. Null if no prediction was made.",
+      "additionalProperties": true
+    },
+    "actual_outcome": {
+      "type": "object",
+      "description": "The actual result returned by the dispatch channel.",
+      "additionalProperties": true
+    },
+    "deviation_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Normalised deviation between predicted and actual outcome [0, 1]. 0 = perfect prediction; 1 = maximum deviation. Used by executive-agent to update goal priority weights."
+    },
+    "success": {
+      "type": "boolean",
+      "description": "True if the dispatch channel executed without error and the action completed successfully."
+    },
+    "escalate": {
+      "type": "boolean",
+      "description": "True if all three error-policy tiers were exhausted and the failure must be escalated to executive-agent BDI loop."
+    },
+    "error": {
+      "type": "string",
+      "description": "Error message if success=false. Null on success."
+    },
+    "retry_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of tier-1 retries attempted before this feedback was emitted."
+    },
+    "reward_signal": {
+      "type": "object",
+      "description": "RewardSignal-compatible dict. Required fields: value (float), source (string). Wired to executive-agent actor-critic update.",
+      "required": ["value", "source"],
+      "additionalProperties": true,
+      "properties": {
+        "value": {
+          "type": "number",
+          "description": "Scalar reward value. Positive = success; negative = failure. Typical: 1.0 success, -0.5 escalation."
+        },
+        "source": {
+          "type": "string",
+          "description": "Module that generated this reward signal, e.g. 'motor-output'."
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Task or action identifier this reward is attributed to."
+        }
+      }
+    },
+    "dispatched_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the action was dispatched."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the action completed (success or failure)."
+    },
+    "latency_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Round-trip dispatch latency in milliseconds."
+    }
+  }
+}

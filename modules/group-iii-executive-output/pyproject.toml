@@ -1,0 +1,42 @@
+[project]
+name = "endogenai-group-iii-integration"
+version = "0.1.0"
+description = "End-to-end integration tests for Group III Executive & Output modules."
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "EndogenAI" }]
+
+dependencies = [
+  "endogenai-executive-agent",
+  "endogenai-agent-runtime",
+  "endogenai-motor-output",
+]
+
+[tool.uv.sources]
+endogenai-executive-agent = { path = "executive-agent", editable = true }
+endogenai-agent-runtime = { path = "agent-runtime", editable = true }
+endogenai-motor-output = { path = "motor-output", editable = true }
+
+[dependency-groups]
+dev = [
+  "pytest>=8.2",
+  "pytest-asyncio>=0.23",
+  "anyio>=4.4",
+  "respx>=0.21",
+  "ruff>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tests"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["integration: end-to-end tests requiring all three modules"]
+
+[tool.ruff]
+line-length = 100

@@ -366,6 +366,7 @@ Copilot chat agents dropdown automatically.
 | **Phase 5 Memory Executive** | full tools | Phase 5 memory stack delivery — working, short-term, long-term, and episodic memory (§§5.1–5.4) |
 | **Phase 5 Motivation Executive** | full tools | Phase 5 affective/motivational layer delivery — reward signals, emotional weighting, urgency scoring (§5.5) |
 | **Phase 5 Reasoning Executive** | full tools | Phase 5 reasoning layer delivery — DSPy inference, causal planning, LiteLLM-routed LLM calls (§5.6) |
+| **Phase 6 Executive** | full tools | Phase 6 top-level orchestration — sequences executive-agent → agent-runtime → motor-output (§§6.1–6.3) to M6 milestone |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 

@@ -1,0 +1,14 @@
+{
+  "primary": "temporal",
+  "fallback": "prefect",
+  "temporalServerUrl": "localhost:7233",
+  "temporalNamespace": "endogenai",
+  "temporalTaskQueue": "brain-runtime",
+  "prefectApiUrl": "http://localhost:4200",
+  "workflowIdStrategy": "goal_id_with_attempt",
+  "fallbackTrigger": {
+    "strategy": "circuit-breaker",
+    "maxTemporalConnectRetries": 3,
+    "fallbackCooldownSeconds": 60
+  }
+}

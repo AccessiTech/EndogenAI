@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/skill-pipeline.schema.json",
+  "title": "SkillPipeline",
+  "description": "An ordered sequence of SkillSteps produced by agent-runtime decomposer. Represents the cerebellar inverse model output: a concrete execution plan for achieving a goal. Passed from agent-runtime to motor-output.",
+  "type": "object",
+  "required": ["id", "goal_id", "steps", "created_at"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique pipeline identifier (UUID v4)."
+    },
+    "goal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The ExecutiveGoal this pipeline was generated to fulfil."
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Temporal Workflow or Prefect flow ID running this pipeline."
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of SkillSteps. Steps with the same parallel_group may execute concurrently (SMA analogue).",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/SkillStep"
+      }
+    },
+    "decomposition_model": {
+      "type": "string",
+      "description": "LiteLLM model string used to generate this decomposition, e.g. 'ollama/mistral'."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this pipeline was created."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "EXECUTING", "COMPLETED", "FAILED", "ABORTED"],
+      "description": "Overall pipeline execution status."
+    }
+  },
+  "$defs": {
+    "SkillStep": {
+      "type": "object",
+      "required": ["step_id", "tool_id", "params"],
+      "additionalProperties": false,
+      "description": "A single parameterised skill invocation within a pipeline.",
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "description": "Unique step identifier within this pipeline (e.g. '1', '2a', UUID)."
+        },
+        "tool_id": {
+          "type": "string",
+          "description": "Registered tool or skill identifier from the agent-runtime tool registry.",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object",
+          "description": "Input parameters for the tool invocation. Schema is tool-specific.",
+          "additionalProperties": true
+        },
+        "expected_output": {
+          "type": "object",
+          "description": "Declarative description of the expected output structure (corollary discharge forward model).",
+          "additionalProperties": true
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "List of step_ids that must complete before this step executes.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "parallel_group": {
+          "type": "string",
+          "description": "Steps sharing the same parallel_group may be dispatched concurrently (SMA parallel sequences analogue)."
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["http", "a2a", "file", "render", "control-signal"],
+          "description": "Channel hint passed to motor-output dispatcher."
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum seconds allowed for this step before the error policy is invoked."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "EXECUTING", "COMPLETED", "FAILED", "SKIPPED"],
+          "description": "Runtime execution status of this step."
+        }
+      }
+    }
+  }
+}
