@@ -133,3 +133,17 @@ uv run mypy src/
 
 Tests mock both LiteLLM (`litellm.acompletion`) and the vector store adapter,
 so no running services are required for the unit test suite.
+
+---
+
+## Deployment
+
+The module is Python-only and runs as a standalone process. In the local
+development stack it is started via `docker compose` alongside the MCP and A2A
+infrastructure.
+
+- **A2A endpoint**: `http://localhost:8104`
+- **MCP endpoint**: `http://localhost:8105`
+
+See [docs/guides/adding-a-module.md](../../../docs/guides/adding-a-module.md) for
+the full module lifecycle.

@@ -7,6 +7,12 @@ structured generation. All LLM calls route through **LiteLLM**; no direct SDK im
 
 ---
 
+## Purpose
+
+The Reasoning module provides EndogenAI's structured inference and planning capabilities. It receives a query and optional context (typically assembled by Working Memory) and applies one of three inference strategies — `chain-of-thought`, `deductive`, or `abductive` — routing the underlying LLM call through LiteLLM. In addition to single-step inference it can generate multi-step causal plans with uncertainty estimates, and it persists every reasoning trace to the `brain.reasoning` vector collection for later semantic recall. The module sits between the Memory Layer (which provides context) and the Executive Agent (which consumes decisions), implementing the deliberative layer of the cognitive loop.
+
+---
+
 ## Brain Analogy
 
 Maps to `resources/neuroanatomy/prefrontal-cortex.md`:

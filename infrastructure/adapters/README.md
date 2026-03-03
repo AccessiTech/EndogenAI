@@ -5,6 +5,12 @@ without duplicated logic.
 
 ---
 
+## Purpose
+
+`@accessitech/adapters` provides the `MCPToA2ABridge` — the sole permitted pathway for cross-module communication in EndogenAI. It routes inbound A2A tasks over MCP to the target module, then automatically completes the A2A task when the target module publishes an MCP reply carrying the matching `taskId`. No cognitive module communicates directly with another via raw HTTP; all cross-module calls pass through this bridge, which composes `@accessitech/mcp` and `@accessitech/a2a`.
+
+---
+
 ## Overview
 
 The adapter bridge (`MCPToA2ABridge`) connects the two communication protocols:
@@ -31,6 +37,23 @@ A2A task (user/agent message)
 | --------- | ------------ |
 | A2A → MCP | `sendAndRoute` submits an A2A task, transitions to `working`, wraps the initial message in an `MCPContext`, and publishes it to the context broker. |
 | MCP → A2A | The bridge subscribes to MCP replies for `replyTargetModuleId`. On receipt, if the context carries a `taskId`, the referenced A2A task is completed with the reply payload as an artifact. |
+
+---
+
+## Architecture
+
+```
+           ┌──────────────────────────────────────────────┐
+  A2A task │  MCPToA2ABridge.sendAndRoute()               │
+──────────►│  1. TaskOrchestrator.submit()                │
+           │  2. broker.publish(MCPContext → target)      │
+           │                                              │
+           │  On MCP reply addressed to replyTargetModule:│
+           │  3. orchestrator.complete(taskId, reply)     │◄── MCP reply
+           └──────────────────────────────────────────────┘
+```
+
+The bridge is stateless beyond the `ContextBroker` subscription and `TaskOrchestrator` reference provided at construction. It can be instantiated multiple times to bridge different module pairs.
 
 ---
 
@@ -81,6 +104,31 @@ console.log('Task:', taskId, '| Context:', contextId);
 
 ---
 
+## API
+
+### `MCPToA2ABridge`
+
+```typescript
+class MCPToA2ABridge {
+  constructor(
+    broker: ContextBroker,
+    orchestrator: TaskOrchestrator,
+    config: BridgeConfig,
+  );
+
+  /** Submit an A2A task and route its initial message as an MCPContext to the target module. */
+  sendAndRoute(options: SendAndRouteOptions): Promise<{
+    taskId: string;
+    contextId: string;
+    task: A2ATask;
+  }>;
+}
+```
+
+See the `BridgeConfig` type definition in [Configuration](#configuration) and `src/bridge.ts` for the full source.
+
+---
+
 ## Configuration
 
 ```typescript
@@ -104,6 +152,22 @@ interface BridgeConfig {
 ## Agent Card
 
 `/.well-known/agent-card.json` — see [`.well-known/agent-card.json`](.well-known/agent-card.json).
+
+---
+
+## Running locally
+
+```bash
+# From the infrastructure/adapters package directory
+pnpm install
+pnpm run build
+
+# Start backing services
+docker compose up -d
+
+# Run round-trip integration tests
+pnpm run test
+```
 
 ---
 

@@ -5,6 +5,12 @@ and MCP server built on [`@modelcontextprotocol/sdk`](https://github.com/modelco
 
 ---
 
+## Purpose
+
+`@accessitech/mcp` is the context-routing backbone for the entire EndogenAI system. All synchronous module-to-module communication travels as an `MCPContext` envelope validated against [`shared/schemas/mcp-context.schema.json`](../../shared/schemas/mcp-context.schema.json) and dispatched through this package's `ContextBroker`. No cognitive module may address another directly — all cross-module messages must be published through the broker. This package is the TypeScript implementation of the [Module Context Protocol](../../docs/protocols/mcp.md).
+
+---
+
 ## Overview
 
 The MCP infrastructure is the communication backbone of EndogenAI. Every message exchanged between cognitive modules
@@ -20,6 +26,28 @@ This package provides:
 | `ContextBroker`      | `src/broker.ts`    | Validates and routes `MCPContext` messages to registered handlers.      |
 | `createMCPServer`    | `src/server.ts`    | Factory that wires the above into an MCP server via `@modelcontextprotocol/sdk`. |
 | `validateMCPContext` | `src/validate.ts`  | Ajv-powered schema validation against the canonical MCP context schema. |
+
+---
+
+## Architecture
+
+The MCP infrastructure follows a publish/subscribe topology. `ContextBroker` is the central hub; all other components are wired to it by `createMCPServer`:
+
+```
+Module A
+  │  broker.publish(MCPContext)
+  ▼
+ContextBroker ── validateMCPContext (Ajv schema guard)
+  │
+  ├── CapabilityRegistry  (endpoint + capability lookup, heartbeat)
+  ├── StateSynchronizer   (module liveness tracking)
+  └── Subscribed handler → Module B
+                              │
+                              ▼  broker.publish(reply)
+                          ContextBroker → Module A subscriber
+```
+
+The `createMCPServer` factory wraps this topology behind `@modelcontextprotocol/sdk` tools and resources so external callers interact via the standard MCP wire protocol.
 
 ---
 
@@ -95,6 +123,12 @@ await broker.publish(reply);
 
 ---
 
+## API
+
+`@accessitech/mcp` exposes its interface as `@modelcontextprotocol/sdk` tools and resources. All calls are validated against the canonical MCP context schema before routing. See **MCP Tools** and **MCP Resources** below for the complete programmatic surface.
+
+---
+
 ## MCP Tools (via @modelcontextprotocol/sdk)
 
 | Tool name              | Arguments              | Effect                                          |
@@ -114,6 +148,22 @@ await broker.publish(reply);
 ## Agent Card
 
 `/.well-known/agent-card.json` — see [`.well-known/agent-card.json`](.well-known/agent-card.json).
+
+---
+
+## Running locally
+
+```bash
+# From the infrastructure/mcp package directory
+pnpm install
+pnpm run build
+
+# Start backing services (ChromaDB, Ollama, OTel collector)
+docker compose up -d
+
+# Run all tests
+pnpm run test
+```
 
 ---
 

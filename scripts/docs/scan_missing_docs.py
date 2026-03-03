@@ -35,6 +35,14 @@ SHARED_DIR = REPO_ROOT / "shared"
 # Skip these directories during scans
 SKIP_DIRS = {".venv", "node_modules", "dist", "__pycache__", ".git", "tests", "src"}
 
+# Umbrella directories: parent dirs that aggregate sub-modules rather than implementing
+# one directly. Their READMEs are checked for existence only — section checks are skipped
+# because the required sections (Interface, Configuration, Deployment) belong to each
+# sub-module, not to the parent overview.
+UMBRELLA_DIRS: set[str] = {
+    "modules/group-ii-cognitive-processing/memory",
+}
+
 # Required H2 sections per target type
 MODULE_REQUIRED_SECTIONS = {"## Purpose", "## Interface", "## Configuration", "## Deployment"}
 INFRA_REQUIRED_SECTIONS = {"## Purpose", "## Architecture", "## API", "## Running locally"}
@@ -129,6 +137,9 @@ def _scan_dir(
         readme = child / "README.md"
         if not readme.exists():
             result.add(rel, "README.md missing", "HIGH")
+        elif rel in UMBRELLA_DIRS:
+            # Umbrella directory — README exists, section checks intentionally skipped.
+            pass
         else:
             _check_readme_sections(readme, required_sections, result, rel)
 

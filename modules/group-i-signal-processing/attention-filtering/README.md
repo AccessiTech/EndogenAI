@@ -113,3 +113,17 @@ uv run pytest
 uv run ruff check .
 uv run mypy src/
 ```
+
+---
+
+## Deployment
+
+The module is Python-only and runs as a standalone process. In the local
+development stack it is started via `docker compose` alongside the MCP and A2A
+infrastructure.
+
+- **A2A endpoint**: `http://localhost:8102`
+- **MCP endpoint**: `http://localhost:8103`
+
+See [docs/guides/adding-a-module.md](../../../docs/guides/adding-a-module.md) for
+the full module lifecycle.
