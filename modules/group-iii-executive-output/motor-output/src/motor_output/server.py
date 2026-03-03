@@ -94,12 +94,12 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _mcp_tools = MCPTools(dispatcher=_dispatcher)
 
     logger.info("motor_output.started", executive_agent_url=executive_agent_url)
+    FastAPIInstrumentor().instrument_app(app)
     yield
     logger.info("motor_output.stopped")
 
 
 app = FastAPI(title="motor-output", lifespan=_lifespan)
-FastAPIInstrumentor().instrument_app(app)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
