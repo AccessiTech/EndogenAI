@@ -101,6 +101,36 @@ that improve future predictions. `agent-runtime` mirrors this:
 
 ---
 
+## Deployment
+
+### Local (development)
+
+```bash
+# From this directory
+uv sync
+uv run serve
+```
+
+### Docker
+
+```bash
+docker build -t endogenai/agent-runtime:latest .
+docker run -p 8162:8162 endogenai/agent-runtime:latest
+```
+
+### Docker Compose
+
+```bash
+# From repo root — starts Temporal, OPA, ChromaDB, Ollama, and all modules
+docker compose --profile modules up -d
+```
+
+The Temporal server must be reachable at `temporal:7233` (Docker Compose) or `localhost:7233`
+(local dev). `motor-output` must be running before `agent-runtime` begins processing
+intentions, as Activities dispatch `ActionSpec` messages to it.
+
+---
+
 ## Development
 
 ```bash
