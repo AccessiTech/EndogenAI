@@ -93,10 +93,67 @@ modification.
 
 ---
 
+## Module OTel Instrumentation
+
+Phase 7 introduces the first modules that own a `TracerProvider` + `MeterProvider` directly (rather than relying
+solely on the Collector's filelog receiver). Two patterns are in use:
+
+### Pattern 1 — FastAPI auto-instrumentation (HTTP tracing, zero new code)
+
+Adds HTTP-level spans for every request to an existing FastAPI service. Applied to Phase 6 modules as Tier 1
+observability when Phase 7 deploys:
+
+```python
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+FastAPIInstrumentor.instrument_app(app)  # after app = FastAPI(...)
+```
+
+Dependency: `opentelemetry-instrumentation-fastapi>=0.50b0` in `pyproject.toml`.
+
+### Pattern 2 — Domain metric `MeterProvider` (module-owned Prometheus metrics)
+
+For modules that compute business-level metrics (not just HTTP traces). The `metacognition` module is the
+reference implementation.
+
+```python
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+
+resource = Resource.create({SERVICE_NAME: "metacognition", "service.namespace": "brain"})
+meter_provider = MeterProvider(
+    resource=resource,
+    metric_readers=[PrometheusMetricReader(port=9464)]
+)
+```
+
+**Metric naming rule**: all metric names MUST be prefixed `brain_` (e.g. `brain_metacognition_task_confidence`)
+to pass the `brain_.*` relabel filter in `prometheus.yml`. The sub-namespace convention is
+`brain_<module-name>_<metric>`.
+
+### Phase 7 metric namespace
+
+Phase 7 will provision Grafana dashboards for the `brain_metacognition_*` metric namespace:
+
+| Metric | Type | Description |
+| --- | --- | --- |
+| `brain_metacognition_task_confidence` | Gauge | Rolling task confidence per `goal_class` [0, 1] |
+| `brain_metacognition_deviation_zscore` | Gauge | Deviation z-score vs rolling mean (>2 = anomaly) |
+| `brain_metacognition_escalation_total` | Counter | Cumulative escalation events from `motor-output` |
+| `brain_metacognition_reward_delta` | Histogram | Reward delta distribution per episode [−0.15, 0.15] |
+| `brain_metacognition_policy_denial_rate` | Gauge | BDI policy denial rate (ACC conflict-monitoring analogue) |
+
+Activated by setting `METACOGNITION_URL` on the `executive-agent` process (default `None` — Phase 6 runs
+with no Phase 7 dependency). Phase 6 OTel Tier 1 (FastAPI auto-instrumentation) bootstraps additional HTTP
+metrics on the existing `brain_.*` namespace.
+
+---
+
 ## Dashboards
 
-_Grafana dashboards for signal flow latency, memory collection sizes, reward signal frequency, and module error rates
-will be provisioned in Phase 7._
+Grafana dashboards for signal flow latency, memory collection sizes, reward signal frequency, and module error
+rates will be provisioned in Phase 7. The `brain_metacognition_*` metric namespace (task confidence, deviation
+z-score, escalation rate, reward delta distribution) will be the initial Phase 7 dashboard scope.
 
 ---
 
@@ -105,4 +162,4 @@ will be provisioned in Phase 7._
 - [Logging Spec](../../shared/utils/logging.md)
 - [Tracing Spec](../../shared/utils/tracing.md)
 - [Observability Stack Config](../../observability/README.md)
-- [Workplan — Phase 7](../Workplan.md#phase-7--application-layer--observability)
+- [Workplan — Phase 7](../Workplan.md#phase-7--group-iv-adaptive-systems-cross-cutting)

@@ -309,6 +309,49 @@ Every runnable module gets a service entry in [`docker-compose.yml`](../../docke
 profile. This keeps module services opt-in — plain `docker compose up -d` starts only the backing services (ChromaDB,
 Ollama, Redis, observability). Module services start only when the profile is requested.
 
+### 8a. Provide OTel instrumentation _(modules that emit domain metrics)_
+
+For modules that compute business-level metrics (not just HTTP request traces), configure a module-owned
+`MeterProvider`. The `metacognition` module (`modules/group-iv-adaptive-systems/metacognition/src/metacognition/instrumentation/`) is the reference implementation.
+
+**When to use this step**: only for modules that expose computed domain signals (e.g. confidence scores, deviation
+z-scores, reward deltas) as Prometheus metrics. Signal-processing and memory modules do not need this — the
+otel-collector filelog receiver already picks up their structured logs without code changes.
+
+```python
+# src/<module>/instrumentation/otel_setup.py
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+
+def configure_metrics(service_name: str, otlp_endpoint: str, prometheus_port: int) -> MeterProvider:
+    resource = Resource.create({SERVICE_NAME: service_name, "service.namespace": "brain"})
+    return MeterProvider(
+        resource=resource,
+        metric_readers=[
+            PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=otlp_endpoint)),
+            PrometheusMetricReader(port=prometheus_port),
+        ],
+    )
+```
+
+**Metric naming rule**: all metric names MUST be prefixed `brain_` (e.g. `brain_metacognition_task_confidence`)
+to pass the `brain_.*` relabel filter already in `prometheus.yml`. Use the sub-namespace convention
+`brain_<module-name>_<metric>`.
+
+For HTTP-level tracing only (no domain metrics), use the lighter auto-instrumentation pattern instead:
+```python
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+FastAPIInstrumentor.instrument_app(app)  # after app = FastAPI(...)
+```
+Dependency: `opentelemetry-instrumentation-fastapi>=0.50b0`. This is the Tier 1 pattern applied to Phase 6
+modules when Phase 7 deploys.
+
+See [Observability Guide — Module OTel Instrumentation](../guides/observability.md#module-otel-instrumentation) for
+the full pattern reference.
+
 ```yaml
 # docker-compose.yml — add under services:
 <module-name>:

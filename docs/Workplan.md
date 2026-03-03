@@ -537,27 +537,103 @@ produce a measurable environmental output.
 
 **Goal**: Implement learning, reinforcement, and meta-cognitive monitoring layers that refine the system over time.
 
+**Architecture note**: All implementation decisions for Phase 7 are resolved. Full detail in
+`docs/research/phase-7-detailed-workplan.md`. Key decisions:
+- **Decision 1** — `motor-feedback.schema.json` refactored to `$ref shared/types/reward-signal.schema.json`
+- **Decision 2** — `BrainEnv` uses **goal-priority adaptation** (Option A): `Box(K floats)` action space; RL policy
+  adjusts `ExecutiveGoal.priority_weight` per goal class; episode boundary = one BDI planning cycle
+- **Decision 3** — metacognition monitors **Phase 6 outputs only** (`executive-agent` + `motor-output`)
+- **Observation strategy** — Hybrid (Strategy C): Tier 1 FastAPI OTel auto-instrumentation + Tier 2 A2A observer hook;
+  Phase 6 activated via `METACOGNITION_URL` env var (default `None` — Phase 6 runs without Phase 7)
+- **Build order** — §7.2 metacognition builds before §7.1 learning-adaptation (no ML dependencies; bootstraps
+  observability layer that learning-adaptation can emit into from day one)
+
+### Phase 7 Pre-Implementation Checklist
+
+- [ ] **Schemas-first**: land 3 new/updated schemas in `shared/schemas/` before any Phase 7 code —
+      refactor `motor-feedback.schema.json` (`$ref` reward-signal); add
+      `learning-adaptation-episode.schema.json` (Option A shape: `goal_priority_deltas: list[float]`,
+      `episode_boundary: bdi_cycle`); add `metacognitive-evaluation.schema.json` — all passing `buf lint`
+      and `scripts/schema/validate_all_schemas.py`
+- [ ] **Collection registry**: add `brain.learning-adaptation` and `brain.metacognition` entries to
+      `shared/vector-store/collection-registry.json`
+- [ ] **Phase 6 instrumentation — Tier 1**: add `FastAPIInstrumentor.instrument_app(app)` to
+      `executive-agent/server.py` and `motor-output/server.py`; add
+      `opentelemetry-instrumentation-fastapi>=0.50b0` to both `pyproject.toml` files
+- [ ] **Phase 6 instrumentation — Tier 2**: add optional `metacognition_client` A2A hook to
+      `executive-agent/feedback.py` `FeedbackHandler`; wire via `METACOGNITION_URL` env var in
+      `executive-agent/server.py` (default `None`)
+- [ ] **Prometheus alert rules**: mount `observability/prometheus-rules/` directory in
+      `docker-compose.yml` prometheus service; add `rule_files` entry to `prometheus.yml`
+- [ ] **Scaffold directory**: create `modules/group-iv-adaptive-systems/` tree per
+      `docs/research/phase-7-detailed-workplan.md §3`
+
 ### 7.1 Learning & Adaptation Layer (`modules/group-iv-adaptive-systems/learning-adaptation/`)
 
-- [ ] Implement reinforcement signal processing and parameter update dispatch via Stable-Baselines3 (scale to RLlib /
-      TorchRL as needed)
-- [ ] Implement behavioural conditioning pipelines
-- [ ] Implement skill acquisition and capability registration
-- [ ] Wire `brain.learning-adaptation` collection; embed feedback logs and skill acquisition records
-- [ ] Configure `learning.config.json` and `vector-store.config.json`
-- [ ] Wire MCP + A2A; author `agent-card.json`; write tests; author `README.md`
+_Service port: 8170. Depends on Gate 1 (metacognition operational) and Phase 6 OTel instrumentation._
+
+- [ ] Implement `BrainEnv` (`env/brain_env.py`) — `gymnasium.Env` wrapping `MotorFeedback` stream;
+      observation: `[success_rate, mean_deviation, escalation_rate, task_type_onehot[K], channel_success_rate[5]]`;
+      action: signed goal-priority-weight delta per goal class (`Box(K floats)`, clipped `[-0.2, +0.2]`);
+      episode boundary = one BDI planning cycle
+- [ ] Implement PPO training loop via Stable-Baselines3 (`training/trainer.py`) with dual-track
+      learning: BG actor-critic (PPO) + cerebellar supervised correction
+      (`training/skill_feedback_callback.py`); shadow policy trained offline and promoted after
+      `shadow_promotion_eval_episodes` consecutive above-threshold evaluations
+- [ ] Implement ChromaDB-backed `ReplayBuffer` (`replay/buffer.py`) — priority sampling by `|reward_value|`;
+      rolling eviction when `size > replay_buffer_size`; async background training loop
+      (`async_replay_interval_seconds`)
+- [ ] Implement `HabitManager` (`habits/manager.py`) — promotes stable policies to habit checkpoints
+      when `success_rate ≥ 0.95` over 20 consecutive episodes (dorsolateral striatum analogue)
+- [ ] Wire `brain.learning-adaptation` ChromaDB collection; embed episode state-action-reward-next_state
+      tuples with `task_type` and `priority` metadata
+- [ ] Configure `learning.config.json` (algorithm, `total_timesteps_per_run`, `replay_buffer_size`,
+      `habit_threshold_*`, `shadow_policy_enabled`, `async_replay_interval_seconds`)
+- [ ] Wire MCP resources (`policy/current`, `replay-buffer/stats`, `habits/catalog`) + A2A tasks
+      (`adapt_policy` inbound, `habit_promoted` outbound); author `agent-card.json`; write tests;
+      author `README.md`
 
 ### 7.2 Meta-cognition & Monitoring Layer (`modules/group-iv-adaptive-systems/metacognition/`)
 
-- [ ] Implement confidence tracking, error detection, performance evaluation, and anomaly escalation to executive layer
-      via OpenTelemetry
-- [ ] Implement corrective action trigger dispatch and remediation pipelines
-- [ ] Wire `brain.metacognition` collection; embed confidence scores, error patterns, and performance snapshots
-- [ ] Configure `monitoring.config.json` and `vector-store.config.json`
-- [ ] Wire MCP + A2A hooks; author `agent-card.json`; write tests; author `README.md`
+_Service port: 8171. Builds first — no ML dependencies; activates Phase 6 observability._
 
-**Deliverables**: system can detect its own errors, escalate anomalies, and register reinforcement signals that
-influence subsequent decisions.
+- [ ] Configure OTel `TracerProvider` + `MeterProvider` (`instrumentation/otel_setup.py`) — OTLP gRPC
+      export to existing Collector (`localhost:4317`); Prometheus exporter on port `9464`; resource:
+      `service.name=metacognition`, `service.namespace=brain`
+- [ ] Implement `MetacognitionEvaluator` (`evaluation/evaluator.py`) — rolling window confidence
+      computation: `task_confidence = f(rolling_mean_reward_delta, success_rate)`; deviation z-score:
+      `(deviation_score − μ) / σ`; error flag when `deviation_score > deviation_error_threshold`
+- [ ] Define 8 Prometheus metrics (`instrumentation/metrics.py`) — all `brain_metacognition_*` prefixed:
+      `task_confidence` (Gauge), `deviation_score` (Gauge), `reward_delta` (Histogram),
+      `task_success_rate` (Gauge), `escalation_total` (Counter), `retry_count` (Histogram),
+      `policy_denial_rate` (Gauge), `deviation_zscore` (Gauge)
+- [ ] Implement corrective action trigger — A2A `send_task("request_correction")` to `executive-agent`
+      when `task_confidence < confidence_threshold` sustained over `alert_window_minutes`
+- [ ] Wire `brain.metacognition` ChromaDB collection (append-only); embed `MetacognitiveEvaluation`
+      events for trend queries and session reporting
+- [ ] Author `observability/prometheus-rules/metacognition.yml` — 4 alert rules: `TaskConfidenceLow`,
+      `DeviationAnomalyHigh`, `EscalationRateElevated`, `PolicyDenialRateHigh`; copy to
+      `observability/prometheus-rules/`
+- [ ] Configure `monitoring.config.json` (`confidence_threshold`, `anomaly_zscore_threshold`,
+      `rolling_window_size`, `alert_window_minutes`, `metrics_export`, `escalation_enabled`)
+- [ ] Wire MCP resources (`confidence/current`, `anomalies/recent`, `report/session`) + A2A tasks
+      (`evaluate_output` inbound, `request_correction` outbound); author `agent-card.json`; write tests;
+      author `README.md`
+
+### 7.3 End-to-End Integration
+
+- [ ] Write integration test: send mock `MotorFeedback` (batch, `escalate=True`) to `executive-agent` →
+      verify `evaluate_output` A2A task reaches metacognition → assert `brain_metacognition_escalation_total`
+      counter increments → assert `request_correction` A2A task received by `executive-agent`
+- [ ] Write integration test: send mock `MotorFeedback` batch to `learning-adaptation` `adapt_policy` →
+      assert `brain.learning-adaptation` ChromaDB collection populated → trigger async replay step →
+      assert `TrainingResult` returned with positive `total_timesteps`
+- [ ] Declare M7 milestone: all Gate 0–3 checks pass per
+      `docs/research/phase-7-detailed-workplan.md §10`
+
+**Deliverables**: system detects its own errors via ACC-analogue monitoring; anomalies escalate to the executive
+layer; reinforcement signals are registered in the replay buffer and influence policy parameters via PPO; stable
+behaviours are promoted to habit checkpoints.
 
 ---
 

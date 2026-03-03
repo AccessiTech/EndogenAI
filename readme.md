@@ -535,36 +535,36 @@ the overall framework.
 
 ###### `learning-adaptation/` — _Learning & Adaptation Layer_ — analogous to the basal ganglia and cerebellum; processes feedback to refine module behaviour over time
 
-- `src/`
-  - `reinforcement/` — Reinforcement signal processing, parameter update dispatch, and behavioural conditioning
-    pipelines _(see [Learning & Adaptation](#learning--adaptation) — [Stable-Baselines3](#learning--adaptation),
-    [RLlib](#learning--adaptation), [TorchRL](#learning--adaptation))_
-  - `skill-acquisition/` — Skill learning, generalisation, and capability registration
-  - `vector-store/` — Manages `brain.learning-adaptation` collection; embeds feedback logs, behavioural conditioning
-    history, and skill acquisition records for pattern-based adaptation
+- `src/learning_adaptation/`
+  - `env/` — `BrainEnv` gymnasium adapter: wraps `MotorFeedback` stream; goal-priority-weight action space
+    _(see [Stable-Baselines3](#learning--adaptation))_
+  - `training/` — PPO training loop (BG actor-critic) + cerebellar supervised correction callback
+  - `replay/` — ChromaDB-backed `ReplayBuffer`; priority sampling by `|reward_value|`; async background training
+  - `habits/` — `HabitManager`: detects stable policies; promotes to habit checkpoints (dorsolateral striatum analogue)
+  - `interfaces/` — MCP server (resources + tools) and A2A handler
 - `tests/` — Unit and integration tests
-- `config/`
-  - `learning.config.json` — Learning rate, update strategy, and feedback source configuration
-  - `vector-store.config.json` — Backend and collection config for `brain.learning-adaptation`
-- `docs/` — Basal ganglia / cerebellum analogy, reinforcement model, and adaptation strategy
-- `agent-card.json` — A2A agent identity and capability declaration
+- `learning.config.json` — Algorithm, timesteps, replay buffer size, habit thresholds, shadow-policy config, and
+  vector store connection (collection `brain.learning-adaptation`, `nomic-embed-text`)
+- `docs/` — Basal ganglia / cerebellum analogy, RL model, and adaptation strategy
+- `agent-card.json` — A2A agent identity and capability declaration (port 8170)
 - `README.md` — Module purpose, feedback model, and usage
 
 ###### `metacognition/` — _Meta-cognition & Monitoring Layer_ — analogous to the anterior cingulate cortex and prefrontal monitoring circuits; observes the system's own processing
 
-- `src/`
-  - `monitoring/` — Confidence tracking, error detection, performance evaluation, and anomaly escalation to executive
-    layer _(see [Observability](#observability) — [OpenTelemetry](#observability), [Prometheus](#observability),
-    [Grafana](#observability))_
-  - `corrective-actions/` — Corrective action trigger dispatch and remediation pipelines
-  - `vector-store/` — Manages `brain.metacognition` collection; embeds confidence scores, error patterns, and
-    performance snapshots for anomaly detection and self-monitoring history
+- `src/metacognition/`
+  - `evaluation/` — `MetacognitionEvaluator`: rolling confidence, deviation z-score, error detection; ACC/PFC analogue
+    _(see [OpenTelemetry](#observability), [Prometheus](#observability), [Grafana](#observability))_
+  - `instrumentation/` — OTel `TracerProvider` + `MeterProvider` setup; 8 `brain_metacognition_*` metric instruments
+  - `store/` — ChromaDB `brain.metacognition` adapter (append-only; trend queries)
+  - `interfaces/` — MCP server (resources + tools) and A2A handler (`evaluate_output` inbound,
+    `request_correction` outbound)
 - `tests/` — Unit and integration tests
-- `config/`
-  - `monitoring.config.json` — Monitoring thresholds and escalation policy configuration
-  - `vector-store.config.json` — Backend and collection config for `brain.metacognition`
-- `docs/` — Anterior cingulate cortex analogy, self-monitoring model, and escalation design
-- `agent-card.json` — A2A agent identity and capability declaration
+- `observability/prometheus-rules/` — `metacognition.yml` Prometheus alert rules
+  (`TaskConfidenceLow`, `DeviationAnomalyHigh`, `EscalationRateElevated`, `PolicyDenialRateHigh`)
+- `monitoring.config.json` — Confidence thresholds, anomaly z-score threshold, rolling window size,
+  alert window, OTel/Prometheus export config, and vector store connection (collection `brain.metacognition`)
+- `docs/` — ACC / PFC analogy, self-monitoring model, and escalation design
+- `agent-card.json` — A2A agent identity and capability declaration (port 8171; Prometheus scrape port 9464)
 - `README.md` — Module purpose, monitoring model, and usage
 
 ---

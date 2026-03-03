@@ -7,9 +7,9 @@ last-reviewed: 2026-02-28
 
 # Architecture
 
-> **Status: active** — Phase 1–5 deliverables documented. Group I (Signal Processing) modules are live as of Phase 4;
-> Group II (Cognitive Processing) modules are live as of Phase 5.
-> Group III–IV detail will be added as subsequent phases deliver live modules.
+> **Status: active** — Phase 1–6 deliverables documented. Group I (Signal Processing) modules are live as of
+> Phase 4; Group II (Cognitive Processing) modules are live as of Phase 5; Group III (Executive & Output) modules
+> are live as of Phase 6. Group IV design is resolved (Phase 7); live module detail will be added after delivery.
 
 Full architectural overview of the EndogenAI framework, including layer descriptions, shared contracts, and signal flow.
 
@@ -80,9 +80,12 @@ every module MUST conform to.
 
 | File                                                                   | Purpose                                                    |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| [`mcp-context.schema.json`](../shared/schemas/mcp-context.schema.json) | MCP envelope — all backbone messages                       |
-| [`a2a-message.schema.json`](../shared/schemas/a2a-message.schema.json) | A2A message parts (text, data, file, function call/result) |
-| [`a2a-task.schema.json`](../shared/schemas/a2a-task.schema.json)       | A2A task lifecycle, artifacts, and errors                  |
+| [`mcp-context.schema.json`](../shared/schemas/mcp-context.schema.json)                       | MCP envelope — all backbone messages                                          |
+| [`a2a-message.schema.json`](../shared/schemas/a2a-message.schema.json)                       | A2A message parts (text, data, file, function call/result)                    |
+| [`a2a-task.schema.json`](../shared/schemas/a2a-task.schema.json)                             | A2A task lifecycle, artifacts, and errors                                     |
+| [`motor-feedback.schema.json`](../shared/schemas/motor-feedback.schema.json)                 | Phase 6 motor feedback: deviation score, reward signal, latency, channel      |
+| `learning-adaptation-episode.schema.json` _(⬜ Phase 7)_                                     | RL episode: state, action (goal-priority deltas), reward, next-state          |
+| `metacognitive-evaluation.schema.json` _(⬜ Phase 7)_                                        | Metacognitive event: confidence score, deviation z-score, error flag          |
 
 ### Types (`shared/types/`)
 
@@ -232,6 +235,27 @@ Each Group II module runs a **FastAPI + Uvicorn A2A server** (JSON-RPC 2.0 on `P
 | `episodic-memory`    | 8204     | 8304                   |
 | `affective`          | 8205     | 8305                   |
 | `reasoning`          | 8206     | 8306                   |
+
+### Group III service ports
+
+Group III modules each run a single **FastAPI + Uvicorn** process serving both A2A (JSON-RPC 2.0 on `POST /tasks`)
+and MCP tool routes on the same port.
+
+| Service           | Port | Protocol                 |
+| ----------------- | ---- | ------------------------ |
+| `executive-agent` | 8161 | HTTP (FastAPI + Uvicorn) |
+| `agent-runtime`   | 8162 | HTTP (FastAPI + Uvicorn) |
+| `motor-output`    | 8163 | HTTP (FastAPI + Uvicorn) |
+
+### Group IV service ports _(Phase 7 — design resolved, not yet live)_
+
+| Service               | Port | Protocol                 |
+| --------------------- | ---- | ------------------------ |
+| `learning-adaptation` | 8170 | HTTP (FastAPI + Uvicorn) |
+| `metacognition`       | 8171 | HTTP (FastAPI + Uvicorn) |
+
+The `metacognition` module additionally exposes a **Prometheus metrics scrape endpoint** on port `9464`
+(via `opentelemetry-exporter-prometheus`). This is separate from the A2A/MCP port.
 
 Module services are started via the `modules` docker-compose profile:
 
