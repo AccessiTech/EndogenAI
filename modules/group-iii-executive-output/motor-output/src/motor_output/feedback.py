@@ -83,9 +83,15 @@ class FeedbackEmitter:
         retry_count: int = dispatch_result.get("retry_count", 0)
         latency_ms = (completed_at - dispatched_at).total_seconds() * 1000
 
+        if not action_spec.goal_id:
+            raise ValueError(
+                "ActionSpec.goal_id is required to build MotorFeedback — "
+                "cannot dispatch without a goal context."
+            )
+
         return MotorFeedback(
             action_id=action_spec.action_id,
-            goal_id=action_spec.goal_id or "",
+            goal_id=action_spec.goal_id,
             channel=action_spec.channel or ChannelType.HTTP,
             actual_outcome=actual_outcome,
             predicted_outcome=action_spec.predicted_outcome,

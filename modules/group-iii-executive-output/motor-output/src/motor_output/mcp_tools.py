@@ -33,7 +33,7 @@ class MCPTools:
                         "action_id": {"type": "string"},
                         "goal_id": {"type": "string"},
                         "type": {"type": "string"},
-                        "channel": {"type": "string", "nullable": True},
+                        "channel": {"type": ["string", "null"]},
                         "params": {"type": "object"},
                     },
                     "required": ["action_id", "type"],
