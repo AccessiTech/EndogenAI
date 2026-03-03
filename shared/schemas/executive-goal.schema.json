@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/executive-goal.schema.json",
+  "title": "ExecutiveGoal",
+  "description": "A goal item managed by the executive-agent BDI loop. Represents a desired state transition with priority, lifecycle, and constraint metadata. Derived from DLPFC goal-stack and OFC value-scoring neuroscience analogues.",
+  "type": "object",
+  "required": ["id", "description", "priority", "lifecycle_state", "created_at", "updated_at"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique goal identifier (UUID v4)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "description": "Natural-language description of the desired goal state."
+    },
+    "priority": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "OFC-scored priority weight [0, 1]. Higher = more urgent. Updated by actor-critic reward signal."
+    },
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "EVALUATING",
+        "COMMITTED",
+        "EXECUTING",
+        "COMPLETED",
+        "FAILED",
+        "DEFERRED"
+      ],
+      "description": "BDI lifecycle FSM state. Transitions: PENDING → EVALUATING → COMMITTED → EXECUTING → COMPLETED | FAILED | DEFERRED."
+    },
+    "goal_class": {
+      "type": "string",
+      "description": "Semantic class label used by BG indirect pathway to suppress competing goals of the same class.",
+      "examples": ["information-retrieval", "communication", "planning", "execution"]
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional ISO 8601 UTC deadline. Overdue goals receive a priority boost."
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Arbitrary key-value constraints evaluated by OPA policy engine during deliberation.",
+      "additionalProperties": true
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Temporal Workflow or Prefect flow ID assigned when goal reaches EXECUTING state. Format: '{goal_id}-{attempt_n}' when workflowIdStrategy=goal_id_with_attempt."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the goal was created."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of the last state transition."
+    },
+    "parent_goal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional parent goal ID for hierarchical goal decomposition."
+    },
+    "source_agent": {
+      "type": "string",
+      "description": "ID or name of the agent or user that submitted this goal."
+    },
+    "context_payload": {
+      "type": "object",
+      "description": "Arbitrary context injected at goal creation — passed to agent-runtime during commitment.",
+      "additionalProperties": true
+    }
+  }
+}
