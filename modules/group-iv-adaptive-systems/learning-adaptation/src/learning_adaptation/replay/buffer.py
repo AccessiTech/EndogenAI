@@ -138,17 +138,23 @@ class ReplayBuffer:
             await self.evict_lowest(evict_count)
 
     async def sample(self, n: int) -> list[LearningAdaptationEpisode]:
-        """Return up to n episodes sorted by |priority| descending."""
+        """Return up to n episodes sorted by |priority| descending.
+
+        Oversamples (up to 100 candidates) so that the final top-N sort by
+        priority reflects true high-importance episodes rather than being
+        limited to whatever the semantic similarity query returns.
+        """
+        oversample = max(100, n * 10)
         req = QueryRequest(
             collection_name=COLLECTION_NAME,
             query_text="episode reward task_type",
-            n_results=n,
+            n_results=oversample,
         )
         try:
             resp = await self._adapter.query(req)
             episodes = [_memory_item_to_episode(r.item) for r in resp.results]
             episodes.sort(key=lambda e: e.priority, reverse=True)
-            return episodes
+            return episodes[:n]
         except Exception:
             logger.exception("replay_buffer.sample.error")
             return []
