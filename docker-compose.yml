@@ -358,8 +358,8 @@ services:
     environment:
       - TEMPORAL_URL=temporal:7233
       - OLLAMA_URL=http://ollama:11434
-      - EXECUTIVE_AGENT_A2A_URL=http://executive-agent:8161
-      - MOTOR_OUTPUT_A2A_URL=http://motor-output:8163
+      - EXECUTIVE_AGENT_URL=http://executive-agent:8161
+      - MOTOR_OUTPUT_URL=http://motor-output:8163
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8162/.well-known/agent-card.json')"]
       interval: 10s
