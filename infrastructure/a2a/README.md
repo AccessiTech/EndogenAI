@@ -3,6 +3,12 @@
 EndogenAI **Agent-to-Agent (A2A)** infrastructure: task orchestrator, JSON-RPC request handler, HTTP server with agent
 card endpoint, and conformance test suite.
 
+## Purpose
+
+`@accessitech/a2a` implements the Agent-to-Agent JSON-RPC 2.0 task protocol for EndogenAI. Every module that delegates a discrete unit of work to another module submits an `A2ATask` through this package. It provides the full task lifecycle (submitted → working → completed / failed / input-required), a JSON-RPC request dispatcher, and an HTTP server that auto-serves the `/.well-known/agent-card.json` capability advertisement required by the [A2A specification](../../docs/protocols/a2a.md).
+
+---
+
 ## Specification Version
 
 | Item | Value |
@@ -28,6 +34,28 @@ units (tasks) and their conversational history (messages).
 | `createA2AServer`    | `src/server.ts`       | HTTP server: POST `/` (JSON-RPC), GET `/.well-known/agent-card.json`. |
 | Types                | `src/types.ts`        | A2AMessage, A2ATask, Part types, AgentCard — from shared schemas.   |
 | validate             | `src/validate.ts`     | Ajv-powered validation for A2AMessage and A2ATask.                  |
+
+---
+
+## Architecture
+
+```
+Client (HTTP POST /)
+       │  JSON-RPC 2.0 request
+       ▼
+ A2ARequestHandler
+       │
+       ▼
+ TaskOrchestrator ── in-memory task store
+       │
+       └── Task lifecycle:
+           submitted ──► working ──► completed
+                                 └─► failed
+                                 └─► input-required ──► working
+           submitted ──► canceled
+```
+
+Agent capabilities are advertised at `GET /.well-known/agent-card.json`, auto-served by `createA2AServer` from the `agentCard` provided at construction time.
 
 ---
 
@@ -74,10 +102,41 @@ submitted → canceled
 
 ---
 
+## API
+
+**Endpoint**: `POST /` (JSON-RPC 2.0)
+
+| Method              | Params                                    | Returns   |
+| ------------------- | ----------------------------------------- | --------- |
+| `tasks/send`        | `{ message?, requester?, ... }`           | `A2ATask` |
+| `tasks/get`         | `{ taskId: string }`                      | `A2ATask` |
+| `tasks/cancel`      | `{ taskId: string }`                      | `A2ATask` |
+| `tasks/addMessage`  | `{ taskId: string, message: A2AMessage }` | `A2ATask` |
+
+See [`docs/protocols/a2a.md`](../../docs/protocols/a2a.md) for full message format, `A2AMessage` / `A2ATask` schema references, and agent card specification.
+
+---
+
 ## Agent Card
 
 `/.well-known/agent-card.json` is served automatically at startup. See
 [`.well-known/agent-card.json`](.well-known/agent-card.json) for the infrastructure server's own card.
+
+---
+
+## Running locally
+
+```bash
+# From the infrastructure/a2a package directory
+pnpm install
+pnpm run build
+
+# Start backing services
+docker compose up -d
+
+# Run conformance + server tests
+pnpm run test
+```
 
 ---
 
