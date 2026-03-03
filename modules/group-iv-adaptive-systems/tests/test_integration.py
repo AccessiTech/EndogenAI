@@ -231,11 +231,10 @@ async def test_escalation_triggers_evaluate_and_correction() -> None:
         f"Expected send_task('evaluate_output', ...) but got send_task({task_name!r}, ...)"
     )
 
-    # Payload contains the expected fields
+    # Payload contains the expected fields (flat — no task_result wrapper)
     task_payload = mock_metacognition_client.send_task.call_args[0][1]
-    task_result = task_payload.get("task_result", {})
-    assert task_result.get("goal_id") == "goal-escalation-test-001"
-    assert task_result.get("escalate") is True
+    assert task_payload.get("goal_id") == "goal-escalation-test-001"
+    assert task_payload.get("escalate") is True
 
     # --- Exercise MetacognitionEvaluator directly ---
     metrics = make_metrics_bundle()

@@ -96,17 +96,16 @@ class FeedbackHandler:
             )
             # Tier 2: forward to metacognition observer if wired (Strategy C)
             if self._metacognition is not None:
+                # Flat payload — fields must match EvaluateOutputPayload (no task_result wrapper)
                 evaluate_payload = {
-                    "task_result": {
-                        "goal_id": goal_id,
-                        "action_id": feedback.action_id,
-                        "success": feedback.success,
-                        "escalate": feedback.escalate,
-                        "deviation_score": feedback.deviation_score,
-                        "reward_value": float(feedback.reward_signal.get("value", 0.0)),
-                        "channel": str(feedback.channel) if feedback.channel else None,
-                        "error": feedback.error,
-                    }
+                    "goal_id": goal_id,
+                    "action_id": feedback.action_id,
+                    "success": feedback.success,
+                    "escalate": feedback.escalate,
+                    "deviation_score": feedback.deviation_score,
+                    "reward_value": float(feedback.reward_signal.get("value", 0.0)),
+                    "channel": str(feedback.channel) if feedback.channel else None,
+                    "error": feedback.error,
                 }
                 try:
                     await self._metacognition.send_task("evaluate_output", evaluate_payload)
