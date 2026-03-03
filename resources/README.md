@@ -53,11 +53,34 @@ Neuroanatomical region stubs — one file per primary module-mapped brain region
 
 These files are enriched from `raw_data_dumps/Human_Brain__wiki.md` as part of Phase 0 seed knowledge population.
 
-## URI Registry
+## URI Registry _(Phase 8.5)_
 
-All resources are registered in `uri-registry.json` (created in Phase 7). Resource URIs follow the pattern:
+All MCP-accessible resources are registered in `resources/uri-registry.json` (created in Phase 8.5, validated
+against `shared/schemas/uri-registry.schema.json`). The registry uses two URI namespaces:
 
+**Static resources** (this directory):
 ```
 brain://resources/static/knowledge/<id>
 brain://resources/neuroanatomy/<id>
 ```
+
+**Module resources** (per cognitive module, `brain://group-*` scheme):
+```
+brain://group-i/perception/signal/current
+brain://group-i/attention/filter/current
+brain://group-ii/working-memory/context/current
+brain://group-ii/episodic-memory/episode/{id}
+brain://group-ii/reasoning/plan/current
+brain://group-iii/executive-agent/status
+brain://group-iii/motor-output/queue
+brain://group-iv/reward/signal/recent
+brain://group-iv/adaptive/weights/current
+brain://group-iv/metacognition/confidence/current
+```
+
+Per-layer resource definitions are split across `group-i-resources.json` through `group-iv-resources.json` and
+merged into `uri-registry.json`. Access-control taxonomy (read:public, read:authenticated, subscribe:authenticated,
+write:admin) is documented in `access-control.md` (both created in Phase 8.5).
+
+See `resources/README.md` Phase 8.5 deliverables and
+[`docs/Workplan.md §8.5`](../docs/Workplan.md#85-mcp-resource-registry-resources) for implementation detail.

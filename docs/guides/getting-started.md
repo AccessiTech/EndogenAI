@@ -72,6 +72,23 @@ This brings up the following services:
 | **Prometheus**     | 9090       | Metrics storage and querying              |
 | **Grafana**        | 3000       | Dashboards (default login: admin / admin) |
 
+**Phase 8 services** (added once Phase 8 gateway is implemented):
+
+| Service | Port | Purpose |
+| --- | --- | --- |
+| **Hono gateway** | 3001 | BFF API gateway (`apps/default/server/`); start with `pnpm dev` from that directory |
+| **Vite client** | 5173 | Browser SPA dev server (`apps/default/client/`); start with `pnpm dev` |
+
+Optional profiles:
+
+```bash
+# Start Keycloak (reference OIDC provider — replaces JWT stub)
+docker compose --profile keycloak up -d keycloak
+
+# Start Grafana Tempo (distributed trace waterfall)
+docker compose --profile observability-full up -d
+```
+
 ### 5. Verify Services
 
 ```bash

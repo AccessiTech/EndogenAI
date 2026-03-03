@@ -39,9 +39,10 @@ Canonical contracts for all backbone messages. Every module MUST validate inboun
 
 | File                                                         | Description                                                |
 | ------------------------------------------------------------ | ---------------------------------------------------------- |
-| [`mcp-context.schema.json`](schemas/mcp-context.schema.json) | MCP context envelope — all inter-module messages           |
+| [`mcp-context.schema.json`](schemas/mcp-context.schema.json) | MCP context envelope — all inter-module messages; includes optional `traceparent` field (W3C TraceContext, added Phase 8 Gate 0) |
 | [`a2a-message.schema.json`](schemas/a2a-message.schema.json) | A2A message parts (text, data, file, function call/result) |
 | [`a2a-task.schema.json`](schemas/a2a-task.schema.json)       | A2A task lifecycle, artifacts, state machine, and errors   |
+| `uri-registry.schema.json` _(⬜ Phase 8 Gate 0)_             | Registry format for all `brain://` MCP resource URIs; required before `resources/uri-registry.json` is authored |
 
 ## Types (`shared/types/`)
 
