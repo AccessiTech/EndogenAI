@@ -26,7 +26,9 @@
         "uniq": true,
         "git fetch": true,
         "git rebase": true,
-        "git reset": true
+        "git reset": true,
+        "git restore": true,
+        "read": true
     },
     "python.analysis.extraPaths": [
         "shared/a2a/python/src",
