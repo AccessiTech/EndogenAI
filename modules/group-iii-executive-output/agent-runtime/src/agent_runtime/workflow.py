@@ -76,6 +76,9 @@ class IntentionWorkflow:
                     result = await self._execute_step(revised_step, goal_id)
                     results.append(result)
                     await self._maybe_emit_partial_feedback(goal_id, result)
+                # Propagate abort that arrived during the revision inner loop
+                if self._abort_requested:
+                    return {"status": "aborted", "goal_id": goal_id, "results": results}
                 break
 
             result = await self._execute_step(step, goal_id)
