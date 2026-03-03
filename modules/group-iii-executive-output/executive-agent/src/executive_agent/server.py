@@ -14,6 +14,7 @@ Environment variables:
   WORKING_MEMORY_A2A_URL working-memory A2A URL (default: http://localhost:8201)
   A2A_PORT               A2A server port (default: 8161)
   MCP_PORT               MCP SSE port (default: 8261)
+  METACOGNITION_URL      metacognition A2A URL (default: None — disabled)
 """
 from __future__ import annotations
 
@@ -31,6 +32,7 @@ import structlog
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from executive_agent.a2a_handler import handle_task
 from executive_agent.deliberation import DeliberationLoop
@@ -119,6 +121,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     opa_url = os.getenv("OPA_URL", "http://localhost:8181")
     runtime_url = os.getenv("AGENT_RUNTIME_A2A_URL", "http://localhost:8162")
     affective_url = os.getenv("AFFECTIVE_A2A_URL", "http://localhost:8205")
+    metacognition_url = os.getenv("METACOGNITION_URL", None)
 
     # ---- Vector store adapter ----
     from endogenai_vector_store import ChromaAdapter
@@ -140,9 +143,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _identity = IdentityManager(config=identity_config, store=store)
     _goal_stack = GoalStack(max_active_goals=identity_config.max_active_goals)
     _policy = PolicyEngine(base_url=opa_url)
+    metacognition_client = None
+    if metacognition_url:
+        metacognition_client = A2AClient(url=metacognition_url)
+
     _feedback_handler = FeedbackHandler(
         goal_stack=_goal_stack,
         affective_client=affective_client,
+        metacognition_client=metacognition_client,
     )
 
     # ---- MCP tools ----
@@ -167,6 +175,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         chromadb_url=chromadb_url,
         runtime_url=runtime_url,
     )
+    FastAPIInstrumentor().instrument_app(app)
     yield
 
     # Shutdown

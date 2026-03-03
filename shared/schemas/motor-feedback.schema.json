@@ -67,24 +67,7 @@
       "description": "Number of tier-1 retries attempted before this feedback was emitted."
     },
     "reward_signal": {
-      "type": "object",
-      "description": "RewardSignal-compatible dict. Required fields: value (float), source (string). Wired to executive-agent actor-critic update.",
-      "required": ["value", "source"],
-      "additionalProperties": true,
-      "properties": {
-        "value": {
-          "type": "number",
-          "description": "Scalar reward value. Positive = success; negative = failure. Typical: 1.0 success, -0.5 escalation."
-        },
-        "source": {
-          "type": "string",
-          "description": "Module that generated this reward signal, e.g. 'motor-output'."
-        },
-        "task_id": {
-          "type": "string",
-          "description": "Task or action identifier this reward is attributed to."
-        }
-      }
+      "$ref": "https://endogenai.accessitech.com/shared/types/reward-signal.schema.json"
     },
     "dispatched_at": {
       "type": "string",

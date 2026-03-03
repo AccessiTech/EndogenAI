@@ -23,6 +23,7 @@ import structlog
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from motor_output.a2a_handler import handle_task
 from motor_output.dispatcher import Dispatcher
@@ -93,6 +94,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _mcp_tools = MCPTools(dispatcher=_dispatcher)
 
     logger.info("motor_output.started", executive_agent_url=executive_agent_url)
+    FastAPIInstrumentor().instrument_app(app)
     yield
     logger.info("motor_output.stopped")
 

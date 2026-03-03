@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/learning-adaptation-episode.schema.json",
+  "title": "LearningAdaptationEpisode",
+  "description": "A single episode record for the Learning & Adaptation Layer's ChromaDB ReplayBuffer. Encodes a state-action-reward-next_state tuple from one BDI planning cycle. Decision 2 resolved: Option A — goal-priority adaptation (BrainEnv Box action space). Neuroanatomical analogue: hippocampal episodic memory replay driving basal ganglia dopamine-modulated policy update.",
+  "type": "object",
+  "required": [
+    "episode_id",
+    "timestamp",
+    "episode_boundary",
+    "observation",
+    "action",
+    "reward",
+    "next_observation",
+    "done",
+    "task_type"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "episode_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique episode identifier (UUID v4)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this episode was recorded."
+    },
+    "episode_boundary": {
+      "type": "string",
+      "enum": ["bdi_cycle"],
+      "description": "What constitutes one episode. 'bdi_cycle' = one BDI planning cycle (goal commit → COMPLETED/FAILED). Decision 2 Option A."
+    },
+    "observation": {
+      "type": "object",
+      "description": "Observation vector at the start of this episode.",
+      "required": ["success_rate", "mean_deviation", "escalation_rate"],
+      "additionalProperties": true,
+      "properties": {
+        "success_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Rolling success rate over the observation window."
+        },
+        "mean_deviation": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Rolling mean deviation_score from MotorFeedback."
+        },
+        "escalation_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Fraction of recent episodes that triggered escalation."
+        },
+        "task_type_onehot": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "description": "One-hot encoding of the goal class / task type. Length K = number of goal classes."
+        },
+        "channel_success_rate": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "minItems": 5,
+          "maxItems": 5,
+          "description": "Per-channel success rates [http, a2a, file, render, control-signal]."
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "description": "Action taken by the RL policy — signed goal-priority-weight deltas per goal class.",
+      "required": ["goal_priority_deltas"],
+      "additionalProperties": false,
+      "properties": {
+        "goal_priority_deltas": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": -0.2,
+            "maximum": 0.2
+          },
+          "description": "Signed delta applied to ExecutiveGoal.priority_weight per goal class. Clipped to [-0.2, +0.2]. Length K matches task_type_onehot. Decision 2 Option A."
+        }
+      }
+    },
+    "reward": {
+      "type": "number",
+      "description": "Scalar reward for this episode. Derived from MotorFeedback.reward_signal.value. Positive = better than expected; negative = worse."
+    },
+    "next_observation": {
+      "type": "object",
+      "description": "Observation vector at the start of the next episode (s').",
+      "required": ["success_rate", "mean_deviation", "escalation_rate"],
+      "additionalProperties": true,
+      "properties": {
+        "success_rate": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "mean_deviation": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "escalation_rate": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "done": {
+      "type": "boolean",
+      "description": "True if this episode ended the current training run (e.g. max_steps reached)."
+    },
+    "task_type": {
+      "type": "string",
+      "description": "Goal class / task type label. Used as ChromaDB metadata for per-class habit detection."
+    },
+    "priority": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Sampling priority = |reward|. Higher priority → more likely to be sampled in replay. Used for rolling eviction (lowest priority evicted first)."
+    },
+    "goal_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional. ExecutiveGoal.id this episode corresponds to."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional. Session scope for batch grouping."
+    }
+  }
+}

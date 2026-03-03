@@ -1,0 +1,17 @@
+{
+  "confidence_threshold": 0.7,
+  "deviation_error_threshold": 0.75,
+  "rolling_window_size": 20,
+  "alert_window_minutes": 5,
+  "otlp_endpoint": "http://localhost:4317",
+  "prometheus_port": 9464,
+  "metrics_export": {
+    "otlp_enabled": true,
+    "prometheus_enabled": true
+  },
+  "escalation_enabled": true,
+  "executive_agent_url": "http://localhost:8161",
+  "chromadb_url": "http://localhost:8000",
+  "service_name": "metacognition",
+  "service_namespace": "brain"
+}

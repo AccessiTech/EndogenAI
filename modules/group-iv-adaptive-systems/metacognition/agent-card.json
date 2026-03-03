@@ -1,0 +1,23 @@
+{
+  "name": "metacognition",
+  "version": "0.1.0",
+  "description": "Metacognition & Monitoring Layer — ACC-analogue error detection and PFC-BA10 confidence estimation. Monitors Phase 6 outputs (executive-agent + motor-output) via OTel and A2A observer hook.",
+  "url": "http://localhost:8171",
+  "capabilities": {
+    "a2a": true,
+    "mcp": true,
+    "streaming": false
+  },
+  "a2a": {
+    "endpoint": "http://localhost:8171/tasks",
+    "tasks": {
+      "inbound": ["evaluate_output"],
+      "outbound": ["request_correction"]
+    }
+  },
+  "mcp": {
+    "endpoint": "http://localhost:8171/mcp",
+    "resources": ["confidence/current", "anomalies/recent", "report/session"]
+  },
+  "neuroanatomicalAnalogue": "Anterior cingulate cortex (error detection) + Prefrontal cortex BA10 (confidence estimation) + Nelson & Narens meta-level"
+}

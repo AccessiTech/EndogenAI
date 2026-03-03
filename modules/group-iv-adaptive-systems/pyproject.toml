@@ -1,0 +1,32 @@
+[project]
+name = "endogenai-group-iv-integration"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "anyio>=4.4",
+    "pytest-mock>=3.14",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "metacognition",
+    "learning-adaptation",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "integration: marks tests requiring live services",
+]
+
+[tool.uv.sources]
+metacognition = { path = "metacognition", editable = true }
+learning-adaptation = { path = "learning-adaptation", editable = true }
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = []

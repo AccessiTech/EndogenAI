@@ -1,0 +1,38 @@
+groups:
+  - name: metacognition
+    rules:
+      - alert: TaskConfidenceLow
+        expr: brain_metacognition_task_confidence < 0.7
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Task confidence below threshold"
+          description: "task_confidence={{ $value }} has been below 0.7 for 5 minutes"
+
+      - alert: DeviationAnomalyHigh
+        expr: brain_metacognition_deviation_zscore > 2.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Deviation z-score anomaly detected"
+          description: "deviation_zscore={{ $value }}"
+
+      - alert: EscalationRateElevated
+        expr: rate(brain_metacognition_escalation_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Escalation rate elevated"
+          description: "Escalation rate={{ $value }} events/s over last 5m"
+
+      - alert: PolicyDenialRateHigh
+        expr: brain_metacognition_policy_denial_rate > 0.3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Policy denial rate high"
+          description: "policy_denial_rate={{ $value }}"

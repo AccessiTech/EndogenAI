@@ -10,6 +10,7 @@ become available.
 """
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime
 from typing import Any
 
@@ -98,7 +99,15 @@ class FeedbackEmitter:
             deviation_score=deviation_score,
             success=success,
             escalate=escalate,
-            reward_signal={"value": 1.0 if success else 0.0, "source": "motor_output"},
+            reward_signal={
+                "id": str(uuid.uuid4()),
+                "timestamp": datetime.now(UTC).isoformat(),
+                "sourceModule": "motor-output",
+                "value": 1.0 if success else -0.5 if escalate else 0.0,
+                "type": "reward" if success else "penalty" if escalate else "neutral",
+                "trigger": "task-success" if success else "task-failure",
+                "associatedTaskId": action_spec.action_id,
+            },
             dispatched_at=dispatched_at,
             completed_at=completed_at,
             retry_count=retry_count,
