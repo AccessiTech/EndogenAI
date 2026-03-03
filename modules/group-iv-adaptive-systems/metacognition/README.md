@@ -22,7 +22,11 @@ Neuroscience analogues:
 
 ---
 
-## A2A Interface
+## Interface
+
+This module exposes both an **A2A** (task delegation) interface and an **MCP** (context resource) interface.
+
+### A2A Interface
 
 | Direction | Task | Payload |
 |-----------|------|---------|
@@ -63,7 +67,7 @@ JSON-RPC 2.0 envelope:
 
 ---
 
-## MCP Resources
+### MCP Resources
 
 | URI | Type | Description |
 |-----|------|-------------|
@@ -72,6 +76,14 @@ JSON-RPC 2.0 envelope:
 | `resource://brain.metacognition/report/session` | `MetacognitiveSessionReport` | Session-level aggregate report |
 
 **MCP endpoint:** `http://localhost:8171/mcp`
+
+**Tools:**
+
+| Tool | Input | Output |
+|------|-------|--------|
+| `evaluate` | `{goal_id, action_id, success, escalate, deviation_score, reward_value, task_type?}` | `MetacognitiveEvaluation` |
+| `configure-threshold` | `{confidence_threshold: float [0,1]}` | Updated threshold confirmation |
+| `report` | `{}` | `MetacognitiveSessionReport` |
 
 ---
 
@@ -122,6 +134,11 @@ Defined in `observability/prometheus-rules/metacognition.yml` (copied to top-lev
 | `prometheus_port` | `9464` | Prometheus scrape port |
 | `escalation_enabled` | `true` | Whether to send `request_correction` A2A tasks |
 | `executive_agent_url` | `http://localhost:8161` | Target for `request_correction` |
+| `chromadb_url` | `http://localhost:8000` | ChromaDB endpoint for evaluation event storage |
+| `service_name` | `"metacognition"` | OTel resource attribute `service.name` |
+| `service_namespace` | `"brain"` | OTel resource attribute `service.namespace` |
+| `metrics_export.otlp_enabled` | `true` | Enable OTLP gRPC metric export |
+| `metrics_export.prometheus_enabled` | `true` | Enable Prometheus scrape endpoint |
 
 Environment variable overrides: `EXECUTIVE_AGENT_URL`, `CHROMADB_URL`, `OTLP_ENDPOINT`, `PROMETHEUS_PORT`, `METACOGNITION_PORT`.
 

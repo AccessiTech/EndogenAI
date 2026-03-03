@@ -26,7 +26,11 @@ The Learning & Adaptation Layer implements reinforcement learning–driven goal-
 
 ---
 
-## A2A Interface
+## Interface
+
+This module exposes both an **A2A** (task delegation) interface and an **MCP** (context resource) interface.
+
+### A2A Interface
 
 **Endpoint:** `POST http://localhost:8170/tasks` (JSON-RPC 2.0)
 
@@ -46,7 +50,7 @@ The Learning & Adaptation Layer implements reinforcement learning–driven goal-
 
 ---
 
-## MCP Interface
+### MCP Interface
 
 **Resources:**
 
@@ -83,7 +87,7 @@ The Learning & Adaptation Layer implements reinforcement learning–driven goal-
 
 ---
 
-## Configuration (`learning.config.json`)
+## Configuration
 
 | Key | Default | Description |
 |-----|---------|-------------|
@@ -97,6 +101,10 @@ The Learning & Adaptation Layer implements reinforcement learning–driven goal-
 | `shadow_promotion_threshold` | `0.8` | Mean reward threshold for shadow promotion |
 | `async_replay_interval_seconds` | `30` | Background replay training loop interval |
 | `goal_classes` | `["default","query","action","planning"]` | K goal classes for onehot encoding |
+| `observation_window_size` | `20` | Rolling window size for observation state aggregation |
+| `chromadb_url` | `"http://localhost:8000"` | ChromaDB endpoint for replay buffer |
+| `metacognition_url` | `"http://localhost:8171"` | metacognition A2A endpoint for failure notifications |
+| `executive_agent_url` | `"http://localhost:8161"` | executive-agent A2A endpoint for habit promotion |
 
 ---
 

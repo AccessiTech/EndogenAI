@@ -127,7 +127,7 @@ def _scan_dir(
     if not base.exists():
         return
     for child in sorted(base.iterdir()):
-        if not child.is_dir() or child.name in SKIP_DIRS or child.name.startswith("."):
+        if not child.is_dir() or child.name in SKIP_DIRS or child.name.startswith(".") or child.name.endswith(".egg-info"):
             continue
         if depth > 1:
             # Recurse one more level (e.g. modules/<group>/<module>)

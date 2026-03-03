@@ -830,7 +830,7 @@ documentation complete and cross-linked.
 | **M4 — Signal Boundary Live**     | 4        | 🔄 In Progress | MCP + A2A wiring incomplete across all three Group I modules; text input does not yet fully reach `brain.perception` |
 | **M5 — Memory Stack Live**        | 5        | ⬜ Not Started | Seed pipeline populates `brain.long-term-memory`; working memory assembles context window; reasoning layer produces traceable inference records in `brain.reasoning` |
 | **M6 — End-to-End Decision Loop** | 6        | ✅ Complete | Goal → Reason → Act pipeline produces verifiable output                              |
-| **M7 — Adaptive Systems Active**  | 7        | ⬜ Not Started | Error detection escalates to executive; reinforcement signals registered              |
+| **M7 — Adaptive Systems Active**  | 7        | ✅ Complete | Error detection escalates to executive; reinforcement signals registered in replay buffer; stable behaviours promoted to habit checkpoints |
 | **M8 — User-Facing**              | 8        | ⬜ Not Started | Browser shell accessible at `localhost`; Chat tab streams responses end-to-end; Internals panel shows live agent state; OAuth 2.1 auth stub operational; traces visible in Grafana |
 | **M9 — Production-Ready**         | 9        | ⬜ Not Started | Kubernetes deploy succeeds; all documentation complete                               |
 
