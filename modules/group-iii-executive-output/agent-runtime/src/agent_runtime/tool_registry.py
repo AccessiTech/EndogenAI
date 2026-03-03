@@ -93,7 +93,7 @@ class ToolRegistry:
                     name=skill_data.get("name", ""),
                     description=skill_data.get("description", ""),
                     agent_url=card.get("endpoints", {}).get("a2a", base_url),
-                    capabilities=card.get("capabilities", []),
+                    capabilities=skill_data.get("capabilities", []),
                     healthy=True,
                 )
                 self._skills[entry.skill_id] = entry
