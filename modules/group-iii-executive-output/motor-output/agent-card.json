@@ -1,0 +1,41 @@
+{
+  "name": "motor-output",
+  "version": "0.1.0",
+  "description": "Channel-based motor output and action dispatch — Primary Motor Cortex / SMA analogue. Receives ActionSpec from agent-runtime, selects dispatch channel, executes with error policy, and emits MotorFeedback corollary discharge to executive-agent.",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8163",
+    "mcp": "http://localhost:8263"
+  },
+  "skills": [
+    {
+      "id": "motor_output.dispatch_action",
+      "name": "Dispatch Action",
+      "description": "Execute an ActionSpec through the appropriate output channel (HTTP, A2A, file, render)",
+      "capabilities": ["action-dispatch", "http", "a2a", "file", "render"]
+    },
+    {
+      "id": "motor_output.get_dispatch_status",
+      "name": "Get Dispatch Status",
+      "description": "Query the status of a dispatched action by action_id",
+      "capabilities": ["action-status"]
+    },
+    {
+      "id": "motor_output.list_channels",
+      "name": "List Channels",
+      "description": "List available output channels and their health status",
+      "capabilities": ["channel-management"]
+    },
+    {
+      "id": "motor_output.abort_dispatch",
+      "name": "Abort Dispatch",
+      "description": "Abort a pending or in-flight dispatch",
+      "capabilities": ["action-abort"]
+    }
+  ],
+  "maps-to-modules": [
+    "motor-cortex",
+    "supplementary-motor-area"
+  ],
+  "neuroanatomical-basis": "Primary Motor Cortex (M1) population code for parallel channel dispatch; Supplementary Motor Area (SMA/pre-SMA) pre-action corollary discharge signal; spinal cord efferent channels (HTTP, A2A, file, render)"
+}
