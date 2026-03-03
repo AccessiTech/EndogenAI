@@ -1,0 +1,43 @@
+{
+  "name": "executive-agent",
+  "description": "Executive / Agent layer — BDI deliberation loop with DLPFC-modelled goal stack, OFC value scoring, ACC policy-violation detection, and Basal Ganglia commit/suppress/abort pathways. Manages agent identity, persistent goals, and OPA policy enforcement.",
+  "version": "0.1.0",
+  "capabilities": ["mcp-context", "a2a-task"],
+  "endpoints": {
+    "a2a": "http://localhost:8161",
+    "mcp": "http://localhost:8261"
+  },
+  "wellKnown": "/.well-known/agent-card.json",
+  "schema": "shared/schemas/executive-goal.schema.json",
+  "neuroanatomy": [
+    "resources/neuroanatomy/prefrontal-cortex.md",
+    "resources/neuroanatomy/basal-ganglia.md",
+    "resources/neuroanatomy/frontal-lobe.md"
+  ],
+  "skills": [
+    {
+      "id": "executive_agent.push_goal",
+      "description": "Add a goal to the BDI goal stack with priority and optional constraints"
+    },
+    {
+      "id": "executive_agent.get_goal_stack",
+      "description": "Return the ranked active goal stack"
+    },
+    {
+      "id": "executive_agent.evaluate_policy",
+      "description": "Run OPA policy evaluation; return allow + violations"
+    },
+    {
+      "id": "executive_agent.update_identity",
+      "description": "Append an identity delta to the self-model (append-only)"
+    },
+    {
+      "id": "executive_agent.abort_goal",
+      "description": "Transition a goal to DEFERRED/FAILED and cancel the running Workflow"
+    },
+    {
+      "id": "executive_agent.get_drive_state",
+      "description": "Return current drive variable state from the affective module"
+    }
+  ]
+}
