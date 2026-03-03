@@ -1,0 +1,23 @@
+{
+  "name": "learning-adaptation",
+  "version": "0.1.0",
+  "description": "Learning & Adaptation Layer — PPO policy training, ChromaDB episodic replay, and habit promotion. Adjusts ExecutiveGoal priority weights via RL.",
+  "url": "http://localhost:8170",
+  "capabilities": {
+    "a2a": true,
+    "mcp": true,
+    "streaming": false
+  },
+  "a2a": {
+    "endpoint": "http://localhost:8170/tasks",
+    "tasks": {
+      "inbound": ["adapt_policy", "replay_episode"],
+      "outbound": ["habit_promoted", "adaptation_failed"]
+    }
+  },
+  "mcp": {
+    "endpoint": "http://localhost:8170/mcp",
+    "resources": ["policy/current", "replay-buffer/stats", "habits/catalog"]
+  },
+  "neuroanatomicalAnalogue": "Basal ganglia (actor-critic) + Cerebellum (supervised correction) + Hippocampus (episodic replay)"
+}
