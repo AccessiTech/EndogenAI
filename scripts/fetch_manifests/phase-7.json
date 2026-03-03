@@ -1,0 +1,77 @@
+[
+  {
+    "url": "https://en.wikipedia.org/wiki/Reinforcement_learning",
+    "out": "docs/research/sources/phase-7/bio-reinforcement-learning.md",
+    "note": "bio: RL overview, MDP formulation, TD learning, actor-critic, dopaminergic BG analogy, PPO/SAC/DQN"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Temporal_difference_learning",
+    "out": "docs/research/sources/phase-7/bio-temporal-difference-learning.md",
+    "note": "bio: TD learning mathematics, neuroscience analogy — dopamine neurons (VTA/SNc) as TD error signal, Schultz 1997 experiments"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Synaptic_plasticity",
+    "out": "docs/research/sources/phase-7/bio-synaptic-plasticity.md",
+    "note": "bio: Hebbian learning, LTP/LTD biochemical mechanisms, STDP, homeostatic plasticity, computational use"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Basal_ganglia",
+    "out": "docs/research/sources/phase-7/bio-basal-ganglia.md",
+    "note": "bio: direct/indirect/hyperdirect pathways, dopamine RPE, actor-critic analogy, striatum, nucleus accumbens, SNc"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Cerebellum",
+    "out": "docs/research/sources/phase-7/bio-cerebellum.md",
+    "note": "bio: Marr-Albus model, cerebellar LTD, Purkinje cells, climbing fibre error signal, skill consolidation — Phase 7 forward reference"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Anterior_cingulate_cortex",
+    "out": "docs/research/sources/phase-7/bio-anterior-cingulate-cortex.md",
+    "note": "bio: ACC error detection, conflict monitoring, reward-based learning theory, ERN, dorsal vs rostral ACC"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Metacognition",
+    "out": "docs/research/sources/phase-7/bio-metacognition.md",
+    "note": "bio: Flavell (1976), Nelson & Narens monitoring/control model, PFC metacognitive substrate, confidence estimation, anterior PFC vs posterior parietal"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Prefrontal_cortex",
+    "out": "docs/research/sources/phase-7/bio-prefrontal-cortex.md",
+    "note": "bio: PFC monitoring/control, confidence tracking, goal-directed behaviour, Miller & Cohen integrative theory"
+  },
+  {
+    "url": "https://stable-baselines3.readthedocs.io/en/master/",
+    "out": "docs/research/sources/phase-7/tech-stable-baselines3.md",
+    "note": "tech: SB3 reliable RL implementations in PyTorch — PPO, SAC, A2C, DQN, HER, TD3, DDPG; vectorised envs, callbacks, TensorBoard"
+  },
+  {
+    "url": "https://docs.ray.io/en/latest/rllib/index.html",
+    "out": "docs/research/sources/phase-7/tech-rllib.md",
+    "note": "tech: RLlib industry-grade scalable RL — multi-agent, distributed, offline RL, EnvRunner actors, PPOConfig API"
+  },
+  {
+    "url": "https://opentelemetry.io/docs/languages/python/",
+    "out": "docs/research/sources/phase-7/tech-opentelemetry-python.md",
+    "note": "tech: OpenTelemetry Python SDK — traces, metrics, logs; exporters (OTLP, Prometheus); instrumentation libraries; Python 3.9+"
+  },
+  {
+    "url": "https://prometheus.io/docs/introduction/overview/",
+    "out": "docs/research/sources/phase-7/tech-prometheus.md",
+    "note": "tech: Prometheus time-series metrics, PromQL, pull model, alertmanager, multi-dimensional data model"
+  },
+  {
+    "url": "https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/fastapi/fastapi.html",
+    "out": "docs/research/sources/phase-7/tech-otel-fastapi-instrumentation.md",
+    "note": "tech: OTel FastAPI auto-instrumentation — FastAPIInstrumentor.instrument_app(), request/response hooks, span enrichment — key for non-invasive Phase 6 observability"
+  },
+  {
+    "url": "https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/",
+    "out": "docs/research/sources/phase-7/tech-otel-genai-agent-spans.md",
+    "note": "tech: OTel semantic conventions for GenAI agent spans — span names, attributes, agent lifecycle events — informs Phase 7 metacognition metric naming"
+  },
+  {
+    "url": "https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/",
+    "out": "docs/research/sources/phase-7/tech-otel-genai-metrics.md",
+    "note": "tech: OTel semantic conventions for GenAI metrics — token.usage, operation latency, error rate — informs metacognition Prometheus gauge naming"
+  }
+]
