@@ -106,6 +106,7 @@ class PolicyTrainer:
         shadow_promoted = False
         policy_updated = False
         mean_reward = 0.0
+        timesteps_executed = 0
 
         try:
             # Build callback
@@ -123,6 +124,8 @@ class PolicyTrainer:
                 reset_num_timesteps=False,
             )
 
+            # Only account for timesteps once training succeeds
+            timesteps_executed = timesteps
             if self._shadow_policy is not None:
                 self._total_timesteps_shadow += timesteps
             else:
@@ -152,7 +155,7 @@ class PolicyTrainer:
             logger.exception("trainer.train_step.error")
 
         return TrainingResult(
-            total_timesteps=timesteps,
+            total_timesteps=timesteps_executed,
             mean_reward=mean_reward,
             episodes=len(episodes),
             policy_updated=policy_updated,
