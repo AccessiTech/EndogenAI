@@ -9,6 +9,7 @@ errors, computed from labelled skill outcome data in the replay buffer.
 
 from __future__ import annotations
 
+import concurrent.futures
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -44,6 +45,8 @@ class SkillFeedbackCallback(BaseCallback):
         self._replay_buffer = replay_buffer
         self._correction_count = 0
         self._last_correction_loss: float = 0.0
+        # Reuse a single executor across rollouts to avoid per-rollout thread creation
+        self._executor: concurrent.futures.ThreadPoolExecutor | None = None
 
     def _on_step(self) -> bool:
         """Called at every step. Return True to continue training."""
@@ -59,12 +62,11 @@ class SkillFeedbackCallback(BaseCallback):
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
-                # Schedule as a coroutine — fire-and-forget in async context
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor() as pool:
-                    future = pool.submit(asyncio.run, self._compute_correction())
-                    future.result(timeout=5.0)
+                # Reuse the long-lived executor — avoids per-rollout thread creation/teardown
+                if self._executor is None:
+                    self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+                future = self._executor.submit(asyncio.run, self._compute_correction())
+                future.result(timeout=5.0)
             else:
                 loop.run_until_complete(self._compute_correction())
         except Exception:
