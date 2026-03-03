@@ -1,6 +1,5 @@
 {
   "confidence_threshold": 0.7,
-  "anomaly_zscore_threshold": 2.5,
   "deviation_error_threshold": 0.75,
   "rolling_window_size": 20,
   "alert_window_minutes": 5,

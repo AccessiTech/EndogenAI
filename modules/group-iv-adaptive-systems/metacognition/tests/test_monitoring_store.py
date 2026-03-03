@@ -3,7 +3,7 @@
 Tests:
   - Mock ChromaAdapter accepts append call
   - append() persists evaluation with correct metadata
-  - query_recent() returns list
+  - query_similar() returns list
 """
 
 from __future__ import annotations
@@ -131,8 +131,8 @@ async def test_append_uses_evaluation_id_as_document_id() -> None:
 
 
 @pytest.mark.asyncio
-async def test_query_recent_returns_list() -> None:
-    """query_recent() returns a list (even when empty)."""
+async def test_query_similar_returns_list() -> None:
+    """query_similar() returns a list (even when empty)."""
     with patch("metacognition.store.monitoring_store.ChromaAdapter") as MockAdapter:
         # Build mock query response using correct QueryResult/MemoryItem structure
         from endogenai_vector_store.models import MemoryItem, MemoryType
@@ -158,7 +158,7 @@ async def test_query_recent_returns_list() -> None:
         MockAdapter.return_value = instance
 
         store = MonitoringStore()
-        results = await store.query_recent("default", n=5)
+        results = await store.query_similar("default", n=5)
 
         assert isinstance(results, list)
         assert len(results) == 1
@@ -166,8 +166,8 @@ async def test_query_recent_returns_list() -> None:
 
 
 @pytest.mark.asyncio
-async def test_query_recent_empty_response_returns_empty_list() -> None:
-    """query_recent() returns [] when the adapter returns no results."""
+async def test_query_similar_empty_response_returns_empty_list() -> None:
+    """query_similar() returns [] when the adapter returns no results."""
     with patch("metacognition.store.monitoring_store.ChromaAdapter") as MockAdapter:
         mock_response = MagicMock()
         mock_response.results = []
@@ -177,5 +177,5 @@ async def test_query_recent_empty_response_returns_empty_list() -> None:
         MockAdapter.return_value = instance
 
         store = MonitoringStore()
-        results = await store.query_recent("default", n=5)
+        results = await store.query_similar("default", n=5)
         assert results == []

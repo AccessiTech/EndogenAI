@@ -126,7 +126,6 @@ Defined in `observability/prometheus-rules/metacognition.yml` (copied to top-lev
 | Key | Default | Description |
 |-----|---------|-------------|
 | `confidence_threshold` | `0.7` | Below this triggers alert window tracking |
-| `anomaly_zscore_threshold` | `2.5` | Z-score threshold for `DeviationAnomalyHigh` alert |
 | `deviation_error_threshold` | `0.75` | Z-score above this sets `error_detected=True` |
 | `rolling_window_size` | `20` | Number of events in rolling window per task_type |
 | `alert_window_minutes` | `5` | Minutes of sustained low confidence before `request_correction` |

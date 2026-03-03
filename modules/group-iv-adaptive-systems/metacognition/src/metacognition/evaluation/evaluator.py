@@ -39,7 +39,6 @@ class MonitoringConfig(BaseModel):
     """Runtime configuration for the metacognition module."""
 
     confidence_threshold: float = 0.7
-    anomaly_zscore_threshold: float = 2.5
     deviation_error_threshold: float = 0.75
     rolling_window_size: int = 20
     alert_window_minutes: int = 5

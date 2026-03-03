@@ -8,13 +8,14 @@ Usage::
     store = MonitoringStore(chromadb_url="http://localhost:8000")
     await store.initialise()
     await store.append(evaluation)
-    results = await store.query_recent("default", n=10)
+    results = await store.query_similar("default", n=10)
 """
 
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from endogenai_vector_store import ChromaAdapter, ChromaConfig, EmbeddingConfig
 from endogenai_vector_store.models import (
@@ -47,8 +48,9 @@ class MonitoringStore:
         chromadb_url: str = "http://localhost:8000",
         embedding_model: str = "nomic-embed-text",
     ) -> None:
-        host, _, port_str = chromadb_url.replace("http://", "").partition(":")
-        port = int(port_str) if port_str else 8000
+        parsed = urlparse(chromadb_url)
+        host = parsed.hostname or "localhost"
+        port = parsed.port or 8000
         self._adapter = ChromaAdapter(
             config=ChromaConfig(mode="http", host=host, port=port),
             embedding_config=EmbeddingConfig(provider="ollama", model=embedding_model),
@@ -112,13 +114,16 @@ class MonitoringStore:
         )
         logger.debug("Appended evaluation %s to %s", evaluation.evaluation_id, _COLLECTION)
 
-    async def query_recent(self, task_type: str, n: int = 10) -> list[dict[str, object]]:
-        """Return up to ``n`` recent evaluations for a given task_type.
+    async def query_similar(self, task_type: str, n: int = 10) -> list[dict[str, object]]:
+        """Return up to ``n`` evaluations most similar to the given task_type.
 
-        Uses semantic similarity ordered by score (highest first).
+        Performs a semantic similarity query — results are ordered by vector
+        similarity score (highest first), **not** by recency/timestamp.
+        Use this method to find evaluations with similar characteristics;
+        it is not guaranteed to return the most recent entries.
 
         Args:
-            task_type: The task_type filter string.
+            task_type: The task_type filter string used for the similarity query.
             n: Maximum number of results to return.
 
         Returns:
