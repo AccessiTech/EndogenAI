@@ -31,9 +31,11 @@ class FeedbackHandler:
         self,
         goal_stack: GoalStack,
         affective_client: Any | None = None,  # A2AClient to affective module
+        metacognition_client: Any | None = None,  # A2AClient to metacognition (METACOGNITION_URL)
     ) -> None:
         self._goal_stack = goal_stack
         self._affective = affective_client
+        self._metacognition = metacognition_client
 
     async def receive_feedback(self, feedback: MotorFeedback) -> dict[str, Any]:
         """Process a MotorFeedback payload from motor-output.
@@ -92,6 +94,25 @@ class FeedbackHandler:
                 action_id=feedback.action_id,
                 error=feedback.error,
             )
+            # Tier 2: forward to metacognition observer if wired (Strategy C)
+            if self._metacognition is not None:
+                evaluate_payload = {
+                    "task_result": {
+                        "goal_id": goal_id,
+                        "action_id": feedback.action_id,
+                        "success": feedback.success,
+                        "escalate": feedback.escalate,
+                        "deviation_score": feedback.deviation_score,
+                        "reward_value": float(feedback.reward_signal.get("value", 0.0)),
+                        "channel": str(feedback.channel) if feedback.channel else None,
+                        "error": feedback.error,
+                    }
+                }
+                try:
+                    await self._metacognition.send_task("evaluate_output", evaluate_payload)
+                    logger.debug("feedback.metacognition_notified", goal_id=goal_id)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("feedback.metacognition_forward_error", error=str(exc))
 
         return {
             "goal_id": goal_id,

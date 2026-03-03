@@ -36,7 +36,6 @@ from executive_agent.models import (
 
 # ── agent-runtime imports ─────────────────────────────────────────────────────
 from agent_runtime.activities import RuntimeActivities
-from agent_runtime.models import ActionSpec as RuntimeActionSpec
 
 # ── motor-output imports ──────────────────────────────────────────────────────
 from motor_output.dispatcher import Dispatcher

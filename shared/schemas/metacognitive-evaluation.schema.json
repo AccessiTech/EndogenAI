@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/metacognitive-evaluation.schema.json",
+  "title": "MetacognitiveEvaluation",
+  "description": "A single metacognitive evaluation event emitted by the Metacognition & Monitoring Layer. Encodes confidence, deviation z-score, and error flags from monitoring Phase 6 outputs (executive-agent + motor-output). Neuroanatomical analogue: ACC error detection + Prefrontal Cortex BA10 confidence estimation.",
+  "type": "object",
+  "required": [
+    "evaluation_id",
+    "timestamp",
+    "task_type",
+    "task_confidence",
+    "deviation_score",
+    "deviation_zscore",
+    "success_rate",
+    "reward_delta",
+    "error_detected"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "evaluation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this evaluation event (UUID v4)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this evaluation was computed."
+    },
+    "task_type": {
+      "type": "string",
+      "description": "Goal class / task type being evaluated. Matches ExecutiveGoal task type label."
+    },
+    "task_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence score for this task type: f(rolling_mean_reward_delta, success_rate). Higher = more confident. Threshold breach triggers request_correction A2A task."
+    },
+    "deviation_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Rolling mean deviation_score from MotorFeedback over the observation window."
+    },
+    "deviation_zscore": {
+      "type": "number",
+      "description": "Z-score of deviation_score relative to rolling mean and std: (deviation_score - mu) / sigma. High z-score indicates anomalous deviation."
+    },
+    "success_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Rolling success rate over the observation window for this task type."
+    },
+    "reward_delta": {
+      "type": "number",
+      "description": "Mean reward delta over the rolling window. Positive = improving; negative = degrading."
+    },
+    "escalation_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Fraction of recent episodes that triggered escalation (motor-output escalate=True)."
+    },
+    "retry_count_mean": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Mean retry_count over the observation window."
+    },
+    "policy_denial_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Fraction of BDI deliberation cycles where the OPA policy denied an action."
+    },
+    "error_detected": {
+      "type": "boolean",
+      "description": "True if deviation_zscore > deviation_error_threshold. Triggers alert and optional request_correction A2A task."
+    },
+    "correction_triggered": {
+      "type": "boolean",
+      "description": "True if a request_correction A2A task was sent to executive-agent in response to this evaluation."
+    },
+    "alert_window_elapsed": {
+      "type": "boolean",
+      "description": "True if task_confidence has been below confidence_threshold for at least alert_window_minutes."
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Optional. OTel trace ID from the monitored request span."
+    },
+    "source_feedback_ids": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "description": "Optional. action_ids from MotorFeedback records that contributed to this evaluation window."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional. Session scope for report generation."
+    }
+  }
+}

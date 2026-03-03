@@ -15,7 +15,8 @@ global:
 #         - targets: ["alertmanager:9093"]
 
 # Rule files (add alert rules here as modules mature)
-rule_files: []
+rule_files:
+  - "prometheus-rules/*.yml"
 
 scrape_configs:
   # Prometheus self-monitoring

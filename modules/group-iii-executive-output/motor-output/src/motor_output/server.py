@@ -23,6 +23,7 @@ import structlog
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from motor_output.a2a_handler import handle_task
 from motor_output.dispatcher import Dispatcher
@@ -98,6 +99,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(title="motor-output", lifespan=_lifespan)
+FastAPIInstrumentor().instrument_app(app)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────

@@ -1,0 +1,2 @@
+# observability/prometheus-rules/.gitkeep
+# Alert rules are added here by modules. First rule set: metacognition.yml (Phase 7 §7.2)
