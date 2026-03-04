@@ -16,6 +16,7 @@ dependencies = [
 dev = [
   "pytest>=8.2",
   "pytest-asyncio>=0.23",
+  "pytest-cov>=5.0",
   "anyio>=4.4",
   "ruff>=0.4",
   "mypy>=1.10",
@@ -31,6 +32,7 @@ packages = ["src/endogenai_sensory_input"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "--cov=src --cov-fail-under=80"
 
 [tool.mypy]
 strict = true
