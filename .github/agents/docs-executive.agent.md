@@ -12,7 +12,6 @@ tools:
   - usages
 agents:
   - Docs Scaffold
-  - Scratchpad Janitor
   - Docs Completeness Review
   - Docs Accuracy Review
   - Docs Executive Researcher
@@ -38,10 +37,6 @@ agents:
   - Test Executive
   - Review
 handoffs:
-  - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
-    send: false
   - label: Scaffold Missing Docs
     agent: Docs Scaffold
     prompt: "Gap report complete. Please scaffold missing READMEs and JSDoc stubs for all modules listed in the gap report, using scripts/docs/scaffold_doc.py."

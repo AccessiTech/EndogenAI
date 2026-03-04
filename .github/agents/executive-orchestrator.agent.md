@@ -5,7 +5,6 @@ tools:
   [vscode/getProjectSetupInfo, vscode/installExtension, vscode/newWorkspace, vscode/openSimpleBrowser, vscode/runCommand, vscode/askQuestions, vscode/vscodeAPI, vscode/extensions, execute/runNotebookCell, execute/testFailure, execute/getTerminalOutput, execute/awaitTerminal, execute/killTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runTests, read/getNotebookSummary, read/problems, read/readFile, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/usages, search/searchSubagent, web/fetch, web/githubRepo, pylance-mcp-server/pylanceDocString, pylance-mcp-server/pylanceDocuments, pylance-mcp-server/pylanceFileSyntaxErrors, pylance-mcp-server/pylanceImports, pylance-mcp-server/pylanceInstalledTopLevelModules, pylance-mcp-server/pylanceInvokeRefactoring, pylance-mcp-server/pylancePythonEnvironments, pylance-mcp-server/pylanceRunCodeSnippet, pylance-mcp-server/pylanceSettings, pylance-mcp-server/pylanceSyntaxErrors, pylance-mcp-server/pylanceUpdatePythonEnvironment, pylance-mcp-server/pylanceWorkspaceRoots, pylance-mcp-server/pylanceWorkspaceUserFiles, vscode.mermaid-chat-features/renderMermaidDiagram, memory, github.vscode-pull-request-github/issue_fetch, github.vscode-pull-request-github/suggest-fix, github.vscode-pull-request-github/searchSyntax, github.vscode-pull-request-github/doSearch, github.vscode-pull-request-github/renderIssues, github.vscode-pull-request-github/activePullRequest, github.vscode-pull-request-github/openPullRequest, ms-azuretools.vscode-containers/containerToolsConfig, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, todo]
 agents:
   - Executive Orchestrator
-  - Scratchpad Janitor
   - Executive Planner
   - Executive Debugger
   - Plan
@@ -51,10 +50,6 @@ agents:
   - Phase 8 Observability Executive
   - Phase 8 Resource Registry Executive
 handoffs:
-  - label: Prune Scratchpad
-    agent: Executive Orchestrator
-    prompt: "Please delegate to the Scratchpad Janitor: The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has reached or exceeded 200 lines. Please prune completed sections to archive stubs, preserve all live and escalation sections, and return control to Executive Orchestrator when done."
-    send: false
   - label: Plan
     agent: Executive Orchestrator
     prompt: "Please delegate to the Plan Agent: Please produce a scoped implementation plan for the task described in the current context. Survey docs/Workplan.md and the relevant codebase sections, then hand back to Executive Orchestrator with the plan. Sub-delegate to specialists where appropriate before returning. Write a ## Plan Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
@@ -143,8 +138,8 @@ a specialist.
 Read these before taking any action:
 
 1. **Active session file** — `.tmp/<branch-slug>/<YYYY-MM-DD>.md` — the live cross-agent
-   scratchpad for this branch and day. Run `python scripts/prune_scratchpad.py --init` if today's
-   file does not exist. Check `_index.md` in the same folder for prior-session stubs.
+   scratchpad for this branch and day. Create today's file if it does not exist
+   (`touch .tmp/<branch-slug>/$(date +%Y-%m-%d).md`). Check `_index.md` in the same folder for prior-session stubs.
    The branch slug is the branch name with `/` replaced by `-`.
 2. [`docs/Workplan.md`](../../docs/Workplan.md) — phase-by-phase roadmap and
    milestone status; the authoritative picture of what is complete and what is next.
@@ -161,20 +156,21 @@ Read these before taking any action:
 
 ### Step 1 — Locate and read the active session file
 
-Resolve the active scratchpad path:
+Resolve the active scratchpad path **once** at session start and hold it for the entire session:
 - Branch slug = current branch name with `/` replaced by `-`
   (e.g. `docs/test-upgrade-workplan` → `docs-test-upgrade-workplan`)
 - Active file = `.tmp/<branch-slug>/<YYYY-MM-DD>.md` (today's date)
 
-If today's file does not exist, run `python scripts/prune_scratchpad.py --init` to create it,
+If today's file does not exist, create it: `touch .tmp/<branch-slug>/$(date +%Y-%m-%d).md`,
 then check `_index.md` in the same folder for a one-line stub of the most recent prior session.
 
-Read the active file in full. Check its line count.
-
-- **≥ 200 lines** → invoke **Scratchpad Janitor** (with the resolved file path) before proceeding.
-- **< 200 lines** → proceed.
+Read the active file in full.
 
 Note the most recent `## Session Summary` or `## Executive Orchestrator` heading for orientation.
+
+> **Path discipline**: every delegation prompt issued this session must contain the **resolved
+> literal path** (e.g. `.tmp/docs-phase-9-planning/2026-03-04.md`), not the placeholder
+> `.tmp/<branch-slug>/<YYYY-MM-DD>.md`. The receiving agent must never have to re-derive it.
 
 ### Step 2 — Read `docs/Workplan.md`
 
@@ -243,7 +239,7 @@ Actions:
 ### Step 4 — Write progress note
 
 After assessing or after each sub-agent returns, append to the active session file
-(`.tmp/<branch-slug>/<YYYY-MM-DD>.md`):
+(use the resolved path from Step 1 — e.g. `.tmp/docs-phase-9-planning/2026-03-04.md`):
 
 ```markdown
 ## Executive Orchestrator — <YYYY-MM-DD>
@@ -264,8 +260,7 @@ When the user signals session end (or the milestone gate is reached):
    - What was completed this session.
    - What remains.
    - Recommended entry point for the next session (agent + task).
-2. Run `python scripts/prune_scratchpad.py --force` (or invoke Scratchpad Janitor) to archive
-   the session and append a one-line stub to `_index.md`.
+2. Append a one-line stub to `_index.md` summarising the session (date, goal, outcome).
 3. Ensure all changes have passed Review and been committed via GitHub.
 
 ---
@@ -281,16 +276,19 @@ and results return to this context window without losing orchestrator state.
 | Situation | Use |
 |-----------|-----|
 | Routine task dispatch (plan, implement, test, docs) | Inline `@agentname` |
-| Session start orientation | Scratchpad Janitor handoff (if stale) |
 | Session end: review + commit | Review handoff → GitHub handoff |
 | Escalation: posture limit or unknown domain | Specialist handoff |
 
 ### Sub-delegation instruction
 
-Every delegation prompt **must** end with:
+Every delegation prompt **must** end with the resolved scratchpad path:
 
 > "Sub-delegate to specialists where appropriate before returning results. Write a
-> `## <Task> Results` summary to `.tmp/<branch>/<date>.md` for persistence."
+> `## <Task> Results` summary to `<resolved-path>` for persistence."
+
+where `<resolved-path>` is the **literal** path resolved in Step 1
+(e.g. `.tmp/docs-phase-9-planning/2026-03-04.md`). Never pass the placeholder
+`.tmp/<branch>/<date>.md` — the receiving agent must not have to re-derive the path.
 
 This ensures each specialist also uses inline delegation (not just the orchestrator), creating
 a deep delegation tree that keeps every context window lean.
@@ -328,7 +326,6 @@ Use this table to quickly match a request type to the correct first agent:
 | Audit agent fleet compliance | Govern Agent |
 | Pre-commit gate | Review |
 | Commit, push, open PR | GitHub |
-| `.tmp/<branch>/<date>.md` ≥ 200 lines | Scratchpad Janitor |
 
 ---
 
@@ -336,14 +333,12 @@ Use this table to quickly match a request type to the correct first agent:
 
 - **Never implement directly** — if a task has a specialist agent, delegate.
   Acting directly when a specialist exists defeats the orchestration model.
-- **Never skip the active session file read** — always read `.tmp/<branch>/<date>.md`
+- **Never skip the active session file read** — always read the resolved path
   first; re-discovering context already gathered wastes context window and tokens.
 - **Prefer inline delegation** — invoke specialists via `@agentname` to keep context intact;
   reserve handoff buttons for session boundaries and escalations.
-- **Always include the sub-delegation instruction** — every prompt to a specialist must end
-  with the sub-delegation sentence so deep delegation trees form naturally.
-- **Never skip the scratchpad gate** — if the active session file ≥ 200 lines, invoke
-  Scratchpad Janitor before delegating further.
+- **Always include the sub-delegation instruction with the resolved path** — every prompt to
+  a specialist must end with the sub-delegation sentence containing the literal scratchpad path.
 - **Never auto-submit delegation prompts** — all handoffs use `send: false`; read
   the pre-filled prompt before confirming.
 - **Never author Phase N+ deliverables yourself** — route to the appropriate phase

@@ -14,14 +14,9 @@ agents:
   - Phase 9 Security Executive
   - Phase 9 Deployment Executive
   - Phase 9 Docs Executive
-  - Scratchpad Janitor
   - Review
   - GitHub
 handoffs:
-  - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
-    send: false
   - label: Gate 0 — Author agent-card.schema.json (BLOCKING)
     agent: Schema Executive
     prompt: "Phase 9 Gate 0 is open and this is the BLOCKING prerequisite for all Phase 9 implementation. Please: (1) confirm shared/schemas/agent-card.schema.json does not yet exist; (2) derive its shape from existing agent-card.json files across modules/ (required fields: id, name, version, description, a2aEndpoint, capabilities, mcpTools — inspect at least modules/group-iv-adaptive-systems/metacognition/agent-card.json and modules/group-i-signal-processing/sensory-input/agent-card.json); (3) author shared/schemas/agent-card.schema.json as a valid JSON Schema ($schema, $id, title, description, type: object); (4) run uv run python scripts/schema/validate_all_schemas.py and confirm it exits 0 with the new schema included; (5) run cd shared && buf lint and confirm exit 0. Hand back to Phase 9 Executive when Gate 0 schema check passes."

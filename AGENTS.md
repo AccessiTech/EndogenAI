@@ -222,6 +222,10 @@ preservation. It is gitignored and never committed.
 
 **Active scratchpad path** = `.tmp/<branch-slug>/<YYYY-MM-DD>.md`
 
+Resolve this to the **literal path** at session start. Use that concrete path in every
+delegation prompt and handoff — never the placeholder. The receiving agent must not have
+to re-derive it.
+
 Rules:
 - Each delegated agent **appends** findings under a named heading: `## <Phase> Results` or
   `## <Task> Output`. Never overwrite another agent's section.
@@ -230,20 +234,14 @@ Rules:
 - At session end, the executive writes a `## Session Summary` section so the next session starts
   with an orientation point rather than a cold start.
 - Use the active session file for inter-agent handoff notes, gap reports, and aggregated sub-agent results.
-- Each new session day gets a fresh file — run `python scripts/prune_scratchpad.py --init` at
-  session start to create it. Prior-session context is available as one-line stubs in `_index.md`.
+- Each new session day gets a fresh file — create `.tmp/<branch-slug>/<YYYY-MM-DD>.md` at
+  session start. Prior-session context is available as one-line stubs in `_index.md`.
 
-### Size guard and archive convention
+### Session hygiene
 
-| Situation | Action |
-|-----------|--------|
-| `.tmp.md` < 200 lines | No action needed |
-| `.tmp.md` ≥ 200 lines | Invoke Scratchpad Janitor or run `python scripts/prune_scratchpad.py` |
-| Session end / PR close | Write `## Session Summary`, then run `python scripts/prune_scratchpad.py --force` (also updates `_index.md`) |
-| New session day | Run `python scripts/prune_scratchpad.py --init` to create today's file |
-| New branch start | Re-init: `python scripts/prune_scratchpad.py --init` on the new branch |
+Daily rotation (one file per branch per day) keeps session files small. At session end, write a `## Session Summary` section as a persistent orientation point for the next session.
 
-**Archive convention:** completed sections become one-line stubs:
+**Archive convention:** completed sections may be compressed to one-line stubs:
 ```
 ## <Heading> (archived <YYYY-MM-DD> — <first-content-line>)
 ```
@@ -319,20 +317,26 @@ cost of restarting it after each sub-agent completes.
 
 **Inline delegation** (preferred):
 ```
-Orchestrator (persistent context)
+Orchestrator (persistent context) — resolves scratchpad path once at session start
   @Phase5Executive → reports back inline
-  reads .tmp/<branch>/<date>.md for summary
+  reads .tmp/main/2026-03-04.md for summary  ← use the resolved literal path
   @ReviewAgent → reports back inline
   @GitHub → commit confirmed
 ```
 
 **Handoff buttons** (session boundary events only):
-- Session start → Scratchpad Janitor (if file is stale/large)
 - Session end → Review → GitHub
 - Escalation → specialist with relevant posture
 
-When delegating, always include in the prompt: **"Sub-delegate where appropriate before returning
-results. Write a `## <Task> Results` summary to `.tmp/<branch>/<date>.md` for persistence."**
+When delegating, always include the **resolved** scratchpad path in the prompt. Resolve the
+active session file path once at session start (branch slug + today's date) and use the concrete
+literal path in every subsequent delegation:
+
+> "Sub-delegate to specialists where appropriate before returning results. Write a
+> `## <Task> Results` summary to `<resolved-path>` for persistence."
+
+Never pass the placeholder `.tmp/<branch>/<date>.md` to a sub-agent — the receiving agent
+must not have to re-derive the path.
 
 ---
 
@@ -489,7 +493,6 @@ Copilot chat agents dropdown automatically.
 | **Agent Scaffold Executive** | full tools | Orchestrate new agent creation — brief Scaffold Agent, validate, update catalog |
 | **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
 | **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |
-| **Scratchpad Janitor** | read + create | Prune `.tmp.md` when it exceeds 200 lines — compress completed sections to archive stubs, preserve live context |
 | **Govern Agent** | read-only | Fleet-wide compliance audit of `.github/agents/` against all guardrails |
 | **Docs Executive Researcher** | read + create | Pre-planning; invoked by Phase Executives to research codebase and docs state, write a phase-scoped research brief to `docs/research/`, and hand back to the invoking executive before workplan authoring |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |

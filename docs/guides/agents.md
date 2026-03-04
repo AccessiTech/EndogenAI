@@ -137,10 +137,7 @@ context window:
 The active session file is gitignored and never committed. Each agent appends under `## <Phase/Task> Results`.
 The executive reads the active session file before each delegation step to avoid re-discovering already-gathered context.
 
-**Size guard:** if the active session file exceeds 200 lines, invoke the **Scratchpad Janitor** before
-the next delegation. The Janitor compresses completed sections to one-line archive stubs
-so the file stays lean without losing traceability.
-Each new day starts with a fresh, empty session file — daily rotation is the primary size management mechanism; the Janitor is the fallback for sessions that grow large within a single day.
+**Session hygiene:** each new day starts with a fresh session file. At session end, write a `## Session Summary` and optionally compress completed sections to one-line archive stubs.
 
 ### Insufficient-posture escalation
 
@@ -228,8 +225,8 @@ Review → GitHub
 
 For multi-phase, multi-domain work (test upgrades, full docs passes, phase deliveries):
 
-0. **Initialise the session file** — run `python scripts/prune_scratchpad.py --init` to create
-   today's `.tmp/<branch-slug>/<YYYY-MM-DD>.md`. Check `_index.md` for prior-session context.
+0. **Initialise the session file** — create `.tmp/<branch-slug>/<YYYY-MM-DD>.md` if it does not exist.
+   Check `_index.md` for prior-session context.
 1. **Use Plan first** — agree scope before any agent acts.
 2. **Delegate, don't inline** — use one executive per domain (Test, Docs, Phase N).
 3. **Gate phases with Review** — after each domain executive completes, route through Review
@@ -313,27 +310,15 @@ suite is red and the root cause is non-obvious. Hands off to Review.
 **Executive Orchestrator** (`executive-orchestrator.agent.md`) — full execution  
 Top-level "CEO" agent with two modes of operation:
 
-- **Cold-start orientation**: invoked at the beginning of a new session or branch. Reads the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) and `docs/Workplan.md`, identifies the active phase and milestone, lists blocked and ready tasks, and recommends (or delegates to) the correct next agent. If the active session file ≥ 200 lines, invokes Scratchpad Janitor before proceeding.
+- **Cold-start orientation**: invoked at the beginning of a new session or branch. Reads the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) and `docs/Workplan.md`, identifies the active phase and milestone, lists blocked and ready tasks, and recommends (or delegates to) the correct next agent.
 - **Request triage**: receives ambiguous or cross-cutting requests, decomposes them into atomic sub-tasks, maps each to the right specialist, and delegates using the takeback pattern (each sub-agent's final handoff returns results to the Orchestrator before the next step begins).
 
-The Orchestrator acts directly only for lightweight coordination (reading files, updating the active session file). All implementation, testing, documentation, schema, and phase work is delegated. At session end it writes `## Session Summary` to the active session file and runs `python scripts/prune_scratchpad.py --force` to archive completed sections. Has handoff buttons to every phase executive (1–8), Executive Planner, Executive Debugger, Plan, Review, GitHub, Schema Executive, Test Executive, Docs Executive, and Scratchpad Janitor.
+The Orchestrator acts directly only for lightweight coordination (reading files, updating the active session file). All implementation, testing, documentation, schema, and phase work is delegated. At session end it writes `## Session Summary` to the active session file. Has handoff buttons to every phase executive (1–9), Executive Planner, Executive Debugger, Plan, Review, GitHub, Schema Executive, Test Executive, and Docs Executive.
 
 **Executive Planner** (`executive-planner.agent.md`) — read + edit  
 Reconciles `docs/Workplan.md` against the actual codebase state. Marks completed items `[x]`, surfaces gaps, and
 recommends the next agent to engage. Edits only `docs/Workplan.md` — never touches source files. Run at the start of
 a session to orient yourself before calling Plan or an executive.
-
----
-
-### Utility agents
-
-**Scratchpad Janitor** (`scratchpad-janitor.agent.md`) — read + create  
-Prunes the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) when it exceeds the 200-line size guard. Compresses completed sections
-(those with headings containing "Results", "Complete", "Summary", "Done", etc.) to
-one-line archive stubs, inserts an `## Active Context` table of contents, and returns
-control to the invoking executive. Invoke manually at session start when the active session file is
-stale, or via the "Prune Scratchpad" handoff button on any executive agent. Backed by
-[`scripts/prune_scratchpad.py`](../../scripts/prune_scratchpad.py).
 
 ---
 

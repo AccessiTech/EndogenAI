@@ -13,7 +13,6 @@ tools:
   - agent
 agents:
   - Phase 5 Memory Executive
-  - Scratchpad Janitor
   - Phase 5 Motivation Executive
   - Phase 5 Reasoning Executive
   - Executive Planner
@@ -23,10 +22,6 @@ agents:
   - Docs Executive Researcher
   - Schema Executive
 handoffs:
-  - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
-    send: false
   - label: Research & Plan
     agent: Phase 5 Executive
     prompt: "Please research the current state of the codebase and present a detailed workplan for Phase 5 — Group II: Cognitive Processing Modules, following all AGENTS.md constraints and reading modules/AGENTS.md for module-specific guidance."

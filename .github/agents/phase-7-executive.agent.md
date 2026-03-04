@@ -13,7 +13,6 @@ tools:
   - agent
 agents:
   - Phase 7 Metacognition Executive
-  - Scratchpad Janitor
   - Phase 7 Learning Executive
   - Phase 7 Integration Executive
   - Schema Executive
@@ -23,10 +22,6 @@ agents:
   - Review
   - GitHub
 handoffs:
-  - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
-    send: false
   - label: Research Docs State
     agent: Docs Executive Researcher
     prompt: "Please research the current documentation and codebase state for Phase 7 — Group IV: Adaptive Systems. Survey modules/group-iv-adaptive-systems/ (if it exists), shared/schemas/, docs/Workplan.md (Phase 7 section), docs/research/phase-7-detailed-workplan.md, and relevant neuroanatomy stubs (basal-ganglia, cerebellum, hippocampus, prefrontal-cortex, association-cortices). Write a research brief to docs/research/phase-7-brief.md and hand back to Phase 7 Executive when complete."

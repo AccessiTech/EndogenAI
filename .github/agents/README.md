@@ -16,7 +16,7 @@ The Executive Orchestrator sits above all other agents. Invoke it at session sta
 
 | Agent | File | Posture | Trigger | Handoffs |
 |-------|------|---------|---------|----------|
-| **Executive Orchestrator** | `executive-orchestrator.agent.md` | full | Cold start (new branch / new session / stale `.tmp.md`) **or** ambiguous/cross-cutting user request | Executive Planner, Plan, Executive Debugger, Phase 1–8 Executives, Schema Executive, Test Executive, Docs Executive, Review, GitHub, Scratchpad Janitor |
+| **Executive Orchestrator** | `executive-orchestrator.agent.md` | full | Cold start (new branch / new session / stale `.tmp.md`) **or** ambiguous/cross-cutting user request | Executive Planner, Plan, Executive Debugger, Phase 1–8 Executives, Schema Executive, Test Executive, Docs Executive, Review, GitHub |
 
 ---
 
@@ -114,10 +114,6 @@ Invoke **Agent Scaffold Executive** to add a new agent; invoke **Govern Agent** 
 
 Cross-cutting agents that serve multiple executives without phase-specific scope.
 
-| Agent | Posture | File | Description |
-|-------|---------|------|-------------|
-| **Scratchpad Janitor** | read + create | `scratchpad-janitor.agent.md` | Prune `.tmp.md` when it exceeds 200 lines — compress completed sections to archive stubs, preserve live context |
-
 ---
 
 ## Phase Executive Agents
@@ -170,10 +166,6 @@ Phase executives drive all deliverables for a specific phase to the milestone ga
 **Detour**: if Review raises FAILs → back to Implement/Executive for fixes, then re-Review.
 
 **Debug path**: Implement or Phase Executive → Executive Debugger → back to Implement/Phase Executive.
-
-**Context management**: any Phase Executive or exec-level agent → Scratchpad Janitor (when `.tmp.md` ≥ 200 lines) → back to invoking executive.
-
-**Context management**: any Phase Executive or exec-level agent → Scratchpad Janitor (when `.tmp.md` ≥ 200 lines) → back to invoking executive.
 
 ---
 

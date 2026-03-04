@@ -12,7 +12,6 @@ tools:
   - agent
 agents:
   - Test Scaffold
-  - Scratchpad Janitor
   - Test Coverage
   - Test Review
   - Phase 1 Executive
@@ -37,10 +36,6 @@ agents:
   - Docs Executive
   - Playwright Executive
 handoffs:
-  - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
-    send: false
   - label: Scaffold Missing Tests
     agent: Test Scaffold
     prompt: "Coverage scan complete. Please scaffold test stubs for all source files listed in the gaps report, using scripts/testing/scaffold_tests.py."
