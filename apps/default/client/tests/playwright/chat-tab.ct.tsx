@@ -103,6 +103,21 @@ test.describe('ChatTab', () => {
 
     // User message rendered
     await expect(component.getByText('Tell me about perception')).toBeVisible()
+
+    // An assistant message container is created immediately as a streaming placeholder
+    await expect(component.locator('article[data-role="assistant"]')).toBeVisible()
+
+    // Simulate an mcp-push SSE event carrying a streaming token
+    await component.update(
+      <ChatTab
+        accessToken="tok-123"
+        sseEvents={[{ event: 'mcp-push', data: JSON.stringify({ token: 'Hello world' }) }]}
+        sseStatus="connected"
+      />,
+    )
+
+    // Streamed token text should be visible inside the assistant message
+    await expect(component.locator('article[data-role="assistant"]').getByText('Hello world')).toBeVisible()
   })
 
   test('shows an error in the chat when POST /api/input returns 500', async ({ mount, page }) => {

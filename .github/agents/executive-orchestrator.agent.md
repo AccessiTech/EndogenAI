@@ -59,20 +59,20 @@ agents:
   - Phase 8 Resource Registry Executive
 handoffs:
   - label: Prune Scratchpad
-    agent: Scratchpad Janitor
-    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has reached or exceeded 200 lines. Please prune completed sections to archive stubs, preserve all live and escalation sections, and return control to Executive Orchestrator when done."
-    send: false
-  - label: Orient — Executive Planner
-    agent: Executive Planner
-    prompt: "Please reconcile docs/Workplan.md against the current codebase state, identify the active phase and any incomplete checklist items, and recommend the next agent to engage. Hand back to Executive Orchestrator with your status report. Sub-delegate to specialists where appropriate before returning. Write a ## Orient Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please delegate to the Scratchpad Janitor: The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has reached or exceeded 200 lines. Please prune completed sections to archive stubs, preserve all live and escalation sections, and return control to Executive Orchestrator when done."
     send: false
   - label: Plan
-    agent: Plan
-    prompt: "Please produce a scoped implementation plan for the task described in the current context. Survey docs/Workplan.md and the relevant codebase sections, then hand back to Executive Orchestrator with the plan. Sub-delegate to specialists where appropriate before returning. Write a ## Plan Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please delegate to the Plan Agent: Please produce a scoped implementation plan for the task described in the current context. Survey docs/Workplan.md and the relevant codebase sections, then hand back to Executive Orchestrator with the plan. Sub-delegate to specialists where appropriate before returning. Write a ## Plan Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
-  - label: Debug — Executive Debugger
-    agent: Executive Debugger
-    prompt: "A runtime or test failure has been identified. Please diagnose and fix the failure, then hand back to Executive Orchestrator with a summary of root cause and changes made. Sub-delegate to specialists where appropriate before returning. Write a ## Debug Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+  - label: Executive Planner
+    agent: Executive Orchestrator
+    prompt: "Please delegate to the Executive Planner: Please reconcile docs/Workplan.md against the current codebase state, identify the active phase and any incomplete checklist items, and recommend the next agent to engage. Hand back to Executive Orchestrator with your status report. Sub-delegate to specialists where appropriate before returning. Write a ## Orient Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    send: false
+  - label: Executive Debugger
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the Executive Debugger: A runtime or test failure has been identified. Please diagnose and fix the failure, then hand back to Executive Orchestrator with a summary of root cause and changes made. Sub-delegate to specialists where appropriate before returning. Write a ## Debug Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
 #   - label: Phase 1 Executive
 #     agent: Phase 1 Executive
@@ -107,20 +107,20 @@ handoffs:
 #     prompt: "Please drive Phase 8 — Application Layer & Observability — to the M8 milestone. Hand back to Executive Orchestrator when complete or if a blocker is encountered. Sub-delegate to specialists where appropriate before returning. Write a ## Phase 8 Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
 #     send: false
   - label: Schema Executive
-    agent: Schema Executive
-    prompt: "A schema authoring or migration task has been identified. Please orchestrate the full schema pipeline (validate → author → migrate) and hand back to Executive Orchestrator when all schemas pass validation. Sub-delegate to specialists where appropriate before returning. Write a ## Schema Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the Schema Executive agent: A schema authoring or migration task has been identified. Please orchestrate the full schema pipeline (validate → author → migrate) and hand back to Executive Orchestrator when all schemas pass validation. Sub-delegate to specialists where appropriate before returning. Write a ## Schema Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
   - label: Test Executive
-    agent: Test Executive
-    prompt: "Please orchestrate the full testing lifecycle — baseline run, coverage scan, scaffold missing stubs, review quality, and confirm all thresholds pass. Hand back to Executive Orchestrator with a summary. Sub-delegate to specialists where appropriate before returning. Write a ## Test Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the Test Executive agent: Please orchestrate the full testing lifecycle — baseline run, coverage scan, scaffold missing stubs, review quality, and confirm all thresholds pass. Hand back to Executive Orchestrator with a summary. Sub-delegate to specialists where appropriate before returning. Write a ## Test Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
   - label: Docs Executive
-    agent: Docs Executive
-    prompt: "Please run the full documentation pipeline — scan for gaps, scaffold missing docs, completeness and accuracy review — then hand back to Executive Orchestrator with a summary. Sub-delegate to specialists where appropriate before returning. Write a ## Docs Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the Docs Executive agent: Please run the full documentation pipeline — scan for gaps, scaffold missing docs, completeness and accuracy review — then hand back to Executive Orchestrator with a summary. Sub-delegate to specialists where appropriate before returning. Write a ## Docs Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
   - label: Review
-    agent: Review
-    prompt: "All changes for this task are complete. Please review all changed files against AGENTS.md constraints and module contracts, produce a PASS/WARN/FAIL report, and hand back to Executive Orchestrator. Sub-delegate to specialists where appropriate before returning. Write a ## Review Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the Review agent: All changes for this task are complete. Please review all changed files against AGENTS.md constraints and module contracts, produce a PASS/WARN/FAIL report, and hand back to Executive Orchestrator. Sub-delegate to specialists where appropriate before returning. Write a ## Review Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
   - label: Commit & Push
     agent: Executive Orchestrator

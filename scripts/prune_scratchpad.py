@@ -259,7 +259,7 @@ def prune(text: str, today: str) -> tuple[str, list[str], list[str]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[1].strip())
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[1].strip() if __doc__ else "Scratchpad size management for .tmp/<branch>/<date>.md")
     parser.add_argument(
         "--file",
         default=None,

@@ -177,6 +177,6 @@ SKIP_INTEGRATION_TESTS=1 uv run pytest -m "not integration" -q
 
 Estimated coverage: ~45% (HIGH gap). Known gaps — no tests yet for:
 - `src/a2a_handler.py` — see [workplan](../../../docs/test-upgrade-workplan.md) P09
-- `src/instrumentation/otel_setup.py` — see P11
+- `src/instrumentation/otel_setup.py` — covered by `tests/test_otel_setup.py`
 
 Note: existing tests use a real `MeterProvider` (not mocked) — a canonical example for OTel test patterns.

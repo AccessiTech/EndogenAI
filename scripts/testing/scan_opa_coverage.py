@@ -92,12 +92,26 @@ def check_opa_module(entry: dict, dry_run: bool) -> tuple[bool, list[str], list[
                 " — create tests that use Testcontainers OPA or httpx mock"
             )
         else:
-            # Verify it contains the skip guard
+            # Verify the skip guard is present in the test file OR in a conftest.py
+            # in the same tests/ directory (or parent) — skip guards often live in
+            # conftest.py rather than the test file itself.
             test_text = test_path.read_text(encoding="utf-8")
-            if entry["skip_var"] not in test_text:
+            skip_var = entry["skip_var"]
+            guard_found = skip_var in test_text
+            if not guard_found:
+                test_dir = test_path.parent
+                for conftest_candidate in (
+                    test_dir / "conftest.py",
+                    test_dir.parent / "conftest.py",
+                ):
+                    if conftest_candidate.exists():
+                        if skip_var in conftest_candidate.read_text(encoding="utf-8"):
+                            guard_found = True
+                            break
+            if not guard_found:
                 errors.append(
-                    f"  FAIL  {_rel(test_path)} missing skip guard "
-                    f"'{entry['skip_var']}' — add conftest.py pytest.mark.skipif"
+                    f"  FAIL  {_rel(test_path)} (and its conftest.py files) missing "
+                    f"skip guard '{entry['skip_var']}' — add conftest.py pytest.mark.skipif"
                 )
 
     # 3. Verify conftest.py has the skip guard
