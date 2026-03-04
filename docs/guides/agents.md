@@ -307,6 +307,14 @@ suite is red and the root cause is non-obvious. Hands off to Review.
 
 ### Planning & orchestration agents
 
+**Executive Orchestrator** (`executive-orchestrator.agent.md`) — full execution  
+Top-level "CEO" agent with two modes of operation:
+
+- **Cold-start orientation**: invoked at the beginning of a new session or branch. Reads `.tmp.md` and `docs/Workplan.md`, identifies the active phase and milestone, lists blocked and ready tasks, and recommends (or delegates to) the correct next agent. If `.tmp.md` ≥ 200 lines, invokes Scratchpad Janitor before proceeding.
+- **Request triage**: receives ambiguous or cross-cutting requests, decomposes them into atomic sub-tasks, maps each to the right specialist, and delegates using the takeback pattern (each sub-agent's final handoff returns control to the Orchestrator before the next step begins).
+
+The Orchestrator acts directly only for lightweight coordination (reading files, updating `.tmp.md`). All implementation, testing, documentation, schema, and phase work is delegated. At session end it writes `## Session Summary` to `.tmp.md` and invokes Scratchpad Janitor `--force` to archive completed sections. Has handoff buttons to every phase executive (1–8), Executive Planner, Executive Debugger, Plan, Review, GitHub, Schema Executive, Test Executive, Docs Executive, and Scratchpad Janitor.
+
 **Executive Planner** (`executive-planner.agent.md`) — read + edit  
 Reconciles `docs/Workplan.md` against the actual codebase state. Marks completed items `[x]`, surfaces gaps, and
 recommends the next agent to engage. Edits only `docs/Workplan.md` — never touches source files. Run at the start of

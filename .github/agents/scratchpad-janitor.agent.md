@@ -36,6 +36,10 @@ handoffs:
     agent: Executive Planner
     prompt: "Scratchpad pruned. .tmp.md is below 200 lines and active context is preserved."
     send: false
+  - label: Back to Executive Orchestrator
+    agent: Executive Orchestrator
+    prompt: "Scratchpad pruned. .tmp.md is below 200 lines and active context is preserved. You may continue delegating."
+    send: false
 ---
 
 You are the **Scratchpad Janitor** agent for the EndogenAI project. Your sole job is to prune `.tmp.md`

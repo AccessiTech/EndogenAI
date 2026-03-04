@@ -10,6 +10,16 @@ Typical workflow: **Plan → (approve) → Implement → (complete) → Review �
 
 ---
 
+## Top-Level Orchestration
+
+The Executive Orchestrator sits above all other agents. Invoke it at session start for orientation, or hand it an ambiguous cross-cutting request for triage and routing.
+
+| Agent | File | Posture | Trigger | Handoffs |
+|-------|------|---------|---------|----------|
+| **Executive Orchestrator** | `executive-orchestrator.agent.md` | full | Cold start (new branch / new session / stale `.tmp.md`) **or** ambiguous/cross-cutting user request | Executive Planner, Plan, Executive Debugger, Phase 1–8 Executives, Schema Executive, Test Executive, Docs Executive, Review, GitHub, Scratchpad Janitor |
+
+---
+
 ## Workflow Agents
 
 | Agent | File | Posture | Trigger | Handoffs |
