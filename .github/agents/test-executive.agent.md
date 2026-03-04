@@ -34,6 +34,7 @@ agents:
   - Phase 8 Observability Executive
   - Phase 8 Resource Registry Executive
   - Docs Executive
+  - Playwright Executive
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold
@@ -74,6 +75,10 @@ handoffs:
   - label: Produce Test Workplan
     agent: Docs Executive
     prompt: "All phase domain reports received. Please produce docs/test-upgrade-workplan.md consolidating all findings: coverage gaps by module, quality issues by severity, and a prioritised upgrade task list."
+    send: false
+  - label: Playwright CT (P27)
+    agent: Playwright Executive
+    prompt: "P18 jsdom phase is complete. Please proceed with P27: set up @playwright/experimental-ct-react for apps/default/client and author integration tests covering all client routes and key user flows."
     send: false
   - label: Review Changes
     agent: Review
