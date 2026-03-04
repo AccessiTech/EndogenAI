@@ -98,6 +98,17 @@ export function createApiRouter(mcpClient: McpClient): Hono {
     })
   })
 
+  // GET /api/agents — protected; returns known agent URLs for the Internals panel
+  api.get('/agents', async (c) => {
+    const mcpServerUrl = process.env.MCP_SERVER_URL ?? 'http://localhost:8080'
+    const gatewayUrl = process.env.ISSUER_URL ?? 'http://localhost:3001'
+    const agents = [
+      { name: 'endogenai-gateway', url: gatewayUrl },
+      { name: 'endogenai-mcp', url: mcpServerUrl },
+    ]
+    return c.json(agents)
+  })
+
   // GET /api/resources — protected
   api.get('/resources', (c) => {
     const group = c.req.query('group')

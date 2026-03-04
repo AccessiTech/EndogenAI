@@ -39,10 +39,12 @@ export class McpClient {
   }
 
   async send(message: McpMessage): Promise<Response> {
+    if (!this.sessionId) await this.initialize().catch(() => undefined)
     return this.post(message)
   }
 
   async *subscribe(lastEventId?: string): AsyncGenerator<McpEvent> {
+    if (!this.sessionId) await this.initialize().catch(() => undefined)
     const headers: Record<string, string> = {
       ...this.buildHeaders(),
       Accept: 'text/event-stream',

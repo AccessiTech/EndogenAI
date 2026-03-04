@@ -77,7 +77,7 @@ export const gateway = {
   sendInput: (token: string | null, content: string, sessionId?: string) =>
     apiFetch<SendInputResponse>('/api/input', token, {
       method: 'POST',
-      body: JSON.stringify({ content, sessionId }),
+      body: JSON.stringify({ message: content, ...(sessionId ? { sessionId } : {}) }),
     }),
 
   listAgents: (token: string | null) =>

@@ -14,7 +14,7 @@ const allowedOrigins = () =>
   (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173').split(',').map((s) => s.trim())
 
 export function createApp(mcpClient?: McpClient): Hono {
-  const client = mcpClient ?? new McpClient(process.env.MCP_SERVER_URL ?? 'http://localhost:8000')
+  const client = mcpClient ?? new McpClient(process.env.MCP_SERVER_URL ?? 'http://localhost:8080')
   const app = new Hono()
 
   app.use('*', tracingMiddleware)
@@ -40,6 +40,7 @@ export function createApp(mcpClient?: McpClient): Hono {
   app.use('/api/input', authMiddleware)
   app.use('/api/stream', authMiddleware)
   app.use('/api/resources', authMiddleware)
+  app.use('/api/agents', authMiddleware)
 
   app.route('/api', createApiRouter(client))
 
