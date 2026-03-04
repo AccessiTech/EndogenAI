@@ -1,0 +1,20 @@
+[
+  {
+    "uri": "brain://group-iii/executive-agent/status",
+    "module": "executive-agent",
+    "group": "group-iii-executive-output",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Executive agent operational status and current goal stack",
+    "accessControl": ["read:authenticated"]
+  },
+  {
+    "uri": "brain://group-iii/motor-output/queue",
+    "module": "motor-output",
+    "group": "group-iii-executive-output",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Pending motor action queue",
+    "accessControl": ["read:authenticated"]
+  }
+]

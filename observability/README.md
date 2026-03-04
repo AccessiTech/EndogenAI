@@ -10,6 +10,8 @@ dashboarding.
 | **OpenTelemetry Collector** | 4317 (gRPC), 4318 (HTTP) | Receives OTLP traces/metrics/logs from all modules |
 | **Prometheus**              | 9090                     | Scrapes and stores time-series metrics             |
 | **Grafana**                 | 3000                     | Dashboard UI — default login: `admin` / `admin`    |
+| **Blackbox Exporter**       | 9115                     | HTTP health probes for each module (Phase 8.4)     |
+| **Grafana Tempo** _(opt.)_  | 3200                     | Distributed trace backend (`observability-full` profile, Phase 8.4) |
 
 ## Starting the Stack
 
@@ -25,11 +27,18 @@ docker compose up -d
 
 ## Configuration Files
 
-| File                               | Purpose                                                     |
-| ---------------------------------- | ----------------------------------------------------------- |
-| `otel-collector.yaml`              | OTel Collector pipeline: receivers → processors → exporters |
-| `prometheus.yml`                   | Prometheus scrape targets and global config                 |
-| `grafana/datasources/default.yaml` | Grafana datasource provisioning (Prometheus)                |
+| File                                                       | Purpose                                                     |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| `otel-collector.yaml`                                      | OTel Collector pipeline: receivers → processors → exporters |
+| `prometheus.yml`                                           | Prometheus scrape targets and global config                 |
+| `prometheus-rules/gateway.yml`                             | Gateway + module-health alert rules (Phase 8.4)             |
+| `grafana/datasources/default.yaml`                         | Grafana datasource provisioning (Prometheus UID: `prometheus`) |
+| `grafana/provisioning/dashboards/phase-8.yaml`             | Grafana dashboard auto-provisioning config (Phase 8.4)      |
+| `grafana/dashboards/gateway.json`                          | Gateway dashboard (request rate, latency, SSE, auth failures) |
+| `grafana/dashboards/signal-flow.json`                      | Signal flow latency dashboard (Phase 8.4)                   |
+| `grafana/dashboards/module-health.json`                    | Module health via Blackbox + metacognition metrics (Phase 8.4) |
+| `blackbox.yml`                                             | Blackbox Exporter HTTP probe config (Phase 8.4)             |
+| `tempo.yaml`                                               | Grafana Tempo config for `observability-full` profile (Phase 8.4) |
 
 ## Instrumenting a Module
 
@@ -42,8 +51,39 @@ All modules emit telemetry via the OpenTelemetry SDK and the shared utilities de
 See [`shared/utils/logging.md`](../shared/utils/logging.md), [`shared/utils/tracing.md`](../shared/utils/tracing.md),
 and [`shared/utils/validation.md`](../shared/utils/validation.md) for specifications.
 
-## Adding Dashboards
+## Phase 8.4 Dashboards (provisioned)
 
-Place Grafana dashboard JSON files in `grafana/dashboards/` and add a dashboard provisioning config to
-`grafana/dashboards/default.yaml`. See the
-[Grafana provisioning docs](https://grafana.com/docs/grafana/latest/administration/provisioning/).
+Dashboard JSON files in `grafana/dashboards/` are auto-provisioned into Grafana via
+`grafana/provisioning/dashboards/phase-8.yaml` (mounted to `/etc/grafana/provisioning/dashboards`
+in the `docker-compose.yml` Grafana service).
+
+| File | UID | Panels |
+| --- | --- | --- |
+| `grafana/dashboards/gateway.json` | `brain-gateway` | Request rate, error rate, active SSE connections, P50/P95/P99 latency (`/api/input`), auth failure rate |
+| `grafana/dashboards/signal-flow.json` | `brain-signal-flow` | Gateway→MCP P99 latency, end-to-end latency trend, per-module span histograms (requires spanmetrics connector in Phase 9) |
+| `grafana/dashboards/module-health.json` | `brain-module-health` | Module health status (Blackbox), probe duration, metacognition confidence |
+
+**Metric naming**: Gateway metrics emitted via OTLP receive a `brain_` prefix from the OTel Collector
+Prometheus exporter (`namespace: brain`). Prometheus metric names are therefore `brain_hono_gateway_*`.
+
+## Blackbox Exporter _(Phase 8.4)_
+
+Prometheus [Blackbox Exporter](https://github.com/prometheus/blackbox_exporter) probes are added in Phase 8.4 to
+provide reliable HTTP-level health checks per module. Each module's `/health` endpoint receives an `http_2xx` probe;
+`probe_success = 1` is the health signal. Configuration added to `docker-compose.yml` and `prometheus.yml`.
+
+## Distributed Traces — Grafana Tempo _(optional profile)_
+
+[Grafana Tempo](https://grafana.com/oss/tempo/) is available as an optional `observability-full` Docker Compose
+profile, added in Phase 8.4:
+
+```bash
+# Start full observability stack including Tempo
+docker compose --profile observability-full up -d
+```
+
+Tempo provides distributed trace waterfall views (TraceQL). Without this profile, only latency histograms are
+available (from OTel spans exported as Prometheus metrics). Configuration in `observability/tempo.yaml`.
+
+The `observability-full` profile is non-blocking for Phase 8 Gate 5 — all gate criteria can be met with
+Prometheus + Grafana alone.

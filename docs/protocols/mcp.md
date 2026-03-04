@@ -1,8 +1,8 @@
 ---
 id: protocol-mcp
-version: 0.2.0
+version: 0.3.0
 status: stable
-last-reviewed: 2026-02-26
+last-reviewed: 2026-03-03
 ---
 
 # MCP (Module Context Protocol) Integration Guide
@@ -61,7 +61,8 @@ Every MCP message is a JSON object conforming to
 | `contentType`   | ✅       | MIME-like descriptor for `payload` (e.g. `"signal/text"`, `"memory/item"`, `"application/json"`). |
 | `payload`       | ✅       | Message content — any JSON value. Structure governed by `contentType`.                            |
 | `destination`   | ➖       | `ModuleRef` — target module. Omit for broadcast / registry-routed messages.                       |
-| `traceContext`  | ➖       | W3C `traceparent` + optional `tracestate`. Required when a distributed trace is in scope.         |
+| `traceparent`   | ➖       | Top-level W3C TraceContext string (`00-<traceId>-<spanId>-<flags>`). Injected by the Hono gateway for all browser-originated requests; propagated by all downstream modules. Added in Phase 8 Gate 0 as an optional field (not `required`) — intra-module calls without OTel bootstrap must not break. See [Tracing Spec](../../shared/utils/tracing.md). |
+| `traceContext`  | ➖       | Nested W3C `traceparent` + optional `tracestate`. Kept for backward compatibility; prefer top-level `traceparent` for new code. |
 | `correlationId` | ➖       | UUID — links a response message back to the originating request.                                  |
 | `sessionId`     | ➖       | Cognitive session scope (maps to short-term memory TTL).                                          |
 | `taskId`        | ➖       | Associates this message with an active A2A task.                                                  |
@@ -88,7 +89,7 @@ Every MCP message is a JSON object conforming to
 Every module that receives an `MCPContext` MUST:
 
 1. Validate the envelope against the JSON Schema before processing.
-2. Extract `traceContext.traceparent` and create a child span (see [Tracing Spec](../../shared/utils/tracing.md)).
+2. Extract `traceparent` (top-level) or `traceContext.traceparent` (nested) and create a child span (see [Tracing Spec](../../shared/utils/tracing.md)). Prefer top-level `traceparent` from Phase 8 onward.
 3. Emit a structured log record for the receipt event, carrying `traceId` and `spanId` (see
    [Logging Spec](../../shared/utils/logging.md)).
 4. Populate the outbound `MCPContext` with:
@@ -127,6 +128,23 @@ Capability advertisement shape:
   }
 }
 ```
+
+---
+
+## External Transport (Phase 8)
+
+The Phase 8 Hono gateway connects to `infrastructure/mcp` via the **MCP Streamable HTTP transport**
+(spec 2025-06-18). This is the external-facing wire protocol; the internal `ContextBroker` pub/sub topology
+described above remains unchanged.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST /mcp` | `Content-Type: application/json`, `MCP-Protocol-Version: 2025-06-18` | Send JSON-RPC requests (initialize, tools/call, resources/read, etc.) |
+| `GET /mcp` | `Accept: text/event-stream`, `Mcp-Session-Id: <uuid>` | Open long-lived SSE stream for server-initiated push events |
+| `GET /.well-known/oauth-protected-resource` | — | RFC 9728 Protected Resource Metadata (added Phase 8.2) |
+
+The gateway's `mcp-client.ts` manages `Mcp-Session-Id` and `Last-Event-ID` headers. All browser traffic routes
+through the gateway — the MCP server port is never exposed to the browser directly.
 
 ---
 
@@ -197,3 +215,5 @@ limits.
 - [A2A Protocol Guide](a2a.md)
 - [Architecture Overview](../architecture.md)
 - [Workplan — Phase 2](../Workplan.md#phase-2--communication-infrastructure-mcp--a2a)
+- [Workplan — Phase 8](../Workplan.md#phase-8--application-layer--observability)
+- [Phase 8 Overview](../research/phase-8-overview.md)

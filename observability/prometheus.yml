@@ -43,3 +43,43 @@ scrape_configs:
   - job_name: "redis"
     static_configs:
       - targets: ["redis:6379"]
+
+  # Phase 8 — Blackbox Exporter: plain-text /health endpoints (body must contain "ok")
+  # Exposed as probe_success{instance="<url>"} and probe_duration_seconds
+  # Requires Blackbox Exporter running at blackbox:9115
+  # @see observability/blackbox.yml for probe config
+  - job_name: "module-health-blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_ok_body]
+    static_configs:
+      - targets:
+          - http://gateway:3001/api/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  # Phase 8 — Blackbox Exporter: JSON/structured endpoints (2xx only, no body check)
+  # Used for /.well-known/agent-card.json probes which return JSON, not plain "ok"
+  - job_name: "module-agentcard-blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://executive-agent:8161/.well-known/agent-card.json
+          - http://motor-output:8163/.well-known/agent-card.json
+          - http://working-memory:8201/.well-known/agent-card.json
+          - http://reasoning:8206/.well-known/agent-card.json
+          - http://metacognition:8171/.well-known/agent-card.json
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

@@ -63,6 +63,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _handler = A2AHandler(store=store, loader=loader, dispatcher=dispatcher)
     _mcp_tools = MCPTools(store=store, loader=loader, dispatcher=dispatcher)
 
+    # Configure OTel tracing + structlog trace_id injection (§8.4)
+    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+    from working_memory.instrumentation.otel_setup import configure_telemetry  # noqa: PLC0415
+    configure_telemetry(otlp_endpoint=otlp_endpoint)
+
     logger.info("working_memory.server.startup", chromadb_url=chromadb_url)
     yield
     logger.info("working_memory.server.shutdown")

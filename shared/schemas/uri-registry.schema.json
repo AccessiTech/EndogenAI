@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://endogenai.accessitech.com/shared/schemas/uri-registry.schema.json",
+  "title": "URI Registry",
+  "description": "Consolidated registry of all MCP resource URIs exposed by the brAIn system.",
+  "type": "object",
+  "required": ["version", "generated", "resources"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version of this registry file (e.g. '0.1.0')."
+    },
+    "generated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when this registry was last generated."
+    },
+    "resources": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ResourceEntry" },
+      "description": "List of all registered brain:// resource URIs."
+    }
+  },
+  "definitions": {
+    "ResourceEntry": {
+      "type": "object",
+      "required": ["uri", "module", "group", "type", "mimeType", "accessControl"],
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "type": "string",
+          "description": "brain:// URI or RFC 6570 template"
+        },
+        "module": {
+          "type": "string",
+          "description": "Module identifier (e.g. 'working-memory', 'reasoning')"
+        },
+        "group": {
+          "type": "string",
+          "enum": [
+            "group-i-signal-processing",
+            "group-ii-cognitive-processing",
+            "group-iii-executive-output",
+            "group-iv-adaptive-systems",
+            "group-v-interface"
+          ],
+          "description": "Architectural group this resource belongs to."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["direct", "template"],
+          "description": "Whether the URI is a direct address or an RFC 6570 template."
+        },
+        "mimeType": {
+          "type": "string",
+          "description": "MIME type of the resource content (e.g. 'application/json')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this resource."
+        },
+        "parameters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TemplateParameter" },
+          "description": "Only present when type=template. Describes RFC 6570 template variables."
+        },
+        "accessControl": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Access control scopes required (e.g. ['read:public'], ['read:authenticated'], ['subscribe:authenticated'], ['write:admin'])."
+        }
+      }
+    },
+    "TemplateParameter": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Template variable name."
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type of the variable (e.g. 'string', 'integer')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the variable."
+        }
+      }
+    }
+  }
+}

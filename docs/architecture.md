@@ -1,15 +1,17 @@
 ---
 id: architecture
-version: 0.2.0
+version: 0.3.0
 status: active
-last-reviewed: 2026-02-28
+last-reviewed: 2026-03-03
 ---
 
 # Architecture
 
-> **Status: active** — Phase 1–6 deliverables documented. Group I (Signal Processing) modules are live as of
+> **Status: active** — Phase 1–7 deliverables documented. Group I (Signal Processing) modules are live as of
 > Phase 4; Group II (Cognitive Processing) modules are live as of Phase 5; Group III (Executive & Output) modules
-> are live as of Phase 6. Group IV design is resolved (Phase 7); live module detail will be added after delivery.
+> are live as of Phase 6; Group IV (Adaptive Systems) modules are live as of Phase 7. Group V (Interface Layer)
+> design is fully resolved — see [`docs/research/phase-8-overview.md`](research/phase-8-overview.md) and sub-phase
+> workplans D4–D6. Implementation begins at Phase 8.
 
 Full architectural overview of the EndogenAI framework, including layer descriptions, shared contracts, and signal flow.
 
@@ -66,7 +68,7 @@ Information flows **bottom-up** (Input → Perception → Cognition → Action) 
 | ------------------------------ | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Hono API Gateway               | `apps/default/server/`      | BFF: MCP client (Streamable HTTP), SSE relay to browser, CORS policy, endpoint for all `/api/*` routes           |
 | OAuth 2.1 Auth Layer           | `apps/default/server/auth/` | JWT-based local IdP stub (PKCE flow, RFC 8414/9728 metadata endpoints); replaceable with external OIDC in forks  |
-| Browser Client — Chat tab      | `apps/default/client/`      | User-facing input/output surface; SSE token streaming via `EventSource`; WCAG 2.1 AA + mobile responsive         |
+| Browser Client — Chat tab      | `apps/default/client/`      | User-facing input/output surface; `fetch()`-based SSE token streaming (custom `Authorization` header required); WCAG 2.1 AA + mobile responsive |
 | Browser Client — Internals tab | `apps/default/client/`      | Developer transparency: agent card browser, signal trace feed, memory state inspector, active collections viewer |
 
 ---

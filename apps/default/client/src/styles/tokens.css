@@ -1,0 +1,73 @@
+/* Design tokens — CSS custom properties (light mode defaults) */
+:root {
+  /* Colours */
+  --color-bg: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-raised: #ebebeb;
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-border: #e0e0e0;
+  --color-error: #cc0000;
+  --color-error-bg: #fff0f0;
+  --color-success: #007700;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --line-height-base: 1.5;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 3px rgba(0, 102, 204, 0.4);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+
+  /* Touch target minimum */
+  --touch-target: 44px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1a1a;
+    --color-surface: #2a2a2a;
+    --color-surface-raised: #333333;
+    --color-primary: #4da6ff;
+    --color-primary-hover: #80bfff;
+    --color-text: #f0f0f0;
+    --color-text-muted: #aaaaaa;
+    --color-border: #404040;
+    --color-error: #ff6666;
+    --color-error-bg: #2a1a1a;
+    --color-success: #66cc66;
+    --focus-ring: 0 0 0 3px rgba(77, 166, 255, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

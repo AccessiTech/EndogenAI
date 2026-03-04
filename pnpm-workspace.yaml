@@ -2,5 +2,6 @@ packages:
   - "infrastructure/*"
   - "modules/**/*"
   - "apps/*"
+  - "apps/default/*"
   - "shared/*"
   - "shared/vector-store/*"

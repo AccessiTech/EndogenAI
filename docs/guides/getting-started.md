@@ -1,14 +1,11 @@
 ---
 id: guide-getting-started
-version: 0.1.0
-status: in-progress
-last-reviewed: 2026-02-24
+version: 0.2.0
+status: current
+last-reviewed: 2026-03-03
 ---
 
 # Getting Started
-
-> **Note**: End-to-end first-run walkthrough (with live modules) will be added in Phase 8. This guide covers environment
-> setup and bringing up the local service stack.
 
 > **Contributors**: once the stack is running, see the [Toolchain Guide](toolchain.md) for linting, type-checking,
 > pre-commit hooks, and commit conventions.
@@ -72,11 +69,52 @@ This brings up the following services:
 | **Prometheus**     | 9090       | Metrics storage and querying              |
 | **Grafana**        | 3000       | Dashboards (default login: admin / admin) |
 
+**Phase 8 services** (start these after `docker compose up -d`):
+
+| Service | Port | Purpose |
+| --- | --- | --- |
+| **MCP server** | 8080 | EndogenAI MCP server (`infrastructure/mcp/`); start with `pnpm dev` from that directory |
+| **Hono gateway** | 3001 | BFF API gateway (`apps/default/server/`); start with `pnpm dev` from that directory |
+| **Vite client** | 5173 | Browser SPA dev server (`apps/default/client/`); start with `pnpm dev` |
+
+### 4b. Start Phase 8 Services
+
+Copy the gateway environment file, then start each service in a separate terminal:
+
+```bash
+# 1. Copy gateway env (first time only)
+cp apps/default/server/.env.example apps/default/server/.env
+
+# 2. MCP server (port 8080)
+cd infrastructure/mcp && pnpm dev
+
+# 3. Hono gateway (port 3001)
+cd apps/default/server && pnpm dev
+
+# 4. Vite dev client (port 5173)
+cd apps/default/client && pnpm dev
+```
+
+Open the app at **http://localhost:5173**.
+
+**Optional profiles:**
+
+```bash
+# Start Keycloak (reference OIDC provider — replaces JWT stub)
+docker compose --profile keycloak up -d keycloak
+
+# Start Grafana Tempo (distributed trace waterfall)
+docker compose --profile observability-full up -d
+```
+
 ### 5. Verify Services
 
 ```bash
 # All containers running?
 docker compose ps
+
+# ChromaDB healthy? (v2 API)
+curl -f http://localhost:8000/api/v2/heartbeat
 
 # Prometheus healthy?
 curl -f http://localhost:9090/-/healthy
@@ -86,14 +124,27 @@ curl -f http://localhost:3000/api/health
 
 # OTel Collector reachable (404 is expected — no root handler)?
 curl -o /dev/null -w "%{http_code}" http://localhost:4318
+
+# MCP server healthy?
+curl -f http://localhost:8080/health
+
+# Gateway healthy?
+curl -f http://localhost:3001/api/health
 ```
 
 ---
 
 ## First Run
 
-_End-to-end walkthrough (Sensory Input → Perception → Memory → Executive → Motor Output) will be added in Phase 8, once
-the module stack is operational._
+Phase 8 is complete — the full interface layer is live.
+
+1. Open **http://localhost:5173** in your browser.
+2. Click **Login** to go through the PKCE auth flow (JWT stub — no password required in dev).
+3. Use the **Chat** tab to send input to the cognitive backbone via the gateway.
+4. Use the **Internals** tab to browse agent cards, resource collections, and signal traces.
+
+> For a full end-to-end walkthrough (Sensory Input → Perception → Memory → Executive → Motor Output),
+> see the Phase 8 section in [docs/Workplan.md](../Workplan.md).
 
 ---
 

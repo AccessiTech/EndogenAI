@@ -140,8 +140,46 @@ await broker.publish(reply);
 
 ## MCP Resources
 
-- `mcp://capabilities/{moduleId}` — read a specific module's capability entry (JSON)
-- `list_resources` — enumerates all registered modules
+| Resource URI | Description |
+| --- | --- |
+| `mcp://capabilities/{moduleId}` | Returns all capabilities registered by the specified module. |
+| `brain://` URIs _(Phase 8.5)_ | Module-level cognitive resources (working-memory context, signal traces, etc.). Registered via `resources/uri-registry.json`; served via `resources/list`, `resources/read`, and `resources/subscribe` JSON-RPC handlers added in Phase 8.5. |
+
+---
+
+## Phase 8 Additions
+
+Phase 8 adds the following routes and handlers to `infrastructure/mcp` — tracked in
+[`docs/Workplan.md §8.2`](../../docs/Workplan.md#82-mcp-oauth-21-auth-layer) and
+[`docs/Workplan.md §8.5`](../../docs/Workplan.md#85-mcp-resource-registry-resources):
+
+### `GET /.well-known/oauth-protected-resource` _(Phase 8.2)_
+
+RFC 9728 requires the Protected Resource Metadata endpoint to be served **by the resource server** (this package),
+not the gateway. Once added to `src/`, it returns:
+
+```json
+{
+  "resource": "<MCP_SERVER_URI>",
+  "authorization_servers": ["http://localhost:3001"]
+}
+```
+
+This is a Gate 1 prerequisite for the OAuth auth stub in `apps/default/server/src/auth/`.
+
+### `resources/list`, `resources/read`, `resources/subscribe` _(Phase 8.5)_
+
+MCP JSON-RPC handlers that serve `brain://` URI resources from `resources/uri-registry.json`.
+`resources/subscribe` is required for the browser Internals tab panels:
+- `brain://group-ii/working-memory/context/current` — Working Memory Inspector
+- `brain://group-iv/metacognition/confidence/current` — Confidence Scores panel
+
+### External transport note
+
+The Phase 8 Hono gateway connects to this server over the **MCP Streamable HTTP transport**
+(spec 2025-06-18): `POST /mcp` with `Content-Type: application/json` and
+`MCP-Protocol-Version: 2025-06-18` header; `GET /mcp` for server-side push SSE. The gateway's
+`src/mcp-client.ts` manages `Mcp-Session-Id` and `Last-Event-ID` headers for session continuity.
 
 ---
 

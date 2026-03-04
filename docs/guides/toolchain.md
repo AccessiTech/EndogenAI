@@ -53,6 +53,11 @@ pnpm run build       # turbo run build
 Workspace package globs are defined in [`pnpm-workspace.yaml`](../../pnpm-workspace.yaml): `infrastructure/*`,
 `modules/**/*`, `apps/*`, `shared/*`.
 
+> **Note for Phase 8**: The glob `apps/*` does not resolve packages nested below the first level. The Phase 8
+> packages `apps/default/server` (`@endogenai/gateway`) and `apps/default/client` (`@endogenai/client`) **must be
+> added as explicit named entries** in `pnpm-workspace.yaml` — they are not covered by the `apps/*` glob. This is a
+> Gate 0 prerequisite; see [`docs/Workplan.md §8`](../../docs/Workplan.md#phase-8--application-layer--observability).
+
 ---
 
 ## Python / uv

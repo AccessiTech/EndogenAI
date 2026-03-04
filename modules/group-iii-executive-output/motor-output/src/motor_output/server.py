@@ -93,6 +93,11 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     )
     _mcp_tools = MCPTools(dispatcher=_dispatcher)
 
+    # Configure OTel tracing + structlog trace_id injection (§8.4)
+    otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+    from motor_output.instrumentation.otel_setup import configure_telemetry  # noqa: PLC0415
+    configure_telemetry(otlp_endpoint=otlp_endpoint)
+
     logger.info("motor_output.started", executive_agent_url=executive_agent_url)
     FastAPIInstrumentor().instrument_app(app)
     yield

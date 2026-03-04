@@ -1,0 +1,20 @@
+[
+  {
+    "uri": "brain://group-i/perception/signal/current",
+    "module": "perception",
+    "group": "group-i-signal-processing",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Current sensory input signal vector",
+    "accessControl": ["read:authenticated"]
+  },
+  {
+    "uri": "brain://group-i/attention/filter/current",
+    "module": "attention-filtering",
+    "group": "group-i-signal-processing",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Current attention weight vector",
+    "accessControl": ["read:authenticated", "subscribe:authenticated"]
+  }
+]

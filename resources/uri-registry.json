@@ -1,0 +1,106 @@
+{
+  "version": "0.1.0",
+  "generated": "2026-03-03T00:00:00.000Z",
+  "resources": [
+    {
+      "uri": "brain://group-i/perception/signal/current",
+      "module": "perception",
+      "group": "group-i-signal-processing",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current sensory input signal vector",
+      "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-i/attention/filter/current",
+      "module": "attention-filtering",
+      "group": "group-i-signal-processing",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current attention weight vector",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-ii/working-memory/context/current",
+      "module": "working-memory",
+      "group": "group-ii-cognitive-processing",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current context window assembled by Working Memory — primary Internals panel resource",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-ii/episodic-memory/episode/{id}",
+      "module": "episodic-memory",
+      "group": "group-ii-cognitive-processing",
+      "type": "template",
+      "mimeType": "application/json",
+      "description": "Specific memory episode by ID",
+      "parameters": [{"name": "id", "type": "string", "description": "Episode UUID"}],
+      "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-ii/reasoning/plan/current",
+      "module": "reasoning",
+      "group": "group-ii-cognitive-processing",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current DSPy reasoning plan",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-iii/executive-agent/status",
+      "module": "executive-agent",
+      "group": "group-iii-executive-output",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Executive agent operational status and current goal stack",
+      "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-iii/motor-output/queue",
+      "module": "motor-output",
+      "group": "group-iii-executive-output",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Pending motor action queue",
+      "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/metacognition/confidence/current",
+      "module": "metacognition",
+      "group": "group-iv-adaptive-systems",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current task confidence scores per goal class — key Internals panel metric",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/learning-adaptation/habits/catalog",
+      "module": "learning-adaptation",
+      "group": "group-iv-adaptive-systems",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Catalogue of promoted habit policies",
+      "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/reward/signal/recent",
+      "module": "reward-signal",
+      "group": "group-iv-adaptive-systems",
+      "type": "dynamic",
+      "mimeType": "application/json",
+      "description": "Recent reward signals from the adaptive systems layer",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/adaptive/weights/current",
+      "module": "learning-adaptation",
+      "group": "group-iv-adaptive-systems",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current adaptive weights snapshot",
+      "accessControl": ["read:authenticated"]
+    }
+  ]
+}
