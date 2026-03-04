@@ -12,7 +12,17 @@
 ## Application
 
 All entries in `uri-registry.json` carry an `accessControl` array.
-The gateway's `authMiddleware` validates scope claims from the JWT payload.
+This taxonomy is the **forward-looking specification** for Phase 9 security hardening.
+
+> **Note — scope enforcement is not yet active.**
+> Scope claim validation is deferred to **Phase 9 Security Hardening**.
+> The current `authMiddleware` implementation verifies JWT **signature and expiry only**; it does
+> not inspect the `scope` claim. All authenticated requests (`read:authenticated`,
+> `subscribe:authenticated`) are permitted as long as the JWT is valid and unexpired.
+> `write:admin` endpoints are not yet exposed.
+>
+> Do not rely on scope-level isolation in Phase 8 deployments.
+
 Public resources (`read:public`) are served without auth middleware.
 
 ## brain:// URI Priority Resources (Internals Panel)
