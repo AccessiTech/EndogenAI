@@ -17,6 +17,7 @@ function makeContext(overrides: Partial<MCPContext> = {}): MCPContext {
     version: '0.1.0',
     timestamp: new Date().toISOString(),
     source: { moduleId: 'integration-source', layer: 'sensory-input' },
+    traceContext: { traceparent: '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' },
     contentType: 'signal/text',
     payload: { text: 'integration test' },
     priority: 5,
