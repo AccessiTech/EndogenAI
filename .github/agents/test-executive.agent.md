@@ -39,7 +39,7 @@ agents:
 handoffs:
   - label: Prune Scratchpad
     agent: Scratchpad Janitor
-    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
     send: false
   - label: Scaffold Missing Tests
     agent: Test Scaffold
@@ -91,14 +91,6 @@ handoffs:
     send: false
 ---
 
-## Endogenous sources — read before acting
-
-1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions, `uv run`-only rule, commit discipline
-2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
-3. [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — coverage gap scanner; check before delegating to Test Coverage
-4. [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py) — test scaffolder; check before delegating to Test Scaffold
-5. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — authoritative gap list, task IDs, and decisions
-
 You are the **Test Executive Agent** for EndogenAI. You orchestrate the full
 testing lifecycle and coordinate the testing sub-agent fleet.
 
@@ -112,6 +104,14 @@ testing lifecycle and coordinate the testing sub-agent fleet.
 4. **Review quality** — delegate to Test Review to check assertion quality,
    Testcontainers use, and mocking discipline.
 5. **Confirm green** — re-run the full test suite before handing off to Review.
+
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions, `uv run`-only rule, commit discipline
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — coverage gap scanner; check before delegating to Test Coverage
+4. [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py) — test scaffolder; check before delegating to Test Scaffold
+5. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — authoritative gap list, task IDs, and decisions
 
 ## Workflow
 

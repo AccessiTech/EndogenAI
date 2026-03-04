@@ -204,24 +204,34 @@ When proceeding under ambiguity, **document the assumption inline** (code commen
 
 ## Agent Communication
 
-### `.tmp.md` — Cross-agent scratchpad
+### `.tmp/` — Per-session cross-agent scratchpad
 
-`.tmp.md` at the workspace root is the **designated scratchpad** for cross-agent context
+`.tmp/` at the workspace root is the **designated scratchpad folder** for cross-agent context
 preservation. It is gitignored and never committed.
+
+**Folder structure:**
+```
+.tmp/
+  <branch-slug>/          # one folder per branch
+    _index.md             # one-line stubs of all closed sessions on this branch
+    <YYYY-MM-DD>.md       # one file per session day — the active scratchpad
+```
+
+**`<branch-slug>`** = branch name with `/` replaced by `-`
+(e.g. `docs/test-upgrade-workplan` → `docs-test-upgrade-workplan`)
+
+**Active scratchpad path** = `.tmp/<branch-slug>/<YYYY-MM-DD>.md`
 
 Rules:
 - Each delegated agent **appends** findings under a named heading: `## <Phase> Results` or
   `## <Task> Output`. Never overwrite another agent's section.
-- The executive **reads `.tmp.md` first** before delegating to avoid re-discovering context
-  another agent already gathered.
+- The executive **reads today's session file first** before delegating to avoid re-discovering
+  context another agent already gathered. Check `_index.md` for a one-line stub of prior sessions.
 - At session end, the executive writes a `## Session Summary` section so the next session starts
   with an orientation point rather than a cold start.
-- Use `.tmp.md` for inter-agent handoff notes, gap reports, and aggregated sub-agent results.
-- If `.tmp.md` exceeds **200 lines**, the active executive must prune before delegating
-  further — either by invoking the **Scratchpad Janitor** agent or by running
-  `python scripts/prune_scratchpad.py` directly.
-- At the start of a new branch or PR, re-initialise `.tmp.md` with a fresh header and
-  archive the previous session's content using `python scripts/prune_scratchpad.py --force`.
+- Use the active session file for inter-agent handoff notes, gap reports, and aggregated sub-agent results.
+- Each new session day gets a fresh file — run `python scripts/prune_scratchpad.py --init` at
+  session start to create it. Prior-session context is available as one-line stubs in `_index.md`.
 
 ### Size guard and archive convention
 
@@ -229,8 +239,9 @@ Rules:
 |-----------|--------|
 | `.tmp.md` < 200 lines | No action needed |
 | `.tmp.md` ≥ 200 lines | Invoke Scratchpad Janitor or run `python scripts/prune_scratchpad.py` |
-| Session end / PR close | Write `## Session Summary`, then run `python scripts/prune_scratchpad.py --force` |
-| New branch start | Re-init: `echo "# .tmp.md — Cross-Agent Scratchpad\n" > .tmp.md` |
+| Session end / PR close | Write `## Session Summary`, then run `python scripts/prune_scratchpad.py --force` (also updates `_index.md`) |
+| New session day | Run `python scripts/prune_scratchpad.py --init` to create today's file |
+| New branch start | Re-init: `python scripts/prune_scratchpad.py --init` on the new branch |
 
 **Archive convention:** completed sections become one-line stubs:
 ```
@@ -290,15 +301,38 @@ clarifying question before taking action**. This is especially important when:
 
 Asking one well-framed question costs far less context than completing work that needs revision.
 
-### Context window efficiency via delegation and `.tmp.md`
+### Context window efficiency via delegation and `.tmp/`
 
-Delegation + `.tmp.md` together let an orchestrator's context window go much further:
+Delegation + the active session file together let an orchestrator's context window go much further:
 - The orchestrator delegates bounded sub-tasks to specialists with short, focused context windows
-- Specialists write structured output to `.tmp.md` rather than returning it inline
-- The orchestrator reads `.tmp.md` summaries rather than full sub-agent transcripts
+- Specialists write structured output to the active session file rather than returning it inline
+- The orchestrator reads the active session file summaries rather than full sub-agent transcripts
 - Sub-delegation (specialist delegates to sub-specialist) amplifies this effect further
 
 Prefer deep delegation trees over wide inline execution for large tasks.
+
+### Delegation model — inline over handoff
+
+The **preferred delegation pattern** is inline delegation via `@agentname` within the
+orchestrator's context window. This keeps the orchestrator's context intact and avoids the
+cost of restarting it after each sub-agent completes.
+
+**Inline delegation** (preferred):
+```
+Orchestrator (persistent context)
+  @Phase5Executive → reports back inline
+  reads .tmp/<branch>/<date>.md for summary
+  @ReviewAgent → reports back inline
+  @GitHub → commit confirmed
+```
+
+**Handoff buttons** (session boundary events only):
+- Session start → Scratchpad Janitor (if file is stale/large)
+- Session end → Review → GitHub
+- Escalation → specialist with relevant posture
+
+When delegating, always include in the prompt: **"Sub-delegate where appropriate before returning
+results. Write a `## <Task> Results` summary to `.tmp/<branch>/<date>.md` for persistence."**
 
 ---
 

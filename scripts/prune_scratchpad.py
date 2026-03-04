@@ -1,43 +1,60 @@
 """
-prune_scratchpad.py — Scratchpad size management for .tmp.md
+prune_scratchpad.py — Scratchpad size management for .tmp/<branch>/<date>.md
 
 Purpose:
-    Prunes the cross-agent scratchpad (.tmp.md) by compressing completed H2 sections
-    into one-line archived summaries, preserving only active/live sections in full.
-    Writes an '## Active Context' header at the top summarising what remains live.
+    Manages the cross-agent scratchpad files in .tmp/<branch-slug>/.
+    On each day a new session file is created: .tmp/<branch-slug>/<YYYY-MM-DD>.md
+    An _index.md in the branch folder holds one-line stubs of all prior sessions.
+
+    Prunes the active session file by compressing completed H2 sections into one-line
+    archived summaries, preserving only active/live sections in full. Writes an
+    '## Active Context' header at the top summarising what remains live.
 
     A section is considered "completed" when its heading contains any of the archive
     keywords: Results, Complete, Completed, Summary, Archived, Handoff, Done, Output.
     Sections whose heading contains "Active", "Escalation", "Session" (current), or
     "Plan" are treated as live and left intact.
 
-    The rule of thumb: if .tmp.md exceeds 200 lines, prune before the next delegation.
+    The rule of thumb: prune when the active session file exceeds 200 lines.
+
+Path resolution (when --file is not provided):
+    1. Read current git branch: git rev-parse --abbrev-ref HEAD
+    2. Slugify: replace '/' with '-'
+    3. Active file: .tmp/<slug>/<YYYY-MM-DD>.md
+    4. If the file does not exist, create it with a minimal header and exit 0.
 
 Inputs:
-    .tmp.md at the workspace root (default) or a path passed via --file.
+    .tmp/<branch-slug>/<YYYY-MM-DD>.md (default) or a path passed via --file.
+    Falls back to .tmp.md at the workspace root if git is unavailable.
 
 Outputs:
-    Rewrites .tmp.md (or prints to stdout in --dry-run mode) with:
+    Rewrites the active session file (or prints to stdout in --dry-run mode) with:
     - A leading '## Active Context' block listing all compressed sections
     - Full content of live sections
     - One-line archive stubs replacing completed sections:
         ## <Original Heading> (archived <YYYY-MM-DD> — <first-line-of-content>)
+    
+    When --force is used (session end), also appends a one-line stub to
+    .tmp/<branch-slug>/_index.md summarising the archived session.
 
 Usage:
     # Dry run — print result, do not write
     python scripts/prune_scratchpad.py --dry-run
 
-    # Prune in place
+    # Prune active session file in place
     python scripts/prune_scratchpad.py
 
-    # Target a different file
-    python scripts/prune_scratchpad.py --file path/to/scratchpad.md
+    # Target a specific file (overrides auto-resolution)
+    python scripts/prune_scratchpad.py --file .tmp/my-branch/2026-03-04.md
 
-    # Force prune regardless of line count
+    # Force prune regardless of line count (also updates _index.md)
     python scripts/prune_scratchpad.py --force
 
+    # Initialise a new session file for today (creates if absent)
+    python scripts/prune_scratchpad.py --init
+
 Exit codes:
-    0 — success (pruned or no pruning needed)
+    0 — success (pruned, initialised, or no pruning needed)
     1 — file not found or parse error
 """
 
@@ -60,6 +77,63 @@ ARCHIVE_KEYWORDS = frozenset(
 
 # If line count is below this threshold, skip pruning unless --force
 SIZE_GUARD = 200
+
+
+def _git_branch() -> str:
+    """Return current git branch slug (/ replaced with -), or 'default' on failure."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip().replace("/", "-")
+    except Exception:
+        pass
+    return "default"
+
+
+def resolve_active_file(base: Path | None = None) -> Path:
+    """
+    Resolve the active session scratchpad path.
+
+    Returns .tmp/<branch-slug>/<YYYY-MM-DD>.md relative to the workspace root.
+    Falls back to .tmp.md if git is unavailable.
+    """
+    today = date.today().isoformat()
+    root = base or Path(__file__).parent.parent
+    branch = _git_branch()
+    if branch == "default":
+        # Fallback: legacy .tmp.md at root
+        return root / ".tmp.md"
+    folder = root / ".tmp" / branch
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder / f"{today}.md"
+
+
+def init_session_file(path: Path) -> None:
+    """Create a new session file with a minimal header if it does not exist."""
+    if path.exists():
+        return
+    branch = path.parent.name
+    today = path.stem
+    path.write_text(
+        f"# Session — {branch} / {today}\n\n"
+        f"_Created by prune_scratchpad.py. Append findings under `## <Task> Results` headings._\n"
+    )
+    print(f"Initialised new session file: {path}")
+
+
+def update_index(branch_folder: Path, session_path: Path, today: str) -> None:
+    """Append a one-line stub to _index.md summarising the closed session."""
+    index = branch_folder / "_index.md"
+    if not index.exists():
+        index.write_text(f"# Session Index — {branch_folder.name}\n\n")
+    stub = f"- {session_path.stem} — archived {today} (session closed by --force)\n"
+    with index.open("a") as f:
+        f.write(stub)
+    print(f"Updated index: {index}")
 
 
 def _classify(heading: str) -> str:
@@ -188,8 +262,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[1].strip())
     parser.add_argument(
         "--file",
-        default=".tmp.md",
-        help="Path to the scratchpad file (default: .tmp.md)",
+        default=None,
+        help="Path to scratchpad file (default: .tmp/<branch>/<today>.md)",
     )
     parser.add_argument(
         "--dry-run",
@@ -201,9 +275,25 @@ def main() -> int:
         action="store_true",
         help="Prune regardless of line count (bypasses size guard)",
     )
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        help="Initialise today's session file and exit",
+    )
     args = parser.parse_args()
 
-    path = Path(args.file)
+    today = date.today().isoformat()
+
+    if args.init:
+        path = resolve_active_file()
+        init_session_file(path)
+        return 0
+
+    if args.file:
+        path = Path(args.file)
+    else:
+        path = resolve_active_file()
+
     if not path.exists():
         print(f"ERROR: {path} not found.", file=sys.stderr)
         return 1
@@ -218,7 +308,6 @@ def main() -> int:
         )
         return 0
 
-    today = date.today().isoformat()
     pruned, archived, kept = prune(text, today)
 
     if args.dry_run:
@@ -238,6 +327,9 @@ def main() -> int:
         f"  Kept live {len(kept)} sections: {kept}\n"
         f"  New line count: {pruned.count(chr(10))}"
     )
+    if args.force and ".tmp" in path.parts:
+        # Inside .tmp/<branch>/ — update the session index
+        update_index(path.parent, path, today)
     return 0
 
 

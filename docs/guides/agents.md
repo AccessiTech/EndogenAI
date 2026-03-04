@@ -122,30 +122,31 @@ tools:
 - **Parallel**: the executive instructs multiple subagents to run simultaneously and synthesises their independent
   results. Use for independent review perspectives (e.g. accuracy, completeness, and freshness in parallel).
 
-### Context window efficiency and `.tmp.md`
+### Context window efficiency and `.tmp/`
 
-Delegation + `.tmp.md` allow an orchestrator to handle large tasks without exhausting its
+Delegation + the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) allow an orchestrator to handle large tasks without exhausting its
 context window:
 
 - The orchestrator delegates bounded sub-tasks to specialists. Each specialist operates with a
-  short, focused context window and writes structured output to `.tmp.md` under a named heading.
-- The orchestrator reads `.tmp.md` section summaries rather than receiving full sub-agent
+  short, focused context window and writes structured output to the active session file under a named heading.
+- The orchestrator reads the active session file's section summaries rather than receiving full sub-agent
   transcripts inline, keeping the executive's context window clear for high-level decisions.
 - Sub-delegation (a specialist delegates to a sub-specialist) amplifies this further — context
   savings multiply with each delegation tier.
 
-`.tmp.md` is gitignored and never committed. Each agent appends under `## <Phase/Task> Results`.
-The executive reads `.tmp.md` before each delegation step to avoid re-discovering already-gathered context.
+The active session file is gitignored and never committed. Each agent appends under `## <Phase/Task> Results`.
+The executive reads the active session file before each delegation step to avoid re-discovering already-gathered context.
 
-**Size guard:** if `.tmp.md` exceeds 200 lines, invoke the **Scratchpad Janitor** before
+**Size guard:** if the active session file exceeds 200 lines, invoke the **Scratchpad Janitor** before
 the next delegation. The Janitor compresses completed sections to one-line archive stubs
 so the file stays lean without losing traceability.
+Each new day starts with a fresh, empty session file — daily rotation is the primary size management mechanism; the Janitor is the fallback for sessions that grow large within a single day.
 
 ### Insufficient-posture escalation
 
 When a sub-agent cannot complete a task, it must not stop silently. It must:
 
-1. Write `## <AgentName> Escalation` to `.tmp.md`: what was completed, the blocking issue, the
+1. Write `## <AgentName> Escalation` to the active session file: what was completed, the blocking issue, the
    recommended next agent, and step-by-step instructions.
 2. Return to the executive via the “Back to [Executive]” handoff button.
 
@@ -227,12 +228,14 @@ Review → GitHub
 
 For multi-phase, multi-domain work (test upgrades, full docs passes, phase deliveries):
 
+0. **Initialise the session file** — run `python scripts/prune_scratchpad.py --init` to create
+   today's `.tmp/<branch-slug>/<YYYY-MM-DD>.md`. Check `_index.md` for prior-session context.
 1. **Use Plan first** — agree scope before any agent acts.
 2. **Delegate, don't inline** — use one executive per domain (Test, Docs, Phase N).
 3. **Gate phases with Review** — after each domain executive completes, route through Review
    before committing, then GitHub.
-4. **Use `.tmp.md` as scratchpad** — executives write phase summaries; sub-agents write gap
-   reports and escalation notes. Read `.tmp.md` at the start of each step.
+4. **Use the active session file as scratchpad** — executives write phase summaries; sub-agents write gap
+   reports and escalation notes. Read the active session file at the start of each step.
 5. **Ask clarifying questions** — for any trade-off or ambiguous scope, ask before acting.
    One question costs less context than redoing large amounts of work.
 6. **Create specialist agents on demand** — when a task domain is deep enough to recur, author
@@ -243,8 +246,8 @@ For multi-phase, multi-domain work (test upgrades, full docs passes, phase deliv
 ```
 Orchestrator (Copilot Agent mode / Plan agent)
      │
-     ├─ Domain Executive A → .tmp.md output → Review → GitHub (commit)
-     ├─ Domain Executive B → .tmp.md output → Review → GitHub (commit)
+     ├─ Domain Executive A → active session output → Review → GitHub (commit)
+     ├─ Domain Executive B → active session output → Review → GitHub (commit)
      └─ Docs Executive    → completeness + accuracy → Review → GitHub (commit)
 ```
 
@@ -310,10 +313,10 @@ suite is red and the root cause is non-obvious. Hands off to Review.
 **Executive Orchestrator** (`executive-orchestrator.agent.md`) — full execution  
 Top-level "CEO" agent with two modes of operation:
 
-- **Cold-start orientation**: invoked at the beginning of a new session or branch. Reads `.tmp.md` and `docs/Workplan.md`, identifies the active phase and milestone, lists blocked and ready tasks, and recommends (or delegates to) the correct next agent. If `.tmp.md` ≥ 200 lines, invokes Scratchpad Janitor before proceeding.
-- **Request triage**: receives ambiguous or cross-cutting requests, decomposes them into atomic sub-tasks, maps each to the right specialist, and delegates using the takeback pattern (each sub-agent's final handoff returns control to the Orchestrator before the next step begins).
+- **Cold-start orientation**: invoked at the beginning of a new session or branch. Reads the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) and `docs/Workplan.md`, identifies the active phase and milestone, lists blocked and ready tasks, and recommends (or delegates to) the correct next agent. If the active session file ≥ 200 lines, invokes Scratchpad Janitor before proceeding.
+- **Request triage**: receives ambiguous or cross-cutting requests, decomposes them into atomic sub-tasks, maps each to the right specialist, and delegates using the takeback pattern (each sub-agent's final handoff returns results to the Orchestrator before the next step begins).
 
-The Orchestrator acts directly only for lightweight coordination (reading files, updating `.tmp.md`). All implementation, testing, documentation, schema, and phase work is delegated. At session end it writes `## Session Summary` to `.tmp.md` and invokes Scratchpad Janitor `--force` to archive completed sections. Has handoff buttons to every phase executive (1–8), Executive Planner, Executive Debugger, Plan, Review, GitHub, Schema Executive, Test Executive, Docs Executive, and Scratchpad Janitor.
+The Orchestrator acts directly only for lightweight coordination (reading files, updating the active session file). All implementation, testing, documentation, schema, and phase work is delegated. At session end it writes `## Session Summary` to the active session file and runs `python scripts/prune_scratchpad.py --force` to archive completed sections. Has handoff buttons to every phase executive (1–8), Executive Planner, Executive Debugger, Plan, Review, GitHub, Schema Executive, Test Executive, Docs Executive, and Scratchpad Janitor.
 
 **Executive Planner** (`executive-planner.agent.md`) — read + edit  
 Reconciles `docs/Workplan.md` against the actual codebase state. Marks completed items `[x]`, surfaces gaps, and
@@ -325,10 +328,10 @@ a session to orient yourself before calling Plan or an executive.
 ### Utility agents
 
 **Scratchpad Janitor** (`scratchpad-janitor.agent.md`) — read + create  
-Prunes `.tmp.md` when it exceeds the 200-line size guard. Compresses completed sections
+Prunes the active session file (`.tmp/<branch-slug>/<YYYY-MM-DD>.md`) when it exceeds the 200-line size guard. Compresses completed sections
 (those with headings containing "Results", "Complete", "Summary", "Done", etc.) to
 one-line archive stubs, inserts an `## Active Context` table of contents, and returns
-control to the invoking executive. Invoke manually at session start when `.tmp.md` is
+control to the invoking executive. Invoke manually at session start when the active session file is
 stale, or via the "Prune Scratchpad" handoff button on any executive agent. Backed by
 [`scripts/prune_scratchpad.py`](../../scripts/prune_scratchpad.py).
 
@@ -492,7 +495,7 @@ to reproduce CI failures and update or add the referenced schemas as needed. See
 schema coverage.
 
 **Sub-agent produced incomplete or unexpected output**  
-Check `.tmp.md` for an escalation note under `## <AgentName> Escalation`. If present, follow
+Check the active session file for an escalation note under `## <AgentName> Escalation`. If present, follow
 the recommended next action. If absent, re-invoke the sub-agent with a more tightly scoped
 prompt or elevated posture.
 

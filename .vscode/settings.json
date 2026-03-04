@@ -37,7 +37,8 @@
         "find": true,
         "awk": true,
         "npx vitest": true,
-        "diff": true
+        "diff": true,
+        "git rev-parse": true
     },
     "python.analysis.extraPaths": [
         "shared/a2a/python/src",

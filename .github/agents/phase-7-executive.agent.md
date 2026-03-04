@@ -25,7 +25,7 @@ agents:
 handoffs:
   - label: Prune Scratchpad
     agent: Scratchpad Janitor
-    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
     send: false
   - label: Research Docs State
     agent: Docs Executive Researcher
