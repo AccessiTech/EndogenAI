@@ -30,7 +30,7 @@ def opa_container():
     container.with_command("run --server --addr=0.0.0.0:8181")
     container.with_exposed_ports(8181)
     container.start()
-    wait_for_logs(container, "Loaded policy bundle", timeout=30)
+    wait_for_logs(container, "Initializing server", timeout=30)
     yield container
     container.stop()
 
