@@ -29,6 +29,7 @@ dev = [
   "ruff>=0.4",
   "mypy>=1.10",
   "testcontainers>=4.4",
+  "pytest-cov>=5.0",
 ]
 
 [project.scripts]
@@ -48,6 +49,7 @@ packages = ["src/agent_runtime"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "--cov=src --cov-fail-under=80"
 markers = [
   "integration: marks tests as integration tests (require Docker)",
 ]

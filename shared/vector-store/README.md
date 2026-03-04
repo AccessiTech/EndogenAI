@@ -160,9 +160,24 @@ async def main():
 cd shared/vector-store/python
 uv sync
 uv run pytest tests/ -v
+
+# Run with coverage (80% threshold)
+uv run pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=80
+
 # Skip Qdrant tests (no Docker Qdrant):
 SKIP_QDRANT_TESTS=1 uv run pytest tests/test_chroma.py -v
+
+# Skip ChromaDB tests:
+SKIP_CHROMA_TESTS=1 uv run pytest tests/test_qdrant.py -v
+
+# Skip all integration tests (monorepo-wide CI gate):
+SKIP_INTEGRATION_TESTS=1 uv run pytest tests/ -v
 ```
+
+**Known coverage gaps (see [docs/test-upgrade-workplan.md](../../docs/test-upgrade-workplan.md)):**
+- `src/embedding.py` (`EmbeddingClient`) — no tests yet (P22)
+- `test_chroma.py` has no `SKIP_CHROMA_TESTS` skip guard (W9 — implement per T7/P08)
+- Estimated overall coverage: ~65% (target: 80%)
 
 ## TypeScript usage
 
@@ -229,3 +244,5 @@ pnpm test
 | `QDRANT_API_KEY`             | —                        | API key for Qdrant Cloud             |
 | `PGVECTOR_CONNECTION_STRING` | —                        | PostgreSQL connection string         |
 | `SKIP_QDRANT_TESTS`          | —                        | Set to skip Qdrant integration tests |
+| `SKIP_CHROMA_TESTS`          | —                        | Set to skip ChromaDB integration tests |
+| `SKIP_INTEGRATION_TESTS`     | —                        | Monorepo-level coarse override — skips all integration tests in this package (checked alongside per-service vars) |

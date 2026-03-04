@@ -32,7 +32,13 @@
         "node": true,
         "gzip": true,
         "docker compose": true,
-        "cp": true
+        "cp": true,
+        "timeout": true,
+        "find": true,
+        "awk": true,
+        "npx vitest": true,
+        "diff": true,
+        "git rev-parse": true
     },
     "python.analysis.extraPaths": [
         "shared/a2a/python/src",

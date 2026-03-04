@@ -162,3 +162,21 @@ uv run ruff check .
 uv run mypy src/
 uv run pytest
 ```
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+cd modules/group-iv-adaptive-systems/metacognition
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# No external services required for unit tests
+SKIP_INTEGRATION_TESTS=1 uv run pytest -m "not integration" -q
+```
+
+Estimated coverage: ~45% (HIGH gap). Known gaps — no tests yet for:
+- `src/a2a_handler.py` — see [workplan](../../../docs/test-upgrade-workplan.md) P09
+- `src/instrumentation/otel_setup.py` — covered by `tests/test_otel_setup.py`
+
+Note: existing tests use a real `MeterProvider` (not mocked) — a canonical example for OTel test patterns.

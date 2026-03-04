@@ -13,6 +13,7 @@ tools:
   - agent
 agents:
   - Phase 8 MCP OAuth Executive
+  - Scratchpad Janitor
   - Phase 8 Hono Gateway Executive
   - Phase 8 Browser Client Executive
   - Phase 8 Observability Executive
@@ -23,6 +24,10 @@ agents:
   - Review
   - GitHub
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
+    send: false
   # - label: Research Docs State
   #   agent: Docs Executive Researcher
   #   prompt: "Please research the current documentation and codebase state for Phase 8 — Application Layer & Observability. Survey apps/ (if it exists), infrastructure/mcp/, shared/schemas/, docs/Workplan.md (Phase 8 section), and the four Phase 8 research docs: phase-8-overview.md, phase-8a-detailed-workplan.md, phase-8b-detailed-workplan.md, phase-8c-detailed-workplan.md. Write a research brief to docs/research/phase-8-brief.md and hand back to Phase 8 Executive when complete."
@@ -117,6 +122,24 @@ JS/TS tooling. There is no Python in `apps/`.
    cd modules/group-iv-adaptive-systems && uv run pytest tests/ -v 2>&1 | tail -5
    ```
 9. Run `#tool:problems` to capture any existing workspace errors.
+
+---
+
+## Workflow
+
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Phase 8 Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
 
 ---
 
@@ -221,3 +244,7 @@ curl -sf http://localhost:9090/api/v1/query?query=hono_gateway_requests_total | 
 - **Auth tokens in memory or HttpOnly cookies only** — never `localStorage`.
 - **Schemas first** — `uri-registry.schema.json` must be landed (Gate 0) before any `resources/` JSON is authored.
 - **One sub-executive at a time per gate** — do not fire Gate 2 work before Gate 1 is verified.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).

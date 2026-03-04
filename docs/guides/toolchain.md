@@ -426,6 +426,54 @@ export default defineConfig({
 });
 ```
 
+### Integration test skip guards
+
+All `conftest.py` files must skip integration tests when either the coarse override or a per-service var is set.
+This is the **SKIP_INTEGRATION_TESTS** convention (Q6, [docs/test-upgrade-workplan.md](../../docs/test-upgrade-workplan.md)):
+
+```bash
+# Skip all integration tests monorepo-wide (CI without live services)
+export SKIP_INTEGRATION_TESTS=1
+
+# Skip only Chroma-dependent tests
+export SKIP_CHROMA_TESTS=1
+
+# Skip only Qdrant-dependent tests
+export SKIP_QDRANT_TESTS=1
+
+# Skip only OPA-dependent tests
+export SKIP_OPA_TESTS=1
+
+# Skip only Temporal-dependent tests
+export SKIP_TEMPORAL_TESTS=1
+```
+
+Each `conftest.py` should check `SKIP_INTEGRATION_TESTS` **or** its applicable per-service var. When adding a new
+package that has integration tests, add the appropriate skip guard to its `conftest.py` before merging.
+
+---
+
+### Playwright component tests (apps/default/client only)
+
+`@playwright/experimental-ct-react` component testing is a separate tier from Vitest unit tests.
+It runs against the compiled Vite CT bundle and exercises full component behaviour in a real browser.
+
+```bash
+# Run Playwright CT tests
+cd apps/default/client && pnpm run test:playwright
+
+# Run in headed mode (visible browser)
+cd apps/default/client && pnpm run test:playwright -- --headed
+
+# Run a single test file
+cd apps/default/client && pnpm run test:playwright -- tests/playwright/<file>.spec.tsx
+```
+
+Playwright CT depends on P18 Vitest unit tests passing first. See
+[`docs/test-upgrade-workplan.md §P27`](../../docs/test-upgrade-workplan.md) for scope and setup.
+
+---
+
 ### Scanning all packages
 
 Use `scripts/testing/scan_coverage_gaps.py` to check all registered packages at once:
@@ -460,6 +508,10 @@ new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as mod
 | Python test coverage     | `cd <pkg> && uv run pytest --cov=src --cov-fail-under=80` |
 | TypeScript test coverage | `pnpm --filter <pkg> run test -- --coverage`              |
 | Scan all coverage gaps   | `uv run python scripts/testing/scan_coverage_gaps.py`     |
+| Playwright CT (client)   | `cd apps/default/client && pnpm run test:playwright`      |
+| OPA coverage scan        | `uv run python scripts/testing/scan_opa_coverage.py`      |
+| Temporal coverage scan   | `uv run python scripts/testing/scan_temporal_coverage.py` |
+| Verify backing services  | `bash scripts/healthcheck.sh`                             |
 
 ---
 

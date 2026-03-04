@@ -8,10 +8,58 @@ tools:
   - execute
   - terminal
   - changes
+  - usages
+  - agent
+agents:
+  - Test Scaffold
+  - Test Executive
+  - Phase 1 Executive
+  - Phase 2 Executive
+  - Phase 3 Executive
+  - Phase 4 Executive
+  - Phase 5 Executive
+  - Phase 5 Memory Executive
+  - Phase 5 Motivation Executive
+  - Phase 5 Reasoning Executive
+  - Phase 6 Executive
+  - Phase 7 Executive
+  - Phase 7 Integration Executive
+  - Phase 7 Learning Executive
+  - Phase 7 Metacognition Executive
+  - Phase 8 Executive
+  - Phase 8 Browser Client Executive
+  - Phase 8 Hono Gateway Executive
+  - Phase 8 MCP OAuth Executive
+  - Phase 8 Observability Executive
+  - Phase 8 Resource Registry Executive
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold
     prompt: "Coverage gaps identified. Please scaffold test stubs for all uncovered symbols listed in the report."
+    send: false
+  - label: Phase 1/2 Coverage
+    agent: Phase 2 Executive
+    prompt: "Coverage analysis for shared/ and infrastructure/ is unclear. Please clarify the expected test surface for the contracts and adapters in these packages so coverage gaps can be accurately mapped."
+    send: false
+  - label: Group I Coverage
+    agent: Phase 4 Executive
+    prompt: "Coverage analysis for modules/group-i-signal-processing/ requires domain context. Please clarify expected test surface and any known gaps."
+    send: false
+  - label: Group II Coverage
+    agent: Phase 5 Executive
+    prompt: "Coverage analysis for modules/group-ii-cognitive-processing/ requires domain context. Please clarify expected test surface and any known gaps."
+    send: false
+  - label: Group III Coverage
+    agent: Phase 6 Executive
+    prompt: "Coverage analysis for modules/group-iii-executive-output/ requires domain context. Please clarify expected test surface and any known gaps."
+    send: false
+  - label: Group IV Coverage
+    agent: Phase 7 Executive
+    prompt: "Coverage analysis for modules/group-iv-adaptive-systems/ requires domain context. Please clarify expected test surface and any known gaps."
+    send: false
+  - label: Apps Coverage
+    agent: Phase 8 Executive
+    prompt: "Coverage analysis for apps/default/ requires domain context. Please clarify expected test surface and any known gaps."
     send: false
   - label: Back to Test Executive
     agent: Test Executive
@@ -19,11 +67,15 @@ handoffs:
     send: false
 ---
 
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions and `uv run`-only rule
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — backing script; read before running
+4. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — registered packages, thresholds, and known gaps
+
 You are the **Test Coverage Agent** for EndogenAI. You run coverage tooling,
 identify untested code paths, and enforce per-module thresholds.
-
-Read [`AGENTS.md`](../../AGENTS.md) and [`shared/AGENTS.md`](../../shared/AGENTS.md)
-before running any checks.
 
 ## Backing script
 

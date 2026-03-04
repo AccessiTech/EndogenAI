@@ -1,6 +1,6 @@
 ---
 name: Test Scaffold
-description: Generate test file stubs from TypeScript and Python source file interfaces. Produces signatures and TODO markers only — no business logic inferred.
+description: Generate test file stubs from TypeScript and Python source file interfaces, producing signatures and TODO markers only — no business logic inferred.
 argument-hint: "[--file <source-file>]"
 user-invokable: false
 tools:
@@ -9,10 +9,57 @@ tools:
   - edit
   - web
   - usages
+  - agent
+agents:
+  - Test Review
+  - Test Executive
+  - Phase 1 Executive
+  - Phase 2 Executive
+  - Phase 3 Executive
+  - Phase 4 Executive
+  - Phase 5 Executive
+  - Phase 5 Memory Executive
+  - Phase 5 Motivation Executive
+  - Phase 5 Reasoning Executive
+  - Phase 6 Executive
+  - Phase 7 Executive
+  - Phase 7 Integration Executive
+  - Phase 7 Learning Executive
+  - Phase 7 Metacognition Executive
+  - Phase 8 Executive
+  - Phase 8 Browser Client Executive
+  - Phase 8 Hono Gateway Executive
+  - Phase 8 MCP OAuth Executive
+  - Phase 8 Observability Executive
+  - Phase 8 Resource Registry Executive
 handoffs:
   - label: Test Quality Review
     agent: Test Review
     prompt: "Scaffold pass complete. Please review the new test stubs for assertion quality."
+    send: false
+  - label: Phase 1/2 Interface Ref
+    agent: Phase 2 Executive
+    prompt: "Test Scaffold needs interface clarification for shared/ or infrastructure/ source files before generating stubs. Please provide the expected public API surface for the affected symbols."
+    send: false
+  - label: Group I Interface Ref
+    agent: Phase 4 Executive
+    prompt: "Test Scaffold needs interface clarification for modules/group-i-signal-processing/ source files. Please provide the expected public API surface for the affected symbols."
+    send: false
+  - label: Group II Interface Ref
+    agent: Phase 5 Executive
+    prompt: "Test Scaffold needs interface clarification for modules/group-ii-cognitive-processing/ source files. Please provide the expected public API surface for the affected symbols."
+    send: false
+  - label: Group III Interface Ref
+    agent: Phase 6 Executive
+    prompt: "Test Scaffold needs interface clarification for modules/group-iii-executive-output/ source files. Please provide the expected public API surface for the affected symbols."
+    send: false
+  - label: Group IV Interface Ref
+    agent: Phase 7 Executive
+    prompt: "Test Scaffold needs interface clarification for modules/group-iv-adaptive-systems/ source files. Please provide the expected public API surface for the affected symbols."
+    send: false
+  - label: Apps Interface Ref
+    agent: Phase 8 Executive
+    prompt: "Test Scaffold needs interface clarification for apps/default/ source files. Please provide the expected public API surface for the affected symbols."
     send: false
   - label: Back to Test Executive
     agent: Test Executive

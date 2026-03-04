@@ -1,7 +1,7 @@
 {
   "name": "@accessitech/adapters",
   "version": "0.1.0",
-  "description": "EndogenAI MCP + A2A adapter bridge \u2014 enables modules to participate in both MCP context exchange and A2A task protocols without duplicated logic.",
+  "description": "EndogenAI MCP + A2A adapter bridge — enables modules to participate in both MCP context exchange and A2A task protocols without duplicated logic.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/uuid": "^11.0.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"
   }

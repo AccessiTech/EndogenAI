@@ -13,12 +13,17 @@ tools:
   - agent
 agents:
   - Schema Executive
+  - Scratchpad Janitor
   - Scaffold Module
   - Docs Executive
   - Docs Executive Researcher
   - Review
   - GitHub
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: "The active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) has grown large. Please prune completed sections to one-line archives, write an Active Context header, and return here."
+    send: false
   - label: Research Docs State
     agent: Docs Executive Researcher
     prompt: "Please research the current documentation and codebase state for Phase 6 — Group III: Executive & Output Modules. Survey modules/group-iii-executive-output/ (if it exists), shared/schemas/, docs/Workplan.md (Phase 6 section), docs/research/phase-6-detailed-workplan.md, and relevant neuroanatomy stubs (prefrontal-cortex, basal-ganglia, cerebellum, motor-cortex, supplementary-motor-area). Write a research brief to docs/research/phase-6-brief.md and hand back to Phase 6 Executive when complete."
@@ -126,6 +131,24 @@ Do not create any `modules/group-iv+/` files.
 
 Work through the gap list item by item. Do not start item N+1 until item N passes all
 verification checks.
+
+---
+
+## Workflow
+
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Phase 6 Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
 
 ---
 
@@ -396,3 +419,7 @@ the Phase 6 boundary.
 - **Do not embed OPA as a library** — always use standalone HTTP at localhost:8181.
 - **Do not use the Temporal SDK for non-deterministic code inside Workflow definitions** — move
   all side effects and non-determinism to Activities.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).

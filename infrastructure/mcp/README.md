@@ -209,10 +209,20 @@ pnpm run test
 
 ```bash
 pnpm run test
+
+# With coverage (80% threshold)
+pnpm run test -- --coverage
 ```
 
 Runs unit tests for `CapabilityRegistry`, `ContextBroker`, `StateSynchronizer`, and integration tests for
 `createMCPServer`.
+
+Estimated coverage: ~60% (target: 80%). Known gaps — no tests yet for:
+- `src/sync.ts` (context-sync / conflict resolution) — see [workplan](../../docs/test-upgrade-workplan.md) P13
+- `src/validate.ts` (validation helpers) — see P13
+- `src/run.ts` (process entry point, startup/shutdown) — see §4 Medium Gaps
+
+Set `SKIP_INTEGRATION_TESTS=1` to run unit tests only in environments without live services.
 
 ---
 

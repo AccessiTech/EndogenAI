@@ -109,3 +109,22 @@ uv run pytest tests/ -m "not integration" -q
 # Integration (requires Ollama + ChromaDB)
 uv run pytest tests/ -m integration -q
 ```
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+uv run pytest tests/ -m "not integration" --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Skip integration tests:
+SKIP_INTEGRATION_TESTS=1 uv run pytest tests/ -m "not integration" -q
+SKIP_CHROMA_TESTS=1 uv run pytest tests/ -m "not integration" -q
+```
+
+Estimated coverage: ~65% (MEDIUM gap). Note: 4 integration tests are **permanently skipped** in current CI
+because they require a live LiteLLM + Ollama + ChromaDB stack — dedicated integration CI job planned (see P24, T4).
+
+Known gaps — no tests yet for:
+- `src/a2a_handler.py` — see [workplan](../../../docs/test-upgrade-workplan.md) P09
+- `src/mcp_tools.py` — see P10

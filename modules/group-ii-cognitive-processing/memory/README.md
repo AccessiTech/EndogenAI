@@ -110,6 +110,27 @@ ollama pull nomic-embed-text
 uv run pytest tests/ -m integration -q
 ```
 
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` per sub-module — see P05).
+
+```bash
+# With coverage (run from the specific sub-module directory)
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Skip integration tests:
+SKIP_INTEGRATION_TESTS=1 uv run pytest tests/ -m "not integration" -q
+SKIP_CHROMA_TESTS=1 uv run pytest tests/ -m "not integration" -q
+```
+
+Actual coverage from 2026-03-03 test sweep (workplan §7):
+- `working-memory` **83%** (above threshold) — missing `instrumentation/otel_setup.py` (P11)
+- `short-term-memory` **89%** (above threshold) — missing `a2a_handler.py` (P09), `mcp_tools.py` (P10)
+- `long-term-memory` **81%** (above threshold) — missing `reconsolidation.py` (P19), `a2a_handler.py` (P09), `mcp_tools.py` (P10)
+- `episodic-memory` **87%** (above threshold) — missing `a2a_handler.py` (P09), `mcp_tools.py` (P10)
+
+See [`docs/test-upgrade-workplan.md`](../../../docs/test-upgrade-workplan.md) for full detail.
+
 ---
 
 ## See Also

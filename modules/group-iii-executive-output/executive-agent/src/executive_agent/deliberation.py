@@ -133,8 +133,8 @@ class DeliberationLoop:
                 package="endogenai.goals",
                 rule="allow",
                 input_data={
-                    "candidate": goal.model_dump(),
-                    "active_goals": [g.model_dump() for g in active_goals],
+                    "candidate": goal.model_dump(mode="json"),
+                    "active_goals": [g.model_dump(mode="json") for g in active_goals],
                     "config": {"maxActiveGoals": self._goal_stack.max_active_goals},
                 },
             )

@@ -77,13 +77,39 @@ class TsPackage:
 
 # Add entries here as new sub-packages are created.
 PYTHON_PACKAGES: list[PyPackage] = [
+    # Shared packages
     PyPackage("shared/vector-store/python", src_subdir="src"),
+    PyPackage("shared/a2a/python", src_subdir="src"),
+    # Group I — Signal Processing
+    PyPackage("modules/group-i-signal-processing/sensory-input", src_subdir="src"),
+    PyPackage("modules/group-i-signal-processing/attention-filtering", src_subdir="src"),
+    PyPackage("modules/group-i-signal-processing/perception", src_subdir="src"),
+    # Group II — Cognitive Processing
+    PyPackage("modules/group-ii-cognitive-processing/affective", src_subdir="src"),
+    PyPackage("modules/group-ii-cognitive-processing/memory/working-memory", src_subdir="src"),
+    PyPackage("modules/group-ii-cognitive-processing/memory/short-term-memory", src_subdir="src"),
+    PyPackage("modules/group-ii-cognitive-processing/memory/long-term-memory", src_subdir="src"),
+    PyPackage("modules/group-ii-cognitive-processing/memory/episodic-memory", src_subdir="src"),
+    PyPackage("modules/group-ii-cognitive-processing/reasoning", src_subdir="src"),
+    # Group III — Executive & Output
+    PyPackage("modules/group-iii-executive-output/executive-agent", src_subdir="src"),
+    PyPackage("modules/group-iii-executive-output/agent-runtime", src_subdir="src"),
+    PyPackage("modules/group-iii-executive-output/motor-output", src_subdir="src"),
+    # Group IV — Adaptive Systems
+    PyPackage("modules/group-iv-adaptive-systems/learning-adaptation", src_subdir="src"),
+    PyPackage("modules/group-iv-adaptive-systems/metacognition", src_subdir="src"),
 ]
 
 TS_PACKAGES: list[TsPackage] = [
+    # Infrastructure
     TsPackage("infrastructure/mcp", filter_name="@accessitech/mcp"),
     TsPackage("infrastructure/a2a", filter_name="@accessitech/a2a"),
     TsPackage("infrastructure/adapters", filter_name="@accessitech/adapters"),
+    # Shared
+    TsPackage("shared/vector-store/typescript", filter_name="@accessitech/vector-store"),
+    # Applications
+    TsPackage("apps/default/server", filter_name="@endogenai/gateway"),
+    TsPackage("apps/default/client", filter_name="@endogenai/client"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -118,7 +144,7 @@ def _rel(path: Path) -> str:
 
 
 def _check_python_config(pkg_dir: Path) -> list[str]:
-    """Return configuration warnings for a Python sub-package."""
+    """Return configuration errors for a Python sub-package."""
     warnings: list[str] = []
     pyproject = pkg_dir / "pyproject.toml"
     if not pyproject.exists():
@@ -129,6 +155,11 @@ def _check_python_config(pkg_dir: Path) -> list[str]:
         warnings.append(
             f"{_rel(pkg_dir)}: pytest-cov not in pyproject.toml — "
             f"run: cd {_rel(pkg_dir)} && uv add --dev pytest-cov"
+        )
+    if "--cov" not in text:
+        warnings.append(
+            f"{_rel(pkg_dir)}: --cov flag missing from pytest addopts in pyproject.toml — "
+            f"add addopts = \"--cov=src --cov-fail-under=80\" to [tool.pytest.ini_options]"
         )
     return warnings
 
@@ -353,17 +384,23 @@ def main() -> int:
         )
         if r.error:
             print(f"           error: {r.error}")
+        for w in r.config_warnings:
+            print(f"           CONFIG ERROR: {w}")
         total_config_issues += len(r.config_warnings)
         if not r.passed:
             failures += 1
 
     if total_config_issues:
-        print(f"\n{total_config_issues} configuration issue(s) found.")
+        print(f"\n{total_config_issues} configuration error(s) found — packages must be configured before coverage can run.")
         print("Run with --dry-run to see all setup instructions.")
 
     if args.dry_run:
         print("\ndry-run complete \u2014 no tests were executed.")
         return 0
+
+    if total_config_issues:
+        print(f"\nFAIL: {total_config_issues} package(s) have missing coverage configuration. Fix and re-run.")
+        return 1
 
     if failures:
         print(f"\n{failures} package(s) below coverage threshold. Fix and re-run.")

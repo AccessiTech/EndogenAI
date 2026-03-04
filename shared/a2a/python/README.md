@@ -43,3 +43,16 @@ uv run ruff check .
 uv run mypy src/
 uv run pytest
 ```
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see
+[docs/test-upgrade-workplan.md](../../../docs/test-upgrade-workplan.md) P05).
+
+```bash
+cd shared/a2a/python
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+```
+
+All tests in `tests/test_client.py` use a mock transport — no live services required. Estimated coverage: ~75%
+(target: 80%). No integration-test skip guards required for this package (unit-only test suite).

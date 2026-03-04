@@ -72,7 +72,7 @@ describe('McpClient', () => {
     }
 
     const calls = mockFetch.mock.calls as [string, { headers: Record<string, string> }][]
-    const fetchOptions = calls[0]![1]
+    const fetchOptions = calls[1]![1]
     expect(fetchOptions.headers['Last-Event-ID']).toBe('last-id-123')
     expect(events).toHaveLength(1)
     expect((events[0] as { data: string }).data).toBe('hello')

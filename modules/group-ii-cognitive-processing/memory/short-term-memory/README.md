@@ -77,3 +77,32 @@ uv run ruff check .
 uv run mypy src/
 uv run pytest
 ```
+
+---
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%**.
+
+```bash
+cd modules/group-ii-cognitive-processing/memory/short-term-memory
+
+# Run all tests with coverage
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Skip integration tests that require Redis, ChromaDB, and Ollama:
+SKIP_INTEGRATION_TESTS=1 uv run pytest tests/ -m "not integration" -q
+SKIP_CHROMA_TESTS=1 uv run pytest tests/ -m "not integration" -q
+```
+
+Actual coverage: **89%** (above threshold, 2026-03-03 sweep — see
+[workplan §7](../../../../docs/test-upgrade-workplan.md)).
+
+Skip variables:
+
+| Variable | Effect |
+|----------|--------|
+| `SKIP_INTEGRATION_TESTS=1` | Skips all integration tests (coarse monorepo-wide override) |
+| `SKIP_CHROMA_TESTS=1` | Skips ChromaDB-dependent tests |
+
+Known gaps: `src/a2a_handler.py` (P09), `src/mcp_tools.py` (P10) — see workplan.

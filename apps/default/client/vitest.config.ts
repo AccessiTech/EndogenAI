@@ -8,5 +8,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     exclude: ['**/node_modules/**', '**/tests/e2e/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      thresholds: {
+        lines: 80,
+      },
+    },
   },
 })

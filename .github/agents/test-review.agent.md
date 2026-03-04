@@ -12,17 +12,44 @@ handoffs:
     agent: Implement
     prompt: "Test review found the quality issues listed above. Please address all FAIL items before the next review pass."
     send: false
+  - label: Phase 1/2 Test Review
+    agent: Phase 2 Executive
+    prompt: "Test review for shared/ and infrastructure/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour and interface contracts."
+    send: false
+  - label: Group I Test Review
+    agent: Phase 4 Executive
+    prompt: "Test review for modules/group-i-signal-processing/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour."
+    send: false
+  - label: Group II Test Review
+    agent: Phase 5 Executive
+    prompt: "Test review for modules/group-ii-cognitive-processing/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour."
+    send: false
+  - label: Group III Test Review
+    agent: Phase 6 Executive
+    prompt: "Test review for modules/group-iii-executive-output/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour."
+    send: false
+  - label: Group IV Test Review
+    agent: Phase 7 Executive
+    prompt: "Test review for modules/group-iv-adaptive-systems/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour."
+    send: false
+  - label: Apps Test Review
+    agent: Phase 8 Executive
+    prompt: "Test review for apps/default/ has raised domain-specific questions. Please review the flagged tests and provide context on expected behaviour."
+    send: false
   - label: Back to Test Executive
     agent: Test Executive
     prompt: "Test quality review complete. Issues report above. Please coordinate the next step."
     send: false
 ---
 
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions and guardrails
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — known gaps, quality issues, and task IDs for cross-referencing
+
 You are the **Test Review Agent** for EndogenAI. You are **read-only** — you
 must not create, edit, or delete any files.
-
-Read [`AGENTS.md`](../../AGENTS.md) and [`shared/AGENTS.md`](../../shared/AGENTS.md)
-before auditing.
 
 ## Review checklist
 
