@@ -23,34 +23,34 @@ agents:
   - Review
   - GitHub
 handoffs:
-  - label: Research Docs State
-    agent: Docs Executive Researcher
-    prompt: "Please research the current documentation and codebase state for Phase 8 — Application Layer & Observability. Survey apps/ (if it exists), infrastructure/mcp/, shared/schemas/, docs/Workplan.md (Phase 8 section), and the four Phase 8 research docs: phase-8-overview.md, phase-8a-detailed-workplan.md, phase-8b-detailed-workplan.md, phase-8c-detailed-workplan.md. Write a research brief to docs/research/phase-8-brief.md and hand back to Phase 8 Executive when complete."
-    send: false
-  - label: Gate 0 — Land Schemas & Pre-checks
-    agent: Schema Executive
-    prompt: "Phase 8 Gate 0 is open. Please: (1) add optional traceparent field to shared/schemas/mcp-context.schema.json (W3C TraceContext pattern, not in required); (2) create shared/schemas/uri-registry.schema.json with required fields uri, module, group, type, mimeType, accessControl. Verify both pass buf lint and scripts/schema/validate_all_schemas.py. Also verify observability/otel-collector.yaml has receivers.otlp.protocols.http on port 4318 — add it if absent. Hand back to Phase 8 Executive when all Gate 0 schema checks pass."
-    send: false
-  - label: Implement §8.2 MCP OAuth Auth (Gate 1)
-    agent: Phase 8 MCP OAuth Executive
-    prompt: "Phase 8 Gate 0 pre-checks are verified. Please implement §8.2 — the MCP OAuth 2.1 auth layer at apps/default/server/src/auth/ — following docs/Workplan.md §8.2 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 1 verification checks pass."
-    send: false
-  - label: Implement §8.1 Hono Gateway (Gate 2)
-    agent: Phase 8 Hono Gateway Executive
-    prompt: "Phase 8 Gate 1 is verified — auth middleware is operational. Please implement §8.1 — the Hono API Gateway at apps/default/server/ — following docs/Workplan.md §8.1 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 2 verification checks pass."
-    send: false
-  - label: Implement §8.5 Resource Registry (Gate 3)
-    agent: Phase 8 Resource Registry Executive
-    prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.5 — the MCP Resource Registry at resources/ and infrastructure/mcp/ — following docs/Workplan.md §8.5 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 3 verification checks pass."
-    send: false
-  - label: Implement §8.3 Browser Client (Gate 4)
-    agent: Phase 8 Browser Client Executive
-    prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.3 — the browser client at apps/default/client/ — following docs/Workplan.md §8.3 and docs/research/phase-8b-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 4 verification checks pass."
-    send: false
-  - label: Implement §8.4 Observability (Gate 5)
-    agent: Phase 8 Observability Executive
-    prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.4 — gateway OTel instrumentation and Grafana dashboards — following docs/Workplan.md §8.4 and docs/research/phase-8c-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 5 verification checks pass."
-    send: false
+  # - label: Research Docs State
+  #   agent: Docs Executive Researcher
+  #   prompt: "Please research the current documentation and codebase state for Phase 8 — Application Layer & Observability. Survey apps/ (if it exists), infrastructure/mcp/, shared/schemas/, docs/Workplan.md (Phase 8 section), and the four Phase 8 research docs: phase-8-overview.md, phase-8a-detailed-workplan.md, phase-8b-detailed-workplan.md, phase-8c-detailed-workplan.md. Write a research brief to docs/research/phase-8-brief.md and hand back to Phase 8 Executive when complete."
+  #   send: false
+  # - label: Gate 0 — Land Schemas & Pre-checks
+  #   agent: Schema Executive
+  #   prompt: "Phase 8 Gate 0 is open. Please: (1) add optional traceparent field to shared/schemas/mcp-context.schema.json (W3C TraceContext pattern, not in required); (2) create shared/schemas/uri-registry.schema.json with required fields uri, module, group, type, mimeType, accessControl. Verify both pass buf lint and scripts/schema/validate_all_schemas.py. Also verify observability/otel-collector.yaml has receivers.otlp.protocols.http on port 4318 — add it if absent. Hand back to Phase 8 Executive when all Gate 0 schema checks pass."
+  #   send: false
+  # - label: Implement §8.2 MCP OAuth Auth (Gate 1)
+  #   agent: Phase 8 MCP OAuth Executive
+  #   prompt: "Phase 8 Gate 0 pre-checks are verified. Please implement §8.2 — the MCP OAuth 2.1 auth layer at apps/default/server/src/auth/ — following docs/Workplan.md §8.2 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 1 verification checks pass."
+  #   send: false
+  # - label: Implement §8.1 Hono Gateway (Gate 2)
+  #   agent: Phase 8 Hono Gateway Executive
+  #   prompt: "Phase 8 Gate 1 is verified — auth middleware is operational. Please implement §8.1 — the Hono API Gateway at apps/default/server/ — following docs/Workplan.md §8.1 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 2 verification checks pass."
+  #   send: false
+  # - label: Implement §8.5 Resource Registry (Gate 3)
+  #   agent: Phase 8 Resource Registry Executive
+  #   prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.5 — the MCP Resource Registry at resources/ and infrastructure/mcp/ — following docs/Workplan.md §8.5 and docs/research/phase-8a-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 3 verification checks pass."
+  #   send: false
+  # - label: Implement §8.3 Browser Client (Gate 4)
+  #   agent: Phase 8 Browser Client Executive
+  #   prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.3 — the browser client at apps/default/client/ — following docs/Workplan.md §8.3 and docs/research/phase-8b-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 4 verification checks pass."
+  #   send: false
+  # - label: Implement §8.4 Observability (Gate 5)
+  #   agent: Phase 8 Observability Executive
+  #   prompt: "Phase 8 Gate 2 is verified — gateway is operational. Please implement §8.4 — gateway OTel instrumentation and Grafana dashboards — following docs/Workplan.md §8.4 and docs/research/phase-8c-detailed-workplan.md exactly. Hand back to Phase 8 Executive when all Gate 5 verification checks pass."
+  #   send: false
   - label: Review Phase 8
     agent: Review
     prompt: "All Phase 8 deliverables are complete. Please review all changed files under apps/, infrastructure/mcp/ (resource handlers), observability/ (dashboards, Tempo config), shared/schemas/ (Phase 8 schemas), and resources/ against AGENTS.md constraints — TypeScript-only for apps, pnpm for all JS/TS, agent-card.json present for gateway, no direct LLM SDK calls, all auth tokens in memory or HttpOnly cookies — before I commit and open a PR."
