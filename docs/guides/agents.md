@@ -315,6 +315,13 @@ Audits the test suite for quality issues: checks that no `expect(true).toBe(fals
 stubs remain, validates Testcontainers use for integration tests, flags excessive mocking of internal collaborators.
 Produces a PASS / WARN / FAIL report with file and line references.
 
+**Playwright Executive** (`playwright-executive.agent.md`) — full execution  
+Owns setup and delivery of `@playwright/experimental-ct-react` component testing for `apps/default/client`
+(workplan task P27). Confirms P18 jsdom unit tests are passing before authoring Playwright tests,
+installs and configures `@playwright/experimental-ct-react` with the Vite CT plugin, then authors
+component integration tests covering all client routes and key user flows. Delegates quality review to
+Test Review and final commit to GitHub.
+
 ---
 
 ### Phase executive agents
@@ -329,6 +336,7 @@ agents as subagents in sequence, synthesising results, and iterating until the m
 | **Phase 1 Executive** | Shared Contracts & Vector Store Adapter | M1 — Contracts Stable | Plan, Scaffold Module, Implement, Schema Validator, Schema Migration |
 | **Phase 2 Executive** | Communication Infrastructure (MCP + A2A) | M2 — Infrastructure Online | Plan, Implement, Schema Validator |
 | **Phase 3 Executive** | Development Agent Infrastructure | M3 — Dev Agent Fleet Live | Plan, Scaffold Agent, Implement, Review Agent |
+| **Playwright Executive** | P27 — Playwright CT for `apps/default/client` | P27 complete | Test Executive, Test Review, Implement, Review, GitHub |
 
 ---
 

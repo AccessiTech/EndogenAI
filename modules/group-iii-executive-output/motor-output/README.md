@@ -145,6 +145,8 @@ Known gaps — no tests yet for:
 - `src/a2a_handler.py` — see P09
 - `src/instrumentation/otel_setup.py` — see P11
 
+> **Coverage as of 2026-03-03 test sweep:** **91%**. See workplan §7.
+
 ## Ports
 
 | Protocol | Port |

@@ -81,7 +81,9 @@ pnpm run build       # turbo run build
    changes. The coverage gate is **80% line coverage** for every package (enforced via `--cov-fail-under=80` for
    Python and `thresholds: { lines: 80 }` in `vitest.config.ts` for TypeScript). Set `SKIP_INTEGRATION_TESTS=1`
    to bypass integration tests in environments without live services; per-service vars (`SKIP_CHROMA_TESTS`,
-   `SKIP_QDRANT_TESTS`, `SKIP_OPA_TESTS`, `SKIP_TEMPORAL_TESTS`) provide finer control. See
+   `SKIP_QDRANT_TESTS`, `SKIP_OPA_TESTS`, `SKIP_TEMPORAL_TESTS`) provide finer control.
+   **`apps/default/client` has a separate Playwright CT tier** (`pnpm run test:playwright`) in addition to
+   the Vitest unit tests — both must pass before merging client-layer changes. See
    [Toolchain Guide — Test coverage](docs/guides/toolchain.md#test-coverage) and
    [docs/test-upgrade-workplan.md](docs/test-upgrade-workplan.md) for full detail.
 3. **Documentation required**: update or create `README.md` for the affected module; add/update `docs/` entries if the

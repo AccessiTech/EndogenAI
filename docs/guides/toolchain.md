@@ -453,6 +453,27 @@ package that has integration tests, add the appropriate skip guard to its `conft
 
 ---
 
+### Playwright component tests (apps/default/client only)
+
+`@playwright/experimental-ct-react` component testing is a separate tier from Vitest unit tests.
+It runs against the compiled Vite CT bundle and exercises full component behaviour in a real browser.
+
+```bash
+# Run Playwright CT tests
+cd apps/default/client && pnpm run test:playwright
+
+# Run in headed mode (visible browser)
+cd apps/default/client && pnpm run test:playwright -- --headed
+
+# Run a single test file
+cd apps/default/client && pnpm run test:playwright -- tests/playwright/<file>.spec.tsx
+```
+
+Playwright CT depends on P18 Vitest unit tests passing first. See
+[`docs/test-upgrade-workplan.md §P27`](../../docs/test-upgrade-workplan.md) for scope and setup.
+
+---
+
 ### Scanning all packages
 
 Use `scripts/testing/scan_coverage_gaps.py` to check all registered packages at once:
@@ -487,6 +508,10 @@ new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as mod
 | Python test coverage     | `cd <pkg> && uv run pytest --cov=src --cov-fail-under=80` |
 | TypeScript test coverage | `pnpm --filter <pkg> run test -- --coverage`              |
 | Scan all coverage gaps   | `uv run python scripts/testing/scan_coverage_gaps.py`     |
+| Playwright CT (client)   | `cd apps/default/client && pnpm run test:playwright`      |
+| OPA coverage scan        | `uv run python scripts/testing/scan_opa_coverage.py`      |
+| Temporal coverage scan   | `uv run python scripts/testing/scan_temporal_coverage.py` |
+| Verify backing services  | `bash scripts/healthcheck.sh`                             |
 
 ---
 

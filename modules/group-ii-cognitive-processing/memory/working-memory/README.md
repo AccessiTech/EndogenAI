@@ -160,3 +160,31 @@ Exposed at `/.well-known/agent-card.json` — see [agent-card.json](agent-card.j
 All inference routes through **LiteLLM**. All vector store operations route through the `endogenai-vector-store` adapter — no direct ChromaDB, Qdrant, or Redis SDK calls.
 
 Cross-module consolidation dispatches via `infrastructure/adapters/bridge.ts`.
+
+---
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%**.
+
+```bash
+cd modules/group-ii-cognitive-processing/memory/working-memory
+
+# Run all tests with coverage
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Skip integration tests that require live STM/LTM/Episodic endpoints:
+SKIP_INTEGRATION_TESTS=1 uv run pytest tests/ -m "not integration" -q
+```
+
+Actual coverage: **83%** (above threshold, 2026-03-03 sweep — see
+[workplan §7](../../../../docs/test-upgrade-workplan.md)).
+
+Skip variables:
+
+| Variable | Effect |
+|----------|--------|
+| `SKIP_INTEGRATION_TESTS=1` | Skips all integration tests (coarse monorepo-wide override) |
+| `SKIP_CHROMA_TESTS=1` | Skips ChromaDB-dependent tests |
+
+Known gap: `src/instrumentation/otel_setup.py` — see workplan P11.

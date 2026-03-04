@@ -169,6 +169,8 @@ Estimated coverage: ~45% (HIGH gap). Known gaps — no tests yet for:
 - `src/a2a_handler.py` — see [workplan](../../../docs/test-upgrade-workplan.md) P09
 - `src/mcp_tools.py` — see P10
 
+> **Coverage as of 2026-03-03 test sweep:** **80%** (at threshold). See workplan §7.
+
 Quality issue: `tests/test_orchestrator.py:95` (`test_loads_config_file`) makes zero assertions — see P04.
 
 ---

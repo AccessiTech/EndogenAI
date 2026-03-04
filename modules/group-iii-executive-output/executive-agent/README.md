@@ -156,6 +156,11 @@ SKIP_OPA_TESTS=1 uv run pytest -m "not integration" -q
 Estimated coverage: ~50% (HIGH gap). Active regression — fix before any other work:
 - `tests/test_integration_bdi_loop.py:35` OPA 30 s timeout (wrong wait string) — see [workplan](../../../docs/test-upgrade-workplan.md) P02
 
+> **Coverage as of 2026-03-03 test sweep:** **81%** (above 80% threshold). The `scan_coverage_gaps.py`
+> scanner shows `[FAIL]` for this package due to a pre-existing `datetime` JSON serialisation bug in
+> `deliberation.py` that causes the OPA Testcontainer integration tests to error. Coverage itself is at
+> 81.2% — see workplan §7 for detail.
+
 Known gaps — no tests yet for:
 - `src/a2a_handler.py` — see P09
 - `src/mcp_tools.py` — see P10
