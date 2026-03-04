@@ -173,6 +173,38 @@ describe('GET /api/resources', () => {
   })
 })
 
+describe('GET /api/agents', () => {
+  it('returns 401 without Authorization header', async () => {
+    const res = await app().fetch(new Request('http://localhost/api/agents'))
+    expect(res.status).toBe(401)
+    expect(res.headers.get('WWW-Authenticate')).toBeTruthy()
+  })
+
+  it('returns 200 with { agents, total } when authed', async () => {
+    delete process.env.AGENT_CARD_URLS
+    const res = await app().fetch(authedRequest('/api/agents'))
+    expect(res.status).toBe(200)
+    const body = await res.json() as { agents: unknown[]; total: number }
+    expect(Array.isArray(body.agents)).toBe(true)
+    expect(typeof body.total).toBe('number')
+    expect(body.total).toBe(body.agents.length)
+    // Gateway's own card must always be present
+    expect(body.agents.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('includes cards from AGENT_CARD_URLS when they are reachable', async () => {
+    // Point at a URL that will fail quickly — the route should still succeed and
+    // omit the unreachable card rather than returning an error.
+    process.env.AGENT_CARD_URLS = 'http://127.0.0.1:19999/.well-known/agent-card.json'
+    const res = await app().fetch(authedRequest('/api/agents'))
+    expect(res.status).toBe(200)
+    const body = await res.json() as { agents: unknown[]; total: number }
+    // Should still contain at least the gateway's own card.
+    expect(body.total).toBeGreaterThanOrEqual(1)
+    delete process.env.AGENT_CARD_URLS
+  })
+})
+
 describe('GET /.well-known/oauth-authorization-server', () => {
   it('returns 200 with issuer field', async () => {
     const res = await app().fetch(

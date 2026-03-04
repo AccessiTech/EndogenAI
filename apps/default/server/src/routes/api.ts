@@ -8,10 +8,21 @@ import { propagation, context } from '@opentelemetry/api'
 import type { McpClient } from '../mcp-client.js'
 import { sseConnectionsGauge } from '../middleware/metrics.js'
 
-// Resolve registry path relative to this source file so it works regardless of cwd.
+// Resolve file paths relative to this source file so they work regardless of cwd.
 // src/routes/api.ts → ../../../../../resources/uri-registry.json = workspace root
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const REGISTRY_PATH = join(__dirname, '..', '..', '..', '..', '..', 'resources', 'uri-registry.json')
+// src/routes/api.ts → ../../.well-known/agent-card.json = server package root
+const AGENT_CARD_PATH = join(__dirname, '..', '..', '.well-known', 'agent-card.json')
+
+/** Minimal AgentCard shape — at minimum: name, description, version, capabilities. */
+interface AgentCard {
+  name: string
+  description?: string
+  version?: string
+  capabilities?: Record<string, unknown>
+  [key: string]: unknown
+}
 
 // Load registry at startup (cached)
 function loadRegistry() {
@@ -98,15 +109,43 @@ export function createApiRouter(mcpClient: McpClient): Hono {
     })
   })
 
-  // GET /api/agents — protected; returns known agent URLs for the Internals panel
+  // GET /api/agents — protected; returns agent cards for the Internals panel
   api.get('/agents', async (c) => {
-    const mcpServerUrl = process.env.MCP_SERVER_URL ?? 'http://localhost:8080'
-    const gatewayUrl = process.env.ISSUER_URL ?? 'http://localhost:3001'
-    const agents = [
-      { name: 'endogenai-gateway', url: gatewayUrl },
-      { name: 'endogenai-mcp', url: mcpServerUrl },
-    ]
-    return c.json(agents)
+    const agents: AgentCard[] = []
+
+    // 1. Load the gateway's own agent card from disk.
+    try {
+      const raw = readFileSync(AGENT_CARD_PATH, 'utf8')
+      agents.push(JSON.parse(raw) as AgentCard)
+    } catch (err) {
+      console.warn('[/api/agents] Failed to load own agent card:', err)
+    }
+
+    // 2. Fetch remote agent cards from AGENT_CARD_URLS (comma-separated, default empty).
+    const agentCardUrls = (process.env.AGENT_CARD_URLS ?? '')
+      .split(',')
+      .map((u) => u.trim())
+      .filter(Boolean)
+
+    await Promise.all(
+      agentCardUrls.map(async (url) => {
+        try {
+          const controller = new AbortController()
+          const timer = setTimeout(() => controller.abort(), 2_000)
+          const res = await fetch(url, { signal: controller.signal })
+          clearTimeout(timer)
+          if (res.ok) {
+            agents.push((await res.json()) as AgentCard)
+          } else {
+            console.warn(`[/api/agents] Non-OK response from ${url}: ${res.status}`)
+          }
+        } catch (err) {
+          console.warn(`[/api/agents] Failed to fetch agent card from ${url}:`, err)
+        }
+      })
+    )
+
+    return c.json({ agents, total: agents.length })
   })
 
   // GET /api/resources — protected
