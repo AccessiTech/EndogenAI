@@ -12,6 +12,7 @@ tools:
   - agent
 agents:
   - Test Scaffold
+  - Scratchpad Janitor
   - Test Coverage
   - Test Review
   - Phase 1 Executive
@@ -36,6 +37,10 @@ agents:
   - Docs Executive
   - Playwright Executive
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    send: false
   - label: Scaffold Missing Tests
     agent: Test Scaffold
     prompt: "Coverage scan complete. Please scaffold test stubs for all source files listed in the gaps report, using scripts/testing/scaffold_tests.py."

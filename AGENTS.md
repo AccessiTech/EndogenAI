@@ -217,6 +217,26 @@ Rules:
 - At session end, the executive writes a `## Session Summary` section so the next session starts
   with an orientation point rather than a cold start.
 - Use `.tmp.md` for inter-agent handoff notes, gap reports, and aggregated sub-agent results.
+- If `.tmp.md` exceeds **200 lines**, the active executive must prune before delegating
+  further — either by invoking the **Scratchpad Janitor** agent or by running
+  `python scripts/prune_scratchpad.py` directly.
+- At the start of a new branch or PR, re-initialise `.tmp.md` with a fresh header and
+  archive the previous session's content using `python scripts/prune_scratchpad.py --force`.
+
+### Size guard and archive convention
+
+| Situation | Action |
+|-----------|--------|
+| `.tmp.md` < 200 lines | No action needed |
+| `.tmp.md` ≥ 200 lines | Invoke Scratchpad Janitor or run `python scripts/prune_scratchpad.py` |
+| Session end / PR close | Write `## Session Summary`, then run `python scripts/prune_scratchpad.py --force` |
+| New branch start | Re-init: `echo "# .tmp.md — Cross-Agent Scratchpad\n" > .tmp.md` |
+
+**Archive convention:** completed sections become one-line stubs:
+```
+## <Heading> (archived <YYYY-MM-DD> — <first-content-line>)
+```
+The stub preserves date and a content hint for traceability without consuming tokens.
 
 ### Scope-narrowing in delegations
 
@@ -436,6 +456,7 @@ Copilot chat agents dropdown automatically.
 | **Agent Scaffold Executive** | full tools | Orchestrate new agent creation — brief Scaffold Agent, validate, update catalog |
 | **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
 | **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |
+| **Scratchpad Janitor** | read + create | Prune `.tmp.md` when it exceeds 200 lines — compress completed sections to archive stubs, preserve live context |
 | **Govern Agent** | read-only | Fleet-wide compliance audit of `.github/agents/` against all guardrails |
 | **Docs Executive Researcher** | read + create | Pre-planning; invoked by Phase Executives to research codebase and docs state, write a phase-scoped research brief to `docs/research/`, and hand back to the invoking executive before workplan authoring |
 | **Phase-1 Executive** | full tools | Phase-1 specific orchestration and delivery tasks |

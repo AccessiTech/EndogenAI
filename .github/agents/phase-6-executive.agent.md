@@ -13,12 +13,17 @@ tools:
   - agent
 agents:
   - Schema Executive
+  - Scratchpad Janitor
   - Scaffold Module
   - Docs Executive
   - Docs Executive Researcher
   - Review
   - GitHub
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    send: false
   - label: Research Docs State
     agent: Docs Executive Researcher
     prompt: "Please research the current documentation and codebase state for Phase 6 — Group III: Executive & Output Modules. Survey modules/group-iii-executive-output/ (if it exists), shared/schemas/, docs/Workplan.md (Phase 6 section), docs/research/phase-6-detailed-workplan.md, and relevant neuroanatomy stubs (prefrontal-cortex, basal-ganglia, cerebellum, motor-cortex, supplementary-motor-area). Write a research brief to docs/research/phase-6-brief.md and hand back to Phase 6 Executive when complete."

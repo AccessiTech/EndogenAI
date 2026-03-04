@@ -13,6 +13,7 @@ tools:
   - agent
 agents:
   - Phase 8 MCP OAuth Executive
+  - Scratchpad Janitor
   - Phase 8 Hono Gateway Executive
   - Phase 8 Browser Client Executive
   - Phase 8 Observability Executive
@@ -23,6 +24,10 @@ agents:
   - Review
   - GitHub
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    send: false
   # - label: Research Docs State
   #   agent: Docs Executive Researcher
   #   prompt: "Please research the current documentation and codebase state for Phase 8 — Application Layer & Observability. Survey apps/ (if it exists), infrastructure/mcp/, shared/schemas/, docs/Workplan.md (Phase 8 section), and the four Phase 8 research docs: phase-8-overview.md, phase-8a-detailed-workplan.md, phase-8b-detailed-workplan.md, phase-8c-detailed-workplan.md. Write a research brief to docs/research/phase-8-brief.md and hand back to Phase 8 Executive when complete."

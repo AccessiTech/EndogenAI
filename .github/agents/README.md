@@ -100,6 +100,16 @@ Invoke **Agent Scaffold Executive** to add a new agent; invoke **Govern Agent** 
 
 ---
 
+## Utility Agents
+
+Cross-cutting agents that serve multiple executives without phase-specific scope.
+
+| Agent | Posture | File | Description |
+|-------|---------|------|-------------|
+| **Scratchpad Janitor** | read + create | `scratchpad-janitor.agent.md` | Prune `.tmp.md` when it exceeds 200 lines — compress completed sections to archive stubs, preserve live context |
+
+---
+
 ## Phase Executive Agents
 
 Phase executives drive all deliverables for a specific phase to the milestone gate, then hand off to Review.
@@ -150,6 +160,10 @@ Phase executives drive all deliverables for a specific phase to the milestone ga
 **Detour**: if Review raises FAILs → back to Implement/Executive for fixes, then re-Review.
 
 **Debug path**: Implement or Phase Executive → Executive Debugger → back to Implement/Phase Executive.
+
+**Context management**: any Phase Executive or exec-level agent → Scratchpad Janitor (when `.tmp.md` ≥ 200 lines) → back to invoking executive.
+
+**Context management**: any Phase Executive or exec-level agent → Scratchpad Janitor (when `.tmp.md` ≥ 200 lines) → back to invoking executive.
 
 ---
 

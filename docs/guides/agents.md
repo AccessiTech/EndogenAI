@@ -137,6 +137,10 @@ context window:
 `.tmp.md` is gitignored and never committed. Each agent appends under `## <Phase/Task> Results`.
 The executive reads `.tmp.md` before each delegation step to avoid re-discovering already-gathered context.
 
+**Size guard:** if `.tmp.md` exceeds 200 lines, invoke the **Scratchpad Janitor** before
+the next delegation. The Janitor compresses completed sections to one-line archive stubs
+so the file stays lean without losing traceability.
+
 ### Insufficient-posture escalation
 
 When a sub-agent cannot complete a task, it must not stop silently. It must:
@@ -307,6 +311,18 @@ suite is red and the root cause is non-obvious. Hands off to Review.
 Reconciles `docs/Workplan.md` against the actual codebase state. Marks completed items `[x]`, surfaces gaps, and
 recommends the next agent to engage. Edits only `docs/Workplan.md` — never touches source files. Run at the start of
 a session to orient yourself before calling Plan or an executive.
+
+---
+
+### Utility agents
+
+**Scratchpad Janitor** (`scratchpad-janitor.agent.md`) — read + create  
+Prunes `.tmp.md` when it exceeds the 200-line size guard. Compresses completed sections
+(those with headings containing "Results", "Complete", "Summary", "Done", etc.) to
+one-line archive stubs, inserts an `## Active Context` table of contents, and returns
+control to the invoking executive. Invoke manually at session start when `.tmp.md` is
+stale, or via the "Prune Scratchpad" handoff button on any executive agent. Backed by
+[`scripts/prune_scratchpad.py`](../../scripts/prune_scratchpad.py).
 
 ---
 

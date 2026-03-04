@@ -13,6 +13,7 @@ tools:
   - agent
 agents:
   - Phase 5 Memory Executive
+  - Scratchpad Janitor
   - Phase 5 Motivation Executive
   - Phase 5 Reasoning Executive
   - Executive Planner
@@ -22,6 +23,10 @@ agents:
   - Docs Executive Researcher
   - Schema Executive
 handoffs:
+  - label: Prune Scratchpad
+    agent: Scratchpad Janitor
+    prompt: ".tmp.md may be approaching the 200-line size guard. Please assess and prune completed sections, then return here."
+    send: false
   - label: Research & Plan
     agent: Phase 5 Executive
     prompt: "Please research the current state of the codebase and present a detailed workplan for Phase 5 — Group II: Cognitive Processing Modules, following all AGENTS.md constraints and reading modules/AGENTS.md for module-specific guidance."
