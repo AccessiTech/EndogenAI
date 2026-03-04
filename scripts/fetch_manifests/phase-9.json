@@ -1,0 +1,152 @@
+[
+  {
+    "url": "https://en.wikipedia.org/wiki/Memory_consolidation",
+    "out": "docs/research/sources/phase-9/bio-memory-consolidation.md",
+    "note": "bio/9.0: Memory consolidation and hippocampal replay — how the brain completes deferred/pending tasks during offline processing; analogy for phase 8 deferred item completion and working-memory notifications"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Hippocampal_replay",
+    "out": "docs/research/sources/phase-9/bio-hippocampal-replay.md",
+    "note": "bio/9.0: Hippocampal replay during sleep — replaying recent experiences to consolidate memory; analogy for re-emitting deferred notifications and catching up event subscribers"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Default_mode_network",
+    "out": "docs/research/sources/phase-9/bio-default-mode-network.md",
+    "note": "bio/9.0+9.3: Default Mode Network — self-referential background processing, introspection, narrative construction; analogy for background completion of deferred tasks and self-documenting architecture"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Immune_privilege",
+    "out": "docs/research/sources/phase-9/bio-immune-privilege.md",
+    "note": "bio/9.1: CNS immune privilege — how the brain enforces isolation from peripheral immune surveillance; analogy for module sandboxing, capability isolation, and policy-as-code enforcement"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Microglia",
+    "out": "docs/research/sources/phase-9/bio-microglia.md",
+    "note": "bio/9.1: Microglia as the brain's resident immune cells — pathogen recognition, phagocytosis, threat response, synaptic pruning; analogy for OPA policy agents continuously evaluating and enforcing access rules"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Blood%E2%80%93brain_barrier",
+    "out": "docs/research/sources/phase-9/bio-blood-brain-barrier.md",
+    "note": "bio/9.1: Blood-brain barrier — selective permeability, tight junctions as security boundaries; apoptosis of damaged cells; analogy for container sandboxing (gVisor) and OPA capability isolation"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Apoptosis",
+    "out": "docs/research/sources/phase-9/bio-apoptosis.md",
+    "note": "bio/9.1: Apoptosis (programmed cell death) — controlled self-destruction of compromised cells; analogy for container termination policies, sandboxed process isolation, and graceful pod eviction"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Pattern_recognition_receptor",
+    "out": "docs/research/sources/phase-9/bio-pattern-recognition-receptors.md",
+    "note": "bio/9.1: Pattern Recognition Receptors (PRRs, TLRs) — innate immune threat detection via molecular patterns; Danger Hypothesis (Matzinger); analogy for OPA policy rules matching request patterns against known threat signatures"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Adult_neurogenesis",
+    "out": "docs/research/sources/phase-9/bio-adult-neurogenesis.md",
+    "note": "bio/9.2: Adult neurogenesis in the hippocampus — new neurons deployed into existing circuits; radial glia scaffolding, cell migration, synaptic integration; analogy for deploying new module containers into the running cognitive stack"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Cortical_column",
+    "out": "docs/research/sources/phase-9/bio-cortical-column.md",
+    "note": "bio/9.2: Cortical columns (minicolumns, hypercolumns) — modular, self-contained functional units of cortex; barrel cortex; analogy for per-module Docker containers with defined interface boundaries"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Myelination",
+    "out": "docs/research/sources/phase-9/bio-myelination.md",
+    "note": "bio/9.2: Myelination — wrapping axons to accelerate signal transmission; saltatory conduction; analogy for optimized container networking, resource limits tuning, and HPA scaling for production performance"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Cerebral_autoregulation",
+    "out": "docs/research/sources/phase-9/bio-cerebral-autoregulation.md",
+    "note": "bio/9.2: Cerebral blood flow autoregulation — dynamic scaling of metabolic resources to active brain regions (neurovascular coupling); analogy for Kubernetes HPA — automatically scaling pods in response to CPU/memory demand"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Synaptic_pruning",
+    "out": "docs/research/sources/phase-9/bio-synaptic-pruning.md",
+    "note": "bio/9.2: Synaptic pruning — elimination of unused connections during development; Hebbian 'use it or lose it'; analogy for container resource limits, pod eviction, and removing unused service replicas"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Metacognition",
+    "out": "docs/research/sources/phase-9/bio-metacognition.md",
+    "note": "bio/9.3: Metacognition — the brain's capacity to think about its own thinking; self-monitoring, error detection, confidence estimation; analogy for self-referential documentation that describes how the system works from within"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Semantic_memory",
+    "out": "docs/research/sources/phase-9/bio-semantic-memory.md",
+    "note": "bio/9.3: Semantic memory — long-term storage of factual, conceptual knowledge; schema-like representations; analogy for documentation as a structured knowledge base that the system can reference about itself"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Hebbian_theory",
+    "out": "docs/research/sources/phase-9/bio-hebbian-theory.md",
+    "note": "bio/9.3: Hebbian learning ('neurons that fire together wire together') — activity-dependent strengthening of connections; analogy for documentation written alongside implementation solidifies understanding and cross-links"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Predictive_coding",
+    "out": "docs/research/sources/phase-9/bio-predictive-coding.md",
+    "note": "bio/9.3: Predictive coding (Friston) — the brain maintains a generative model of itself and the world, updating on prediction errors; analogy for documentation as a maintained predictive model of the codebase"
+  },
+  {
+    "url": "https://www.openpolicyagent.org/docs/latest/",
+    "out": "docs/research/sources/phase-9/tech-opa-overview.md",
+    "note": "tech/9.1: Open Policy Agent (OPA) — policy-as-code engine for authorization in microservices; Rego language; data-driven policy evaluation; sidecar and standalone deployment modes"
+  },
+  {
+    "url": "https://gvisor.dev/docs/",
+    "out": "docs/research/sources/phase-9/tech-gvisor-overview.md",
+    "note": "tech/9.1: gVisor — application kernel providing container sandboxing; runsc runtime; KVM and ptrace modes; compatibility with Docker and Kubernetes containerd runtime class"
+  },
+  {
+    "url": "https://spiffe.io/docs/latest/spiffe-about/overview/",
+    "out": "docs/research/sources/phase-9/tech-spiffe-spire.md",
+    "note": "tech/9.1: SPIFFE/SPIRE — workload identity framework for zero-trust service meshes; SVIDs (X.509 or JWT); automatic certificate rotation; mTLS bootstrapping for inter-service auth"
+  },
+  {
+    "url": "https://docs.docker.com/build/building/multi-stage/",
+    "out": "docs/research/sources/phase-9/tech-docker-multistage.md",
+    "note": "tech/9.2: Docker multi-stage builds — minimize final image size; separate build and runtime stages; best practices for Python (uv) and Node.js services"
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/",
+    "out": "docs/research/sources/phase-9/tech-k8s-deployment.md",
+    "note": "tech/9.2: Kubernetes Deployment manifest spec — rolling updates, replicas, pod template, resource requests/limits, readiness/liveness probes"
+  },
+  {
+    "url": "https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/",
+    "out": "docs/research/sources/phase-9/tech-k8s-hpa.md",
+    "note": "tech/9.2: Horizontal Pod Autoscaler — CPU/memory-based autoscaling; custom metrics via Prometheus adapter; scale-to-zero patterns"
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/services-networking/network-policies/",
+    "out": "docs/research/sources/phase-9/tech-k8s-network-policy.md",
+    "note": "tech/9.1+9.2: Kubernetes NetworkPolicy — pod-level firewall rules; namespace isolation; ingress/egress control for inter-module communication security"
+  },
+  {
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events",
+    "out": "docs/research/sources/phase-9/tech-sse-subscriptions.md",
+    "note": "tech/9.0: Server-Sent Events (SSE) subscription patterns — event stream reconnection, Last-Event-ID, retry intervals; patterns for resources/subscribe notifications over SSE"
+  },
+  {
+    "url": "https://www.w3.org/TR/trace-context/",
+    "out": "docs/research/sources/phase-9/tech-w3c-trace-context.md",
+    "note": "tech/9.0: W3C Trace Context spec — traceparent and tracestate header formats; making traceparent required in MCPContext schema; OpenTelemetry propagation conformance"
+  },
+  {
+    "url": "https://squidfunk.github.io/mkdocs-material/",
+    "out": "docs/research/sources/phase-9/tech-mkdocs-material.md",
+    "note": "tech/9.3: MkDocs Material theme — documentation-as-code; Markdown-based; search, cross-linking, versioning; suitable for EndogenAI docs site"
+  },
+  {
+    "url": "https://www.asyncapi.com/docs/reference/specification/v3.0.0",
+    "out": "docs/research/sources/phase-9/tech-asyncapi.md",
+    "note": "tech/9.0+9.3: AsyncAPI v3 — machine-readable specification for event-driven APIs including SSE and WebSocket; auto-generating documentation for resources/subscribe notifications"
+  },
+  {
+    "url": "https://developer.chrome.com/docs/lighthouse/overview/",
+    "out": "docs/research/sources/phase-9/tech-lighthouse.md",
+    "note": "tech/9.0: Lighthouse — automated web performance, accessibility, best practices, SEO auditing; Lighthouse CI for automated score enforcement; achieving ≥90 score target"
+  },
+  {
+    "url": "https://owasp.org/www-project-container-security/",
+    "out": "docs/research/sources/phase-9/tech-owasp-container-security.md",
+    "note": "tech/9.1: OWASP Container Security — non-root containers, read-only filesystems, seccomp/AppArmor profiles, image scanning with Trivy/Grype, container best practices for production AI services"
+  }
+]
