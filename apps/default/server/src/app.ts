@@ -1,29 +1,43 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-import authRouter from './auth/index.js'
-import apiRouter from './routes/api.js'
+import { secureHeaders } from 'hono/secure-headers'
+import { authMiddleware } from './auth/middleware.js'
+import { createApiRouter } from './routes/api.js'
 import wellknownRouter from './routes/wellknown.js'
+import authRouter from './auth/index.js'
+import { McpClient } from './mcp-client.js'
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173').split(',')
+const allowedOrigins = () =>
+  (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173').split(',').map((s) => s.trim())
 
-export function createApp(): Hono {
+export function createApp(mcpClient?: McpClient): Hono {
+  const client = mcpClient ?? new McpClient(process.env.MCP_SERVER_URL ?? 'http://localhost:8000')
   const app = new Hono()
 
   app.use('*', logger())
-  app.use(
-    '*',
-    cors({
-      origin: (origin) => (allowedOrigins.includes(origin) ? origin : allowedOrigins[0]!),
-      allowHeaders: ['Authorization', 'Content-Type', 'MCP-Protocol-Version'],
-      allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-      credentials: true,
-    }),
-  )
+  app.use('*', secureHeaders())
 
-  app.route('/auth', authRouter)
+  app.use('/api/*', cors({
+    origin: (origin) => {
+      const allowed = allowedOrigins()
+      return allowed.includes(origin) ? origin : null
+    },
+    credentials: true,
+    allowHeaders: ['Content-Type', 'Authorization', 'Mcp-Session-Id'],
+    allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  }))
+
+  // Public routes (no auth)
   app.route('/.well-known', wellknownRouter)
-  app.route('/api', apiRouter)
+  app.route('/auth', authRouter)
+
+  // Protected API routes
+  app.use('/api/input', authMiddleware)
+  app.use('/api/stream', authMiddleware)
+  app.use('/api/resources', authMiddleware)
+
+  app.route('/api', createApiRouter(client))
 
   return app
 }

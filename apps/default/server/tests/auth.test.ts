@@ -232,9 +232,9 @@ describe('Clock skew tolerance', () => {
     const res = await app.request('http://localhost:3001/api/input', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: 'test' }),
+      body: JSON.stringify({ message: 'clock skew test message' }),
     })
-    // Should be accepted (202 stub response)
+    // Should be accepted (within 30s clock tolerance)
     expect(res.status).toBe(202)
   })
 

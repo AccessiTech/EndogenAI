@@ -1,0 +1,13 @@
+{
+  "name": "hono-gateway",
+  "version": "0.1.0",
+  "description": "Backend-for-Frontend API gateway. Relays browser SSE streams to the MCP backbone, enforces OAuth 2.1 auth, manages CORS origin gating, and serves the React SPA. Implements the thalamic relay model.",
+  "url": "http://localhost:3001",
+  "wellKnownPath": "/.well-known/agent-card.json",
+  "capabilities": {
+    "mcp": false,
+    "a2a": false,
+    "sse": true
+  },
+  "neuroanatomicalAnalogue": "Thalamus — sensory relay, gating, and active shaping of cortex-bound signals"
+}

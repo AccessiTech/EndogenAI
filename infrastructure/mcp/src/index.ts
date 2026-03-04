@@ -17,3 +17,8 @@ export { StateSynchronizer } from './sync.js';
 export { ContextBroker } from './broker.js';
 export { createMCPServer } from './server.js';
 export type { MCPServerConfig, MCPServerInstance } from './server.js';
+export {
+  buildProtectedResourceMetadata,
+  handleWellKnownRequest,
+} from './well-known.js';
+export type { ProtectedResourceMetadata } from './well-known.js';
