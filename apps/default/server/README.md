@@ -94,5 +94,13 @@ configuration in `realm.json` — no name changes required.
 
 ```bash
 pnpm test           # vitest run
+pnpm test -- --coverage   # with coverage (80% threshold)
 pnpm typecheck      # tsc --noEmit
 ```
+
+Estimated coverage: ~40% (target: 80%). Known gaps — no tests yet for:
+- `src/auth/sessions.ts` (session lifecycle) — see [workplan](../../docs/test-upgrade-workplan.md) P14
+- `src/middleware/tracing.ts` (span creation) — see P15
+- `src/routes/wellknown.ts` (`/.well-known/agent-card.json` route) — see P15
+
+Set `SKIP_INTEGRATION_TESTS=1` to skip tests with external service dependencies.

@@ -426,6 +426,33 @@ export default defineConfig({
 });
 ```
 
+### Integration test skip guards
+
+All `conftest.py` files must skip integration tests when either the coarse override or a per-service var is set.
+This is the **SKIP_INTEGRATION_TESTS** convention (Q6, [docs/test-upgrade-workplan.md](../../docs/test-upgrade-workplan.md)):
+
+```bash
+# Skip all integration tests monorepo-wide (CI without live services)
+export SKIP_INTEGRATION_TESTS=1
+
+# Skip only Chroma-dependent tests
+export SKIP_CHROMA_TESTS=1
+
+# Skip only Qdrant-dependent tests
+export SKIP_QDRANT_TESTS=1
+
+# Skip only OPA-dependent tests
+export SKIP_OPA_TESTS=1
+
+# Skip only Temporal-dependent tests
+export SKIP_TEMPORAL_TESTS=1
+```
+
+Each `conftest.py` should check `SKIP_INTEGRATION_TESTS` **or** its applicable per-service var. When adding a new
+package that has integration tests, add the appropriate skip guard to its `conftest.py` before merging.
+
+---
+
 ### Scanning all packages
 
 Use `scripts/testing/scan_coverage_gaps.py` to check all registered packages at once:

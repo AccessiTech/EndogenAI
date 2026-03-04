@@ -144,11 +144,20 @@ pnpm run test
 
 ```bash
 pnpm run test
+
+# With coverage (80% threshold)
+pnpm run test -- --coverage
 ```
 
 Runs:
 - **Conformance tests** (`tests/conformance.test.ts`) — full task lifecycle and JSON-RPC protocol correctness
 - **Server tests** (`tests/server.test.ts`) — HTTP endpoint integration
+
+Estimated coverage: ~45% (target: 80%). Known gaps — no tests yet for:
+- `src/orchestrator.ts` (main A2A routing) — see [workplan](../../docs/test-upgrade-workplan.md) P12
+- `src/validate.ts` (JSON-RPC envelope validation) — see P12
+
+Set `SKIP_INTEGRATION_TESTS=1` to skip integration tests in environments without live services.
 
 ---
 

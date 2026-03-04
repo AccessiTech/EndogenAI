@@ -78,7 +78,12 @@ pnpm run build       # turbo run build
 
 1. **One concern per PR**: keep changes focused; avoid mixing features with refactors.
 2. **Tests required**: all new functionality must be covered by unit tests; integration tests for protocol/adapter
-   changes.
+   changes. The coverage gate is **80% line coverage** for every package (enforced via `--cov-fail-under=80` for
+   Python and `thresholds: { lines: 80 }` in `vitest.config.ts` for TypeScript). Set `SKIP_INTEGRATION_TESTS=1`
+   to bypass integration tests in environments without live services; per-service vars (`SKIP_CHROMA_TESTS`,
+   `SKIP_QDRANT_TESTS`, `SKIP_OPA_TESTS`, `SKIP_TEMPORAL_TESTS`) provide finer control. See
+   [Toolchain Guide — Test coverage](docs/guides/toolchain.md#test-coverage) and
+   [docs/test-upgrade-workplan.md](docs/test-upgrade-workplan.md) for full detail.
 3. **Documentation required**: update or create `README.md` for the affected module; add/update `docs/` entries if the
    change affects architecture or protocols.
 4. **Schemas first**: if your change requires a new shared contract (JSON Schema / Protobuf), land the schema in

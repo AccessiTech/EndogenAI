@@ -159,3 +159,22 @@ uv run mypy src/
 # Test (no live services required)
 uv run pytest
 ```
+
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# No external services required for unit tests
+SKIP_INTEGRATION_TESTS=1 uv run pytest -m "not integration" -q
+```
+
+Estimated coverage: ~50% (HIGH gap). Known gaps — no tests yet for:
+- `src/training/skill_feedback_callback.py` (0%) — see [workplan](../../../docs/test-upgrade-workplan.md) P21
+- `src/a2a_handler.py` — see P09
+- `src/mcp_tools.py` — see P10
+
+Note: existing test suite (`test_brain_env`, `test_habit_manager`, `test_replay_buffer`, `test_trainer`) uses
+correct `async` patterns and is a canonical example for the codebase.

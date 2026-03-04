@@ -409,12 +409,19 @@ cd modules/group-i-signal-processing/<module-name>
 uv sync
 uv run pytest
 
+# Run with coverage (80% threshold enforced)
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
 # Unit tests only (no Docker required)
 uv run pytest tests/unit/
 
 # Integration tests (Docker required)
 uv run pytest tests/integration/
 ```
+
+Set `SKIP_INTEGRATION_TESTS=1` (or the applicable per-service var such as `SKIP_CHROMA_TESTS=1`) to skip
+integration tests in environments without live services. Each module's `conftest.py` must check both the
+coarse override _and_ the per-service var — see [Toolchain Guide — Integration test skip guards](../guides/toolchain.md#integration-test-skip-guards).
 
 ### 10. Author `docs/README.md`
 
@@ -426,6 +433,8 @@ Every module MUST have a `README.md` that documents:
 - Vector store collections used
 - Configuration reference
 - How to run locally
+- `## Testing` section — framework (pytest/Vitest), how to run tests with coverage, 80% threshold, any
+  required env vars (`SKIP_INTEGRATION_TESTS`, per-service vars), and known coverage gaps with workplan task IDs
 - Links to relevant shared specs
 
 ## Boundary Validation Checklist

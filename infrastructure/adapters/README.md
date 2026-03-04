@@ -175,12 +175,21 @@ pnpm run test
 
 ```bash
 pnpm run test
+
+# With coverage (80% threshold)
+pnpm run test -- --coverage
 ```
 
 Runs round-trip integration tests covering:
 - A2A → MCP publish path
 - MCP reply → A2A task completion path
 - Edge cases: no taskId, completed task idempotency, sessionId propagation
+
+Estimated coverage: ~50% (target: 80%). The test surface is a single integration file (`tests/integration.test.ts`);
+additional unit tests per adapter function are needed to reach threshold. See
+[docs/test-upgrade-workplan.md](../../docs/test-upgrade-workplan.md) §4 for detail.
+
+Set `SKIP_INTEGRATION_TESTS=1` to skip integration tests in environments without live services.
 
 ---
 

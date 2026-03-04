@@ -134,6 +134,19 @@ uv run mypy src/
 Tests mock both LiteLLM (`litellm.acompletion`) and the vector store adapter,
 so no running services are required for the unit test suite.
 
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+```
+
+All tests run without live services — LiteLLM and the vector store adapter are mocked. Estimated coverage: ~80%
+(LOW gap). No integration-test skip guards required for this module.
+
+See [`docs/test-upgrade-workplan.md`](../../../docs/test-upgrade-workplan.md) for the full test upgrade roadmap.
+
 ---
 
 ## Deployment

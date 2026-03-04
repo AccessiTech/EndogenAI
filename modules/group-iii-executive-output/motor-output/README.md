@@ -127,6 +127,24 @@ uv run mypy src/
 uv run pytest
 ```
 
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# No live services required for unit tests
+SKIP_INTEGRATION_TESTS=1 uv run pytest -m "not integration" -q
+```
+
+Estimated coverage: ~55% (HIGH gap). Active regression — fix before any other work:
+- `tests/test_feedback.py:91` — `ActionSpec` missing `goal_id` causes `ValueError` before `emit()` is reached — see [workplan](../../../docs/test-upgrade-workplan.md) P01
+
+Known gaps — no tests yet for:
+- `src/a2a_handler.py` — see P09
+- `src/instrumentation/otel_setup.py` — see P11
+
 ## Ports
 
 | Protocol | Port |

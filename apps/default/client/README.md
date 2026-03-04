@@ -118,6 +118,9 @@ App
 # Unit tests (Vitest + Testing Library)
 pnpm test
 
+# With coverage (80% threshold)
+pnpm test -- --coverage
+
 # Watch mode
 pnpm test:watch
 
@@ -130,6 +133,13 @@ pnpm typecheck
 # Lint (includes jsx-a11y)
 pnpm lint
 ```
+
+Estimated coverage: ~25% (target: 80%)— this is the largest coverage gap in the monorepo. Known gaps:
+- `tabs/Internals/` (7 components, 0 tests) — see [workplan](../../docs/test-upgrade-workplan.md) P18
+- `api/gateway.ts` (all client→server API calls) — see P16
+- `auth/AuthProvider.tsx`, `auth/LoginPage.tsx`, `auth/useAuth.ts`, `auth/AuthContext.ts` — see P17
+
+Planned Phase B: Playwright integration tests (`@playwright/experimental-ct-react`) — see P27.
 
 ---
 

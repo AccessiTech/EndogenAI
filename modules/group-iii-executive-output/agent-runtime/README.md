@@ -151,6 +151,26 @@ uv run mypy src/
 uv run serve
 ```
 
+## Testing
+
+Framework: **pytest**. Coverage threshold: **80%** (enforce with `pytest-cov` once installed — see P05).
+
+```bash
+uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Skip integration tests:
+SKIP_INTEGRATION_TESTS=1 uv run pytest -m "not integration" -q
+SKIP_TEMPORAL_TESTS=1 uv run pytest -m "not integration" -q
+```
+
+Estimated coverage: ~45% (HIGH gap). Known gaps — no tests yet for:
+- `src/workflow.py`, `src/worker.py` (0%) — integration approach via `temporalio.testing.WorkflowEnvironment` (see P20)
+- `src/prefect_fallback.py` (0%) — unit test `_run_sequential()` with mocked httpx (see P20)
+- `src/a2a_handler.py` — see [workplan](../../../docs/test-upgrade-workplan.md) P09
+- `src/mcp_tools.py` — see P10
+
+Quality issue: `tests/test_orchestrator.py:95` (`test_loads_config_file`) makes zero assertions — see P04.
+
 ---
 
 ## Dependencies
