@@ -4,5 +4,5 @@
   "venv": ".venv",
   "typeCheckingMode": "basic",
   "include": ["tests"],
-  "exclude": [".venv", "metacognition", "learning-adaptation"]
+  "exclude": [".venv", "metacognition", "learning-adaptation", "**/node_modules", "**/__pycache__", "**/.*"]
 }
