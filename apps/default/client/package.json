@@ -11,13 +11,15 @@
     "test:e2e": "playwright test",
     "test:playwright": "playwright test -c playwright-ct.config.ts",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "lighthouse": "pnpm run build && lhci autorun"
   },
   "dependencies": {
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/experimental-ct-react": "^1.58.2",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.4.0",
