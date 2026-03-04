@@ -192,7 +192,22 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
     // Currently returns a static stub; real-time push requires the module to be running
     // and the MCP server to support resources/subscribe notification dispatch.
     if (uri.startsWith('brain://')) {
-      const entry = BRAIN_RESOURCES.find((r) => r.uri === uri);
+      // 1. Exact match
+      let entry = BRAIN_RESOURCES.find((r) => r.uri === uri);
+
+      // 2. Prefix match against template entries (e.g. brain://group-ii/episodic-memory/episode/{id})
+      //    Strip from the first '{' to derive the base prefix.
+      //    Full RFC 6570 expansion is deferred to a later phase.
+      if (!entry) {
+        entry = BRAIN_RESOURCES.find((r) => {
+          if (r.type !== 'template') return false;
+          const braceIdx = r.uri.indexOf('{');
+          if (braceIdx === -1) return false;
+          const prefix = r.uri.slice(0, braceIdx);
+          return uri.startsWith(prefix);
+        });
+      }
+
       if (!entry) {
         throw new Error(`Unknown brain:// resource: ${uri}`);
       }

@@ -83,6 +83,24 @@
       "mimeType": "application/json",
       "description": "Catalogue of promoted habit policies",
       "accessControl": ["read:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/reward/signal/recent",
+      "module": "reward-signal",
+      "group": "group-iv-adaptive-systems",
+      "type": "dynamic",
+      "mimeType": "application/json",
+      "description": "Recent reward signals from the adaptive systems layer",
+      "accessControl": ["read:authenticated", "subscribe:authenticated"]
+    },
+    {
+      "uri": "brain://group-iv/adaptive/weights/current",
+      "module": "learning-adaptation",
+      "group": "group-iv-adaptive-systems",
+      "type": "direct",
+      "mimeType": "application/json",
+      "description": "Current adaptive weights snapshot",
+      "accessControl": ["read:authenticated"]
     }
   ]
 }
