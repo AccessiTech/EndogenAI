@@ -114,7 +114,44 @@ async def dispatch_task(request: Request) -> JSONResponse:
         )
 
 
-@app.get("/.well-known/agent-card.json")
+@app.post("/subscribe")
+async def subscribe_resource(request: Request) -> JSONResponse:
+    """Register a subscriber (e.g. MCP server) for Working Memory resource updates.
+
+    Accepts a JSON body with:
+      - session_id   (str, optional): identifies the subscriber; defaults to "mcp-server"
+      - callback_url (str): HTTP endpoint that will receive POST {"uri": <uri>} on updates
+
+    The callback is registered in the module-level subscription registry and invoked
+    whenever a write_item or evict_item mutation succeeds.
+    """
+    body: dict[str, Any] = await request.json()
+    session_id: str = body.get("session_id", "mcp-server")
+    callback_url: str | None = body.get("callback_url")
+
+    if not callback_url:
+        return JSONResponse(
+            {"error": "callback_url is required"},
+            status_code=400,
+        )
+
+    import httpx  # noqa: PLC0415
+
+    from working_memory.subscriptions import subscribe  # noqa: PLC0415
+
+    async def http_callback(uri: str) -> None:
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(callback_url, json={"uri": uri}, timeout=2.0)
+        except Exception:
+            pass  # dead subscriber — silently swallow
+
+    subscribe(session_id, http_callback)  # type: ignore[arg-type]
+    logger.info("working_memory.subscribe", session_id=session_id, callback_url=callback_url)
+    return JSONResponse({"status": "subscribed", "session_id": session_id})
+
+
+
 async def agent_card() -> JSONResponse:
     """Serve the module agent card from the filesystem."""
     try:

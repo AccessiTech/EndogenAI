@@ -24,6 +24,8 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  SubscribeRequestSchema,
+  UnsubscribeRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { CapabilityRegistry } from './registry.js';
 import { ContextBroker } from './broker.js';
@@ -73,6 +75,27 @@ export interface MCPServerInstance {
   sync: StateSynchronizer;
 }
 
+// ---------------------------------------------------------------------------
+// Subscription registry — session → Set<uri>
+// ---------------------------------------------------------------------------
+
+const subscriptions = new Map<string, Set<string>>();
+
+// Module-level server reference set by createMCPServer()
+let _server: Server | null = null;
+
+/**
+ * Notify all subscribers whose registered URIs include `uri`.
+ * Calls `server.sendResourceUpdated` for the targeted URI.
+ */
+export async function sendResourceNotification(uri: string): Promise<void> {
+  if (!_server) return;
+  // Check at least one session is subscribed to this URI before notifying
+  const hasSubscriber = [...subscriptions.values()].some((uris) => uris.has(uri));
+  if (!hasSubscriber) return;
+  await _server.sendResourceUpdated({ uri });
+}
+
 /**
  * Creates and configures the EndogenAI MCP server.
  * Returns the server instance with registry, broker, and sync attached.
@@ -89,7 +112,7 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
     },
     {
       capabilities: {
-        resources: {},
+        resources: { subscribe: true },
         tools: {},
       },
     },
@@ -140,6 +163,28 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
         },
       ],
     };
+  });
+
+  // Store reference so sendResourceNotification() can use it
+  _server = server;
+
+  // ── Subscriptions ─────────────────────────────────────────────────────────
+
+  server.setRequestHandler(SubscribeRequestSchema, async (request, extra) => {
+    const uri = request.params.uri;
+    const sessionId: string = (extra as { sessionId?: string }).sessionId ?? 'default';
+    if (!subscriptions.has(sessionId)) {
+      subscriptions.set(sessionId, new Set());
+    }
+    subscriptions.get(sessionId)!.add(uri);
+    return {};
+  });
+
+  server.setRequestHandler(UnsubscribeRequestSchema, async (request, extra) => {
+    const uri = request.params.uri;
+    const sessionId: string = (extra as { sessionId?: string }).sessionId ?? 'default';
+    subscriptions.get(sessionId)?.delete(uri);
+    return {};
   });
 
   // ── Resources ──────────────────────────────────────────────────────────────
