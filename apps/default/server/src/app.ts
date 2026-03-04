@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
 import { authMiddleware } from './auth/middleware.js'
 import { createApiRouter } from './routes/api.js'
+import { agentsRouter } from './routes/agents.js'
 import wellknownRouter from './routes/wellknown.js'
 import authRouter from './auth/index.js'
 import { McpClient } from './mcp-client.js'
@@ -42,6 +43,7 @@ export function createApp(mcpClient?: McpClient): Hono {
   app.use('/api/resources', authMiddleware)
   app.use('/api/agents', authMiddleware)
 
+  app.route('/api', agentsRouter)
   app.route('/api', createApiRouter(client))
 
   return app

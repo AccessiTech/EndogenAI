@@ -12,17 +12,6 @@ import { sseConnectionsGauge } from '../middleware/metrics.js'
 // src/routes/api.ts → ../../../../../resources/uri-registry.json = workspace root
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const REGISTRY_PATH = join(__dirname, '..', '..', '..', '..', '..', 'resources', 'uri-registry.json')
-// src/routes/api.ts → ../../.well-known/agent-card.json = server package root
-const AGENT_CARD_PATH = join(__dirname, '..', '..', '.well-known', 'agent-card.json')
-
-/** Minimal AgentCard shape — at minimum: name, description, version, capabilities. */
-interface AgentCard {
-  name: string
-  description?: string
-  version?: string
-  capabilities?: Record<string, unknown>
-  [key: string]: unknown
-}
 
 // Load registry at startup (cached)
 function loadRegistry() {
@@ -107,45 +96,6 @@ export function createApiRouter(mcpClient: McpClient): Hono {
         sseConnectionsGauge.add(-1)
       }
     })
-  })
-
-  // GET /api/agents — protected; returns agent cards for the Internals panel
-  api.get('/agents', async (c) => {
-    const agents: AgentCard[] = []
-
-    // 1. Load the gateway's own agent card from disk.
-    try {
-      const raw = readFileSync(AGENT_CARD_PATH, 'utf8')
-      agents.push(JSON.parse(raw) as AgentCard)
-    } catch (err) {
-      console.warn('[/api/agents] Failed to load own agent card:', err)
-    }
-
-    // 2. Fetch remote agent cards from AGENT_CARD_URLS (comma-separated, default empty).
-    const agentCardUrls = (process.env.AGENT_CARD_URLS ?? '')
-      .split(',')
-      .map((u) => u.trim())
-      .filter(Boolean)
-
-    await Promise.all(
-      agentCardUrls.map(async (url) => {
-        try {
-          const controller = new AbortController()
-          const timer = setTimeout(() => controller.abort(), 2_000)
-          const res = await fetch(url, { signal: controller.signal })
-          clearTimeout(timer)
-          if (res.ok) {
-            agents.push((await res.json()) as AgentCard)
-          } else {
-            console.warn(`[/api/agents] Non-OK response from ${url}: ${res.status}`)
-          }
-        } catch (err) {
-          console.warn(`[/api/agents] Failed to fetch agent card from ${url}:`, err)
-        }
-      })
-    )
-
-    return c.json({ agents, total: agents.length })
   })
 
   // GET /api/resources — protected
