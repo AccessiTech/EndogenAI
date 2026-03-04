@@ -1,0 +1,22 @@
+[
+  {
+    "id": "evt-001",
+    "event": "resources/updated",
+    "data": "{\"id\":\"evt-001\",\"traceId\":\"abc12345-0000-0000-0000-000000000001\",\"source\":\"working-memory\",\"target\":\"reasoning\",\"messageType\":\"context-push\",\"timestamp\":\"2026-03-03T10:00:00.000Z\"}"
+  },
+  {
+    "id": "evt-002",
+    "event": "resources/updated",
+    "data": "{\"id\":\"evt-002\",\"traceId\":\"abc12345-0000-0000-0000-000000000002\",\"source\":\"attention-filtering\",\"target\":\"perception\",\"messageType\":\"signal-gate\",\"timestamp\":\"2026-03-03T10:00:01.000Z\"}"
+  },
+  {
+    "id": "evt-003",
+    "event": "mcp-push",
+    "data": "{\"token\":\"Hello\",\"sessionId\":\"session-001\"}"
+  },
+  {
+    "id": "evt-004",
+    "event": "mcp-complete",
+    "data": "{\"sessionId\":\"session-001\"}"
+  }
+]

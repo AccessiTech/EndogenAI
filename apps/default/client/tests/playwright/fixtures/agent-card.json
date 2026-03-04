@@ -1,0 +1,16 @@
+{
+  "name": "working-memory",
+  "version": "0.1.0",
+  "description": "Short-term context buffer — prefrontal cortex analogue",
+  "url": "http://localhost:4101",
+  "capabilities": {
+    "mcp": true,
+    "a2a": true,
+    "sse": true
+  },
+  "neuroanatomicalAnalogue": "Prefrontal Cortex",
+  "tools": [
+    { "name": "context/get", "description": "Retrieve current context window" },
+    { "name": "context/set", "description": "Update context window" }
+  ]
+}
