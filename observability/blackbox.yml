@@ -1,9 +1,23 @@
 # Blackbox Exporter configuration — brAIn module health probes.
 # Probes each module's health endpoint via HTTP and reports probe_success.
 #
+# Modules:
+#   http_2xx      — basic HTTP 2xx check; no body regexp; use for JSON/structured
+#                   endpoints (e.g. /.well-known/agent-card.json)
+#   http_ok_body  — HTTP 2xx + body must contain the literal string "ok"; use for
+#                   plain-text health endpoints (e.g. /health, /api/health)
+#
 # @see docs/research/phase-8c-detailed-workplan.md §8.3
 modules:
-  http_health:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      preferred_ip_protocol: "ip4"
+
+  http_ok_body:
     prober: http
     timeout: 5s
     http:
