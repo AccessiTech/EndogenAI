@@ -3,6 +3,19 @@
 An experimental MCP framework for building specialized AGI systems from the inside out — agentic modules modeled on the
 known architecture of the human brain, designed to scaffold and extend themselves from a morphogenetic seed.
 
+## Quick Start
+
+```bash
+git clone https://github.com/AccessiTech/EndogenAI.git
+cd EndogenAI
+pnpm install
+docker compose up -d
+pnpm run dev
+```
+
+Then visit `http://localhost:3001` for the web interface (gateway + browser client), or see
+[docs/guides/getting-started.md](docs/guides/getting-started.md) for the full environment setup walkthrough.
+
 ## Guiding Principles
 
 #### Foundational

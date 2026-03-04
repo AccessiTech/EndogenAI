@@ -1,14 +1,15 @@
 ---
 id: guide-observability
-version: 0.1.0
-status: draft
-last-reviewed: 2026-02-26
+version: 0.2.0
+status: current
+last-reviewed: 2026-03-04
 ---
 
 # Observability
 
-> **Status: draft** — Logging and tracing specs are defined (Phase 1). Grafana dashboards, per-module metrics, and the
-> full telemetry pipeline will be documented in Phase 7.
+> **Status: current** — Full telemetry pipeline is operational as of Phase 8. Gateway OTel instrumentation, Prometheus
+> Blackbox Exporter health probes, and Grafana dashboards (`gateway.json`, `signal-flow.json`, `module-health.json`)
+> are provisioned and auto-imported into the local stack.
 
 Telemetry setup, distributed tracing, and Grafana dashboard usage for the EndogenAI framework.
 
@@ -133,7 +134,7 @@ to pass the `brain_.*` relabel filter in `prometheus.yml`. The sub-namespace con
 
 ### Phase 7 metric namespace
 
-Phase 7 will provision Grafana dashboards for the `brain_metacognition_*` metric namespace:
+Phase 7 provisioned the `brain_metacognition_*` metric namespace. The full set is live:
 
 | Metric | Type | Description |
 | --- | --- | --- |
@@ -149,11 +150,75 @@ metrics on the existing `brain_.*` namespace.
 
 ---
 
+## Phase 8 Additions
+
+Phase 8.4 extended the observability stack with gateway-level telemetry, HTTP health probes, distributed trace
+visualization, and three new Grafana dashboards.
+
+### Gateway OTel Instrumentation
+
+The Hono API gateway (`apps/default/server`) emits structured telemetry via
+`apps/default/server/src/telemetry.ts` (bootstrapped as the first import in `src/index.ts`):
+
+- **Traces** — `NodeSDK` with OTLP HTTP exporter; `traceparent` injected into every forwarded MCP context
+  envelope; W3C TraceContext propagated end-to-end.
+- **Logs** — `pino` structured JSON with `trace_id` and `span_id` injected into every log record.
+- **Metrics** — custom Hono middleware emits Prometheus metrics under the `brain_hono_gateway_*` namespace.
+
+#### `brain_hono_gateway_*` metric namespace
+
+| Metric | Type | Description |
+| --- | --- | --- |
+| `brain_hono_gateway_requests_total` | Counter | Total HTTP requests by method, path, and status code |
+| `brain_hono_gateway_request_duration_seconds` | Histogram | Request latency (P50 / P95 / P99 visible in Grafana) |
+| `brain_hono_gateway_sse_connections_active` | Gauge | Currently open SSE stream connections |
+| `brain_hono_gateway_auth_failures_total` | Counter | 401 responses by failure reason |
+
+### Prometheus Blackbox Exporter
+
+The [Blackbox Exporter](https://github.com/prometheus/blackbox_exporter) (port `9115`) performs HTTP
+`http_2xx` probes against each module’s `/health` endpoint. `probe_success = 1` is the authoritative health
+signal consumed by the `brain-module-health` Grafana dashboard.
+
+Configuration files: `observability/blackbox.yml` (probe definitions), `observability/prometheus.yml`
+(scrape targets), `observability/prometheus-rules/gateway.yml` (alert rules).
+
+### Grafana Dashboards (auto-provisioned)
+
+Dashboard JSON files in `observability/grafana/dashboards/` are auto-imported via
+`observability/grafana/provisioning/dashboards/phase-8.yaml`:
+
+| File | UID | Key panels |
+| --- | --- | --- |
+| `gateway.json` | `brain-gateway` | Request rate, error rate, active SSE connections, P50/P95/P99 latency, auth failure rate |
+| `signal-flow.json` | `brain-signal-flow` | Gateway→MCP P99 latency, end-to-end latency trend, per-module span histograms |
+| `module-health.json` | `brain-module-health` | Blackbox probe status per module, probe duration, metacognition confidence |
+
+See [Observability Stack Config](../../observability/README.md) for the full port reference and Phase 8.4
+detail.
+
+### Grafana Tempo (optional profile)
+
+[Grafana Tempo](https://grafana.com/oss/tempo/) is available under the `observability-full` Docker Compose
+profile for distributed trace waterfall views (TraceQL). Without this profile, only histogram-derived latency
+quantiles are available.
+
+```bash
+docker compose --profile observability-full up -d
+```
+
+Configurations: `observability/tempo.yaml`. The Grafana Tempo datasource is pre-provisioned at port `3200`.
+
+---
+
 ## Dashboards
 
-Grafana dashboards for signal flow latency, memory collection sizes, reward signal frequency, and module error
-rates will be provisioned in Phase 7. The `brain_metacognition_*` metric namespace (task confidence, deviation
-z-score, escalation rate, reward delta distribution) will be the initial Phase 7 dashboard scope.
+Grafana dashboards are provisioned and auto-imported into the local stack as of Phase 8.4. The
+`brain_metacognition_*` and `brain_hono_gateway_*` metric namespaces are both live. See
+[Phase 8 Additions](#phase-8-additions) above for the full dashboard inventory.
+
+**Coverage**: signal flow latency (gateway → MCP), per-module health (Blackbox probes), reward signal
+distribution (metacognition), and gateway request / error / SSE / auth metrics.
 
 ---
 

@@ -1,8 +1,8 @@
 ---
 id: guide-deployment
-version: 0.2.0
+version: 0.3.0
 status: active
-last-reviewed: 2026-02-28
+last-reviewed: 2026-03-04
 ---
 
 # Deployment
@@ -35,7 +35,7 @@ Check service health:
 
 ```bash
 docker compose ps
-curl -f http://localhost:8000/api/v1/heartbeat   # ChromaDB
+curl -f http://localhost:8000/api/v2/heartbeat   # ChromaDB
 curl -f http://localhost:11434/api/version       # Ollama
 ```
 
@@ -73,6 +73,39 @@ cd modules/group-i-signal-processing/<module-name>
 uv sync
 uv run uvicorn <module_pkg>.server:app --host 0.0.0.0 --port <port> --reload
 ```
+
+---
+
+## Phase 8 Application Services
+
+The Phase 8 application layer adds two TypeScript services that sit in front of the MCP infrastructure:
+
+| Service            | Package                   | Port | Start command         |
+| ------------------ | ------------------------- | ---- | --------------------- |
+| Hono API Gateway   | `apps/default/server`     | 3001 | `pnpm run dev` (dev)  |
+| Vite browser client | `apps/default/client`    | 5173 | `pnpm run dev` (dev)  |
+
+### Development
+
+```bash
+# From repo root — starts both services via Turborepo
+pnpm run dev
+```
+
+The gateway at `http://localhost:3001` proxies MCP context requests, serves authenticated SSE streams, and exposes
+the `brain://` resource registry at `GET /api/resources`. The Vite client at `http://localhost:5173` provides the
+browser shell with OAuth 2.1 + PKCE authentication against the gateway.
+
+### Production build
+
+```bash
+pnpm run build
+# Gateway: apps/default/server/dist/
+# Client:  apps/default/client/dist/ (static assets served by the gateway via Hono serveStatic)
+```
+
+The gateway serves the compiled client bundle from `apps/default/client/dist/` at the root path (`/`); no
+separate static file server is required in production.
 
 ---
 
@@ -118,9 +151,9 @@ No code changes are required — all inference routes through LiteLLM.
 
 ## Docker
 
-Per-module `Dockerfile` definitions will be added in Phase 8 (`deploy/`). For now, module services in
-`docker-compose.yml` use a `build: context:` pointing to the module directory — add a minimal `Dockerfile` alongside the
-module's `pyproject.toml`:
+Per-module `Dockerfile` definitions and a shared base image are tracked in Phase 9 (§9.2). In the meantime, module
+services in `docker-compose.yml` use a `build: context:` pointing to the module directory — add a minimal `Dockerfile`
+alongside the module's `pyproject.toml`:
 
 ```dockerfile
 FROM python:3.11-slim
@@ -135,11 +168,12 @@ CMD ["uv", "run", "uvicorn", "<module_pkg>.server:app", "--host", "0.0.0.0", "--
 
 ## Kubernetes
 
-_Kubernetes manifests and HPA configurations to be added in Phase 8._
+Kubernetes manifests, per-module deployments, services, and HPA configurations are tracked in Phase 9 (§§9.1, 9.2).
 
 ## Scaling
 
-_Scaling guidance to be added in Phase 8._
+Scaling guidance (HPA, resource limits, anti-affinity rules) will be documented alongside the Kubernetes manifests in
+Phase 9 (§9.2).
 
 ## References
 
