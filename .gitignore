@@ -261,6 +261,7 @@ raw_data_dumps/
 
 
 *.tmp
+.tmp.md
 *.temp
 *.bak
 *.orig
