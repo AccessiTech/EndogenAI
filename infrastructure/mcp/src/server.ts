@@ -188,6 +188,9 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
     const uri = request.params.uri;
 
     // brain:// resources — return stub content (live data from running modules)
+    // TODO(Phase 9): live SSE subscription emission via resources/subscribe is deferred.
+    // Currently returns a static stub; real-time push requires the module to be running
+    // and the MCP server to support resources/subscribe notification dispatch.
     if (uri.startsWith('brain://')) {
       const entry = BRAIN_RESOURCES.find((r) => r.uri === uri);
       if (!entry) {

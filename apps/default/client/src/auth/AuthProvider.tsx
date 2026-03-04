@@ -4,6 +4,8 @@ import { generateCodeChallenge, generateCodeVerifier } from './pkce'
 
 const VERIFIER_KEY = 'pkce_code_verifier'
 const STATE_KEY = 'pkce_state'
+const CLIENT_ID = 'apps-default-browser'
+const REDIRECT_URI = `${window.location.origin}/callback`
 
 interface TokenResponse {
   access_token: string
@@ -62,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const params = new URLSearchParams({
       response_type: 'code',
+      client_id: CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
       code_challenge: challenge,
       code_challenge_method: 'S256',
       state,
@@ -116,7 +120,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fetch('/auth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, code_verifier: verifier }),
+        body: JSON.stringify({
+          grant_type: 'authorization_code',
+          client_id: CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          code,
+          code_verifier: verifier,
+        }),
         credentials: 'include',
       })
         .then(async (res) => {

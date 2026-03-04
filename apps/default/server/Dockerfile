@@ -1,7 +1,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json ./
-RUN npm install -g pnpm && pnpm install
+RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm install
 COPY . .
 RUN pnpm run build
 
