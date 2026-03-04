@@ -1,14 +1,15 @@
 ---
 id: guide-deployment
-version: 0.3.0
+version: 0.4.0
 status: active
 last-reviewed: 2026-03-04
 ---
 
 # Deployment
 
-> **Status: active** — Local development stack and Group I module services are documented as of Phase 4. Production
-> containerization (Dockerfiles), Kubernetes manifests, and scaling guidance will be expanded in Phase 8.
+> **Status: active** — Local development stack (Phase 4), Phase 8 application services, and Phase 9 production
+> deployment (Docker base images, Kubernetes manifests, `security` Compose profile) are all documented here.
+> Phase 9 deployment implementation is in progress (§§9.1–9.2).
 
 Containerization, local orchestration, and environment configuration for the EndogenAI framework.
 
@@ -149,36 +150,195 @@ No code changes are required — all inference routes through LiteLLM.
 
 ---
 
+<!-- Phase 9 addition — 2026-03-04 -->
+## Phase 9 Production Deployment
+
+Phase 9 adds production-grade container images, Kubernetes manifests, and OPA security enforcement. The Phase 9
+deployment layer packages all 16 services for production without changing any cognitive module behaviour.
+
+### Service inventory (16 services)
+
+| Service name | Group | Port | Compose profile | K8s namespace |
+| --- | --- | --- | --- | --- |
+| `sensory-input` | Group I | 8001 | `modules` | `endogenai-modules` |
+| `perception` | Group I | 8002 | `modules` | `endogenai-modules` |
+| `attention-filtering` | Group I | 8003 | `modules` | `endogenai-modules` |
+| `working-memory` | Group II | 8010 | `modules` | `endogenai-modules` |
+| `short-term-memory` | Group II | 8011 | `modules` | `endogenai-modules` |
+| `long-term-memory` | Group II | 8012 | `modules` | `endogenai-modules` |
+| `episodic-memory` | Group II | 8013 | `modules` | `endogenai-modules` |
+| `reasoning` | Group II | 8014 | `modules` | `endogenai-modules` |
+| `affective` | Group II | 8015 | `modules` | `endogenai-modules` |
+| `executive-agent` | Group III | 8020 | `modules` | `endogenai-modules` |
+| `agent-runtime` | Group III | 8021 | `modules` | `endogenai-modules` |
+| `motor-output` | Group III | 8022 | `modules` | `endogenai-modules` |
+| `learning-adaptation` | Group IV | 8030 | `modules` | `endogenai-modules` |
+| `metacognition` | Group IV | 8031 | `modules` | `endogenai-modules` |
+| `mcp-server` | Infra | 8000 | _(default)_ | `endogenai-infra` |
+| `gateway` | Apps | 3001 | _(default)_ | `endogenai-infra` |
+
+### Docker — base images and multi-stage builds
+
+Base Dockerfiles are at `deploy/docker/`:
+
+| File | Purpose |
+| --- | --- |
+| `deploy/docker/base-python.Dockerfile` | Multi-stage Python 3.11; `nobody` UID 65534; gVisor-compatible (no raw sockets, no `/proc` writes) |
+| `deploy/docker/base-node.Dockerfile` | Multi-stage Node.js 20; `nobody` UID 65534; gVisor-compatible |
+
+Each of the 16 services has its own `Dockerfile` referencing the appropriate base image. Build all images in
+dependency order:
+
+```bash
+bash scripts/build_images.sh
+```
+
+Supported flags:
+
+| Flag | Purpose |
+| --- | --- |
+| `--push` | Push all built images to the registry |
+| `--skip-base` | Skip rebuilding base images (faster incremental builds) |
+| `IMAGE_TAG=<tag>` | Override the image tag (default: `latest`) |
+
+### Compose — OPA security profile
+
+OPA policy enforcement is opt-in via the `security` profile (backwards-compatible; existing profiles unchanged):
+
+```bash
+# Start all modules + OPA policy server
+docker compose --profile modules --profile security up -d
+
+# Start OPA alone (for policy development)
+docker compose --profile security up -d opa
+
+# Verify Compose config (no syntax errors)
+docker compose config
+```
+
+A `docker-compose.override.yml` is provided for local development (hot-reload volumes; `runtimeClassName: runsc`
+disabled for macOS Docker Desktop).
+
+### Kubernetes prerequisites
+
+Before applying manifests to a cluster:
+
+| Prerequisite | Notes |
+| --- | --- |
+| NetworkPolicy-compatible CNI | Calico or Cilium required (Flannel does not enforce `NetworkPolicy`) |
+| gVisor node pool (production) | Nodes must have `runsc` installed; `RuntimeClass` applied from `deploy/k8s/runtime-class-gvisor.yaml` |
+| gVisor not required (macOS dev) | Use `kind` or `minikube` with standard `runc` for local cluster testing |
+
+### Kubernetes manifests (`deploy/k8s/`)
+
+```
+deploy/k8s/
+  namespace.yaml                      # endogenai-modules + endogenai-infra namespaces
+  runtime-class-gvisor.yaml           # gVisor RuntimeClass (production)
+  network-policy-default-deny.yaml    # Default-deny NetworkPolicy backdrop
+  <module>/
+    deployment.yaml                   # Non-root securityContext, runtimeClassName, resource limits
+    service.yaml                      # ClusterIP service
+    hpa.yaml                          # HPA (70% CPU threshold)
+    network-policy.yaml               # Per-module allow-list
+```
+
+All pod specs include:
+- `securityContext.runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`
+- `capabilities.drop: [ALL]`, `seccompProfile.type: RuntimeDefault`
+- `runtimeClassName: gvisor` (production; omit for macOS dev)
+
+High-availability services with `minReplicas: 2`: `working-memory`, `executive-agent`, `agent-runtime`, `gateway`.
+All others default to `minReplicas: 1` with HPA at 70% CPU.
+
+### M9 deployment verification
+
+```bash
+# Dry-run all K8s manifests (requires kubectl)
+kubectl apply --dry-run=client -R -f deploy/k8s/
+
+# Validate Compose config
+docker compose config
+
+# Start full local stack (modules + security profile)
+docker compose --profile modules --profile security up -d
+
+# Health check all services
+bash scripts/healthcheck.sh
+```
+
+---
+
 ## Docker
 
-Per-module `Dockerfile` definitions and a shared base image are tracked in Phase 9 (§9.2). In the meantime, module
-services in `docker-compose.yml` use a `build: context:` pointing to the module directory — add a minimal `Dockerfile`
-alongside the module's `pyproject.toml`:
+Per-module `Dockerfile` files follow the multi-stage, non-root pattern defined in `deploy/docker/` (Phase 9 §9.2).
+Each service's `Dockerfile` lives alongside its `pyproject.toml` (Python) or `package.json` (TypeScript) and
+references the shared base image:
 
 ```dockerfile
-FROM python:3.11-slim
+# Python module (14 modules)
+FROM endogenai/base-python:3.11
 WORKDIR /app
-RUN pip install uv
-COPY pyproject.toml uv.lock ./
+COPY --chown=nobody:nobody pyproject.toml uv.lock ./
 RUN uv sync --no-dev
-COPY src/ src/
+COPY --chown=nobody:nobody src/ src/
+USER nobody
 EXPOSE <port>
 CMD ["uv", "run", "uvicorn", "<module_pkg>.server:app", "--host", "0.0.0.0", "--port", "<port>"]
 ```
 
+Key constraints (gVisor compatibility and security hardening):
+- Non-root user (`nobody` UID 65534)
+- No writes to `/proc`; use `emptyDir` tmpfs for scratch space
+- No raw socket creation (`AF_PACKET`, `CAP_NET_RAW`)
+- `readOnlyRootFilesystem`-compatible
+
+Add a `.dockerignore` to each module root excluding `.venv/`, `__pycache__/`, `node_modules/`, `dist/`, and `*.pyc`.
+
 ## Kubernetes
 
-Kubernetes manifests, per-module deployments, services, and HPA configurations are tracked in Phase 9 (§§9.1, 9.2).
+Kubernetes manifests for all 16 services live in `deploy/k8s/` (Phase 9 §9.2). Each service directory contains
+four files: `deployment.yaml`, `service.yaml`, `hpa.yaml`, and `network-policy.yaml`.
+
+Apply all manifests to a cluster:
+
+```bash
+# Verify manifests without applying (requires kubectl)
+kubectl apply --dry-run=client -R -f deploy/k8s/
+
+# Apply to a cluster
+kubectl apply -R -f deploy/k8s/
+```
+
+See the [Phase 9 additions](#phase-9-production-deployment) section above for prerequisites (CNI, gVisor node pool)
+and the full service inventory.
+
+> **gVisor note**: `runtimeClassName: gvisor` is applied in all production `Deployment` manifests. For macOS
+> local cluster development (e.g. `kind`, `minikube`), remove or comment out `runtimeClassName` from pod specs
+> — the `RuntimeClass` is not available on macOS Docker Desktop.
 
 ## Scaling
 
-Scaling guidance (HPA, resource limits, anti-affinity rules) will be documented alongside the Kubernetes manifests in
-Phase 9 (§9.2).
+All 16 services have Kubernetes `HorizontalPodAutoscaler` (HPA) manifests in `deploy/k8s/<service>/hpa.yaml`
+(Phase 9 §9.2). The scaling policy is:
+
+| Service | `minReplicas` | `maxReplicas` | CPU target |
+| --- | --- | --- | --- |
+| `working-memory` | 2 | 8 | 70% |
+| `executive-agent` | 2 | 6 | 70% |
+| `agent-runtime` | 2 | 8 | 70% |
+| `gateway` | 2 | 10 | 70% |
+| All other services | 1 | 4 | 70% |
+
+All services respect `resources.requests` and `resources.limits` in their `Deployment` spec; see individual
+manifests for values. Anti-affinity rules are applied to high-availability services to spread replicas across nodes.
 
 ## References
 
 - [Getting Started](getting-started.md)
+- [Security Guide](security.md) — OPA, gVisor, mTLS, Trivy
 - [Observability Guide](observability.md)
+- [Toolchain Guide](toolchain.md) — `build_images.sh`, `gen_certs.sh`, `gen_opa_data.py` commands
 - [Architecture — Module Networking Topology](../architecture.md#module-networking-topology-phase-4)
 - [Adding a Module — Step 8](adding-a-module.md#8-add-a-docker-compose-service-entry)
-- [Workplan — Phase 8](../Workplan.md#phase-8--application-layer--observability)
+- [Workplan — Phase 9](../Workplan.md#phase-9--cross-cutting-security-deployment--documentation)

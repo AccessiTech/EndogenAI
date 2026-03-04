@@ -1,14 +1,15 @@
 ---
 id: guide-security
-version: 0.2.0
+version: 0.3.0
 status: current
 last-reviewed: 2026-03-04
 ---
 
 # Security
 
-> **Status: current** — Boundary validation patterns (Phase 1) and OAuth 2.1 authentication layer (Phase 8.2) are
-> documented. Module sandboxing and container security are Phase 9 items (§9.1).
+> **Status: current** — Boundary validation patterns (Phase 1), OAuth 2.1 authentication layer (Phase 8.2), and
+> Phase 9 production-hardening (OPA policy enforcement, gVisor sandboxing, mTLS, Trivy, container security context)
+> are all documented here. Phase 9 implementation is in progress (§§9.1–9.2).
 
 Security model, boundary validation, sandboxing policies, and least-privilege patterns.
 
@@ -95,17 +96,300 @@ docker compose --profile keycloak up -d
 
 Set `ISSUER_URL` and `JWT_SECRET` to match the Keycloak realm configuration.
 
-## Module Sandboxing
+<!-- Phase 9 addition — 2026-03-04 -->
+## Security Architecture — Phase 9 Production Hardening
 
-Module sandboxing (OPA policies and gVisor sandbox templates) and the inter-module interface security review
-are Phase 9 items (§9.1).
+EndogenAI applies a **multi-layer "immune privilege"** model inspired by the central nervous system's protective
+mechanisms. The gateway authentication acts as a blood–brain barrier; OPA policy enforcement mirrors microglial
+patrolling; and gVisor container sandboxing provides apoptotic isolation of compromised workloads.
 
-## Inter-Module Interface Review
+| Layer | Biological analogue | Implementation |
+| --- | --- | --- |
+| Gateway authentication | Blood–brain barrier | OAuth 2.1 + PKCE JWT (§8.2); all `/api/*` routes require Bearer token |
+| Policy enforcement | Microglial patrolling | OPA Rego policies derived endogenously from `agent-card.json` files |
+| Container sandboxing | Apoptosis / immune isolation | gVisor `runtimeClassName: gvisor` (CI + production only) |
+| Network isolation | Glial scar / CNS immune privilege | Kubernetes `NetworkPolicy` (default-deny; per-module allowlist) |
+| Certificate-based identity | MHC-I molecule | mTLS with self-signed CA; module certificates mounted as K8s Secrets |
 
-Security review of all inter-module interfaces will be conducted in Phase 9 (§9.1).
+---
+
+## Prerequisites
+
+| Tool | Version | Install |
+| --- | --- | --- |
+| OPA | ≥ 0.68 | `docker compose --profile security up opa` |
+| gVisor (`runsc`) | `latest` | CI + production only; not required on macOS dev |
+| OpenSSL | ≥ 3.0 | `brew install openssl` (macOS) |
+| Trivy | ≥ 0.55 | `brew install trivy` (macOS) |
+
+See [Toolchain Guide](toolchain.md) for the full Phase 9 tool command reference.
+
+---
+
+## Open Policy Agent (OPA)
+
+<!-- Phase 9 addition — 2026-03-04 -->
+
+OPA enforces **capability isolation** rules across all 16 EndogenAI services. Rules are generated _endogenously_ —
+derived directly from each module's `agent-card.json` — so policy always reflects the declared capabilities of the
+live system. This is the endogenous-first principle applied to security.
+
+### Policies
+
+| File | What it controls |
+| --- | --- |
+| `security/policies/module-capabilities.rego` | Which capabilities each module is allowed to assert (default deny; allow if in `agent-card.json` capabilities array) |
+| `security/policies/inter-module-comms.rego` | Which modules may send A2A calls to which other modules (default deny all cross-module calls; allow declared consumers + gateway bypass + mcp-server target) |
+
+### Deployment
+
+OPA runs as a **single shared server** at `http://localhost:8181`. It is gated behind the `security` Compose
+profile so local development runs without OPA by default:
+
+```bash
+# Start OPA server alongside backing services
+docker compose --profile security up -d
+
+# Start all modules + OPA + backing services
+docker compose --profile modules --profile security up -d
+```
+
+OPA starts in **audit mode** (`OPA_ENFORCE=false`). Violations are logged to OTel but requests are not blocked.
+This lets you observe the policy effect before enforcement is turned on.
+
+### Generating OPA data
+
+Policy data is generated endogenously from all `agent-card.json` files:
+
+```bash
+# Generate security/data/modules.json from all agent-card.json files
+uv run python scripts/gen_opa_data.py
+```
+
+Re-run after adding or modifying any module's `agent-card.json`. The output file is loaded by OPA at startup.
+
+### Running policy tests
+
+```bash
+# Run OPA unit tests for all policies
+opa test security/policies/
+```
+
+All tests must pass before promoting from audit mode to enforce mode.
+
+### Audit → enforce promotion
+
+1. Start OPA in audit mode (`OPA_ENFORCE=false`)
+2. Run the full test suite: `pnpm run test && uv run pytest`
+3. Review OPA decision logs for unexpected denials
+4. Remediate any flagged misconfigurations in `agent-card.json` or the Rego policies
+5. Set `OPA_ENFORCE=true`; re-run test suite to confirm no regressions
+6. Tag the passing state as the enforcement baseline
+
+---
+
+## gVisor Container Sandboxing
+
+<!-- Phase 9 addition — 2026-03-04 -->
+
+[gVisor](https://gvisor.dev/) provides kernel-level isolation by intercepting all system calls from module
+containers. It is the **apoptosis analogue** — a hard isolation boundary that limits the blast radius if any module
+container is compromised.
+
+### Scope
+
+| Environment | gVisor required? |
+| --- | --- |
+| macOS development | **No** — Docker Desktop on macOS lacks KVM; use standard `runc` |
+| CI (GitHub Actions) | **Yes** — `runsc` runtime applied to all module container jobs |
+| Production Kubernetes | **Yes** — `runtimeClassName: gvisor` in all 16 pod specs |
+
+Do not attempt to enable gVisor on macOS — the `runsc` runtime is not supported by Docker Desktop and causes
+startup failures.
+
+### Writing gVisor-compatible Dockerfiles
+
+gVisor restricts certain kernel features. These patterns are **required** in all module Dockerfiles:
+
+```dockerfile
+# CORRECT — no /proc writes; no raw sockets; non-root user
+FROM endogenai/base-python:3.11  # uses nobody UID 65534
+WORKDIR /app
+COPY --chown=nobody:nobody . .
+USER nobody
+EXPOSE 8001
+CMD ["uv", "run", "uvicorn", "module.server:app", "--host", "0.0.0.0", "--port", "8001"]
+```
+
+**Prohibited patterns** in any EndogenAI Dockerfile:
+
+- Writing to `/proc` — use `emptyDir: { medium: "Memory" }` tmpfs mounts instead
+- Creating raw sockets (`AF_PACKET`, `CAP_NET_RAW`) — use standard TCP/UDP only
+- Capabilities beyond the default set — all capabilities must be dropped via `securityContext`
+
+### RuntimeClass manifest
+
+The gVisor `RuntimeClass` is declared at `deploy/k8s/runtime-class-gvisor.yaml`. All production Kubernetes
+`Deployment` manifests reference it:
+
+```yaml
+spec:
+  template:
+    spec:
+      runtimeClassName: gvisor
+```
+
+---
+
+## mTLS Inter-Module Communication
+
+<!-- Phase 9 addition — 2026-03-04 -->
+
+All A2A and MCP calls between module services are encrypted and mutually authenticated using **mutual TLS**.
+Phase 9 uses a self-signed CA; SPIFFE/SPIRE automatic certificate rotation is deferred to Phase 10.
+
+### Generating certificates
+
+```bash
+# Generate self-signed CA + per-module certificates
+bash scripts/gen_certs.sh
+```
+
+This creates `security/certs/` (gitignored) with:
+- `ca.crt` / `ca.key` — root CA
+- `<module-name>.crt` / `<module-name>.key` — per-module leaf certificates
+
+### Mounting certificates in Kubernetes
+
+```bash
+# Create a TLS Secret for a module
+kubectl create secret tls <module>-tls \
+  --cert=security/certs/<module>.crt \
+  --key=security/certs/<module>.key \
+  --namespace=endogenai-modules
+```
+
+Each module's `Deployment` manifest references the Secret via `spec.template.spec.volumes[].secret`.
+
+### Phase 10 upgrade path
+
+[SPIFFE/SPIRE](https://spiffe.io/) for automatic certificate rotation and short-lived X.509-SVIDs is planned for
+Phase 10. The self-signed CA approach used here is a conscious deferral — not a permanent choice.
+
+---
+
+## Container Security Hardening
+
+<!-- Phase 9 addition — 2026-03-04 -->
+
+All 16 production pod specs apply the following `securityContext`:
+
+```yaml
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+Where writable scratch space is required (e.g. pip cache, temp files), add an `emptyDir` volume:
+
+```yaml
+volumes:
+  - name: tmp
+    emptyDir: {}
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+```
+
+### Base images
+
+Non-root base images are defined in `deploy/docker/`:
+
+| File | Purpose |
+| --- | --- |
+| `deploy/docker/base-python.Dockerfile` | Multi-stage Python 3.11; `nobody` UID 65534; no package caches; gVisor-compatible |
+| `deploy/docker/base-node.Dockerfile` | Multi-stage Node.js 20; `nobody` UID 65534; gVisor-compatible |
+
+### Trivy vulnerability scanning
+
+```bash
+# Scan a single module image
+trivy image endogenai/<module>
+
+# Scan all K8s manifests for misconfigurations
+trivy config deploy/k8s/
+
+# Fail CI on HIGH or CRITICAL findings
+trivy image --exit-code 1 --severity HIGH,CRITICAL endogenai/<module>
+```
+
+Accepted waivers are documented in `.trivyignore` with the CVE ID and written rationale.
+
+---
+
+## Inter-Module Interface Security Review
+
+<!-- Phase 9 addition — 2026-03-04 -->
+
+The Phase 9 security review covers:
+
+- Unauthenticated call paths between modules
+- Exposed ports and NetworkPolicy coverage
+- Non-root user compliance in all Dockerfiles
+- `readOnlyRootFilesystem` compliance
+- OPA policy enforcement verification
+- mTLS certificate deployment
+- Trivy scan findings and accepted waivers
+
+Findings are documented in:
+
+```
+security/review/phase-9-security-review.md
+```
+
+This file is created during Phase 9 (§9.1) implementation.
+
+---
+
+## Verification Checklist
+
+```bash
+# 1. OPA server health check
+curl -fsS http://localhost:8181/health
+
+# 2. Run all OPA unit tests
+opa test security/policies/
+
+# 3. Confirm gVisor runtime (CI / production)
+docker run --rm --runtime=runsc busybox uname -a
+
+# 4. Trivy image scan (fail on HIGH/CRITICAL)
+trivy image --exit-code 1 --severity HIGH,CRITICAL endogenai/<module>
+
+# 5. Policy data generation
+uv run python scripts/gen_opa_data.py
+
+# 6. mTLS cert generation
+bash scripts/gen_certs.sh
+```
+
+---
 
 ## References
 
 - [Validation Spec](../../shared/utils/validation.md)
 - [Architecture Overview](../architecture.md)
-- [Workplan — Phase 8](../Workplan.md#phase-8--cross-cutting-security-deployment--documentation)
+- [Deployment Guide](deployment.md) — K8s manifests, NetworkPolicy, Trivy integration
+- [Observability Guide](observability.md) — OTel tracing, Prometheus security metrics
+- [Toolchain Guide](toolchain.md) — Phase 9 tool commands
+- [Workplan — Phase 9](../Workplan.md#phase-9--cross-cutting-security-deployment--documentation)
+- [Phase 9 Neuroscience Research](../research/phase-9-neuroscience-security-deployment.md) — immune privilege analogues
+- [Phase 9 Technology Research](../research/phase-9-technologies-security-deployment.md) — OPA, gVisor, mTLS technology choices
+- [OPA Documentation](https://www.openpolicyagent.org/docs/)
+- [gVisor Documentation](https://gvisor.dev/docs/)
+- [Trivy Documentation](https://aquasecurity.github.io/trivy/)

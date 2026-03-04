@@ -2,7 +2,7 @@
 id: guide-toolchain
 version: 0.2.0
 status: active
-last-reviewed: 2026-02-28
+last-reviewed: 2026-03-04
 ---
 
 # Developer Toolchain
@@ -488,6 +488,90 @@ uv run python scripts/testing/scan_coverage_gaps.py
 
 The script reports missing tooling setup (`pytest-cov` / `@vitest/coverage-v8`) with exact installation commands. Add
 new packages to the `PYTHON_PACKAGES` / `TS_PACKAGES` lists in the script as modules are created.
+
+---
+
+<!-- Phase 9 addition — 2026-03-04 -->
+## Phase 9 Toolchain
+
+Phase 9 introduces a set of security and deployment tools. All commands assume the standard `uv run` and `docker
+compose` invocation patterns enforced throughout the codebase.
+
+| Tool | Command | Purpose |
+| --- | --- | --- |
+| OPA | `docker compose --profile security up opa` | Policy enforcement server |
+| `gen_opa_data.py` | `uv run python scripts/gen_opa_data.py` | Generate OPA data from all `agent-card.json` files |
+| `gen_certs.sh` | `bash scripts/gen_certs.sh` | Generate self-signed mTLS CA + per-module certificates |
+| `build_images.sh` | `bash scripts/build_images.sh` | Build all 16 Docker images in dependency order |
+| Trivy | `trivy image endogenai/<module>` | Container vulnerability scan |
+| gVisor | `docker run --runtime=runsc ...` | Sandboxed container runtime (CI + production only; not macOS) |
+| Lighthouse CI | `pnpm run lighthouse` | Browser accessibility + performance audit |
+| `markdown-link-check` | `npx markdown-link-check docs/**/*.md` | Broken internal link detection |
+| `validate_all_schemas.py` | `uv run python scripts/schema/validate_all_schemas.py` | Validate all JSON schemas incl. new agent-card schema |
+
+### OPA
+
+```bash
+# Start OPA server (requires Docker)
+docker compose --profile security up -d opa
+
+# Verify OPA health
+curl -fsS http://localhost:8181/health
+
+# Run all OPA policy unit tests
+opa test security/policies/
+
+# Generate OPA data from agent-card.json files (endogenous-first)
+uv run python scripts/gen_opa_data.py
+```
+
+### Container image builds
+
+```bash
+# Build all 16 module images
+bash scripts/build_images.sh
+
+# Build with custom tag
+IMAGE_TAG=v1.0.0 bash scripts/build_images.sh
+
+# Build and push to registry
+bash scripts/build_images.sh --push
+
+# Skip base image rebuild (faster incremental)
+bash scripts/build_images.sh --skip-base
+```
+
+### Security scanning
+
+```bash
+# Scan a module image for vulnerabilities
+trivy image endogenai/<module>
+
+# Fail on HIGH or CRITICAL
+trivy image --exit-code 1 --severity HIGH,CRITICAL endogenai/<module>
+
+# Scan K8s manifests for misconfigurations
+trivy config deploy/k8s/
+
+# Generate mTLS certificates
+bash scripts/gen_certs.sh
+```
+
+### Documentation quality
+
+```bash
+# Check all markdown links
+npx markdown-link-check docs/**/*.md
+
+# Validate all JSON schemas (incl. shared/schemas/agent-card.schema.json)
+uv run python scripts/schema/validate_all_schemas.py
+
+# Lighthouse CI audit
+pnpm run lighthouse
+```
+
+See [Security Guide](security.md) for the OPA audit → enforce promotion workflow and mTLS setup. See
+[Deployment Guide](deployment.md) for `build_images.sh` flag reference and K8s verification commands.
 
 ---
 

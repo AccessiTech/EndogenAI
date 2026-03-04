@@ -1,17 +1,16 @@
 ---
 id: architecture
-version: 0.3.0
+version: 0.4.0
 status: active
-last-reviewed: 2026-03-03
+last-reviewed: 2026-03-04
 ---
 
 # Architecture
 
-> **Status: active** — Phase 1–7 deliverables documented. Group I (Signal Processing) modules are live as of
-> Phase 4; Group II (Cognitive Processing) modules are live as of Phase 5; Group III (Executive & Output) modules
-> are live as of Phase 6; Group IV (Adaptive Systems) modules are live as of Phase 7. Group V (Interface Layer)
-> design is fully resolved — see [`docs/research/phase-8-overview.md`](research/phase-8-overview.md) and sub-phase
-> workplans D4–D6. Implementation begins at Phase 8.
+> **Status: active** — Phase 1–8 deliverables documented. Group I (Signal Processing) live as of Phase 4;
+> Group II (Cognitive Processing) live as of Phase 5; Group III (Executive & Output) live as of Phase 6;
+> Group IV (Adaptive Systems) live as of Phase 7. Group V (Interface Layer, `apps/default/`) is complete
+> as of M8 (2026-03-03). Phase 9 (Security & Deployment cross-cutting layer) is in progress.
 
 Full architectural overview of the EndogenAI framework, including layer descriptions, shared contracts, and signal flow.
 
@@ -308,6 +307,57 @@ environment — no code changes required. LiteLLM handles the translation.
 
 See [Adding a Module — Step 7](guides/adding-a-module.md#7-provide-inference-configuration-modules-that-call-llms) for
 the implementation pattern.
+
+---
+
+<!-- Phase 9 addition — 2026-03-04 -->
+## Phase 9 — Cross-Cutting: Security & Deployment
+
+Phase 9 does **not** add new cognitive modules. It hardens and packages Groups I–V for production by adding three
+cross-cutting concerns that were deliberately deferred from the functional build phases:
+
+### Security (`security/`)
+
+The security layer follows the **immune privilege** model: the system protects its own cognitive modules the same
+way the CNS protecting neural tissue from immune system intrusion.
+
+| Mechanism | Biological analogue | Implementation |
+| --- | --- | --- |
+| Policy enforcement | Microglial patrolling | OPA Rego rules derived from `agent-card.json` (endogenous-first) |
+| Container sandboxing | Apoptosis / MHC-I isolation | gVisor `runtimeClassName` (CI + production) |
+| Network isolation | Glial scar | Kubernetes `NetworkPolicy` default-deny per module |
+| Workload identity | MHC-I molecule | mTLS with self-signed CA (Phase 9); SPIFFE/SPIRE deferred to Phase 10 |
+
+OPA runs as a single shared server (`docker compose --profile security`); policy data is generated endogenously
+from all `agent-card.json` files via `scripts/gen_opa_data.py`.
+
+### Deployment (`deploy/`)
+
+```
+deploy/
+  docker/
+    base-python.Dockerfile    # Multi-stage Python 3.11; non-root; gVisor-compatible
+    base-node.Dockerfile      # Multi-stage Node.js 20; non-root; gVisor-compatible
+  k8s/
+    namespace.yaml            # endogenai-modules + endogenai-infra namespaces
+    runtime-class-gvisor.yaml # gVisor RuntimeClass
+    network-policy-default-deny.yaml
+    <module>/
+      deployment.yaml         # non-root securityContext, runtimeClassName, HPA-ready
+      service.yaml
+      hpa.yaml                # 70% CPU threshold; HA services at minReplicas: 2
+      network-policy.yaml
+```
+
+All 16 Kubernetes `Deployment` manifests enforce: `runAsNonRoot: true`, `readOnlyRootFilesystem: true`,
+`capabilities.drop: [ALL]`, `seccompProfile.type: RuntimeDefault`, `runtimeClassName: gvisor` (production).
+
+### Relationship to existing architecture
+
+Phase 9 wraps the full Groups I–V cognitive architecture without modifying any module interfaces or contracts.
+The OPA policies derive their rules _from_ the existing `agent-card.json` declarations; the Kubernetes manifests
+package the existing module processes; the mTLS certificates secure the existing A2A/MCP communication paths
+that were designed in Phases 1–2. This is the endogenous-first principle applied at the deployment layer.
 
 ---
 
