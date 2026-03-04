@@ -4,7 +4,7 @@
   "title": "MCPContext",
   "description": "MCP context envelope for all module-to-module communication within the EndogenAI framework. Every message exchanged over the MCP backbone must conform to this schema.",
   "type": "object",
-  "required": ["id", "version", "timestamp", "source", "payload", "contentType"],
+  "required": ["id", "version", "timestamp", "source", "payload", "contentType", "traceContext"],
   "additionalProperties": false,
   "properties": {
     "id": {
