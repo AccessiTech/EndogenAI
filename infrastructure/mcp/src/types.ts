@@ -42,8 +42,8 @@ export interface MCPContext {
   source: ModuleRef;
   /** Optional target module (omit for broadcast) */
   destination?: ModuleRef;
-  /** W3C trace context for distributed tracing */
-  traceContext?: TraceContext;
+  /** W3C trace context for distributed tracing — required on all envelopes */
+  traceContext: TraceContext;
   /** MIME-like descriptor for payload format */
   contentType: string;
   /** Message content */
