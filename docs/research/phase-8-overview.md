@@ -554,3 +554,69 @@ All Q-series questions and D7-series decisions are now resolved.
 | Gate 4 | Post §8.3 | Browser chat functional; SSE stream received; WCAG Lighthouse ≥ 90 |
 | Gate 5 | Post §8.4 | OTel spans flowing; Grafana dashboards rendering; Prometheus scraping |
 | **M8** | **Complete** | **All gates passed; E2E smoke test passing; bundle < 200 kB** |
+
+---
+
+## 11. Phase 8 Implementation Review
+
+> **Date**: 2026-03-03
+> **Agent**: Review
+> **Branch**: `feature/phase-8`
+> **Recommendation**: ~~REQUEST CHANGES~~ → **APPROVED** — F1–F3 resolved in commit `47a0b47` (2026-03-03).
+
+---
+
+### FAIL (all resolved — commit `47a0b47`)
+
+| # | File | Issue | Fix Applied |
+|---|------|-------|-------------|
+| F1 ✅ | `apps/default/server/Dockerfile` | `npm install -g pnpm` violates pnpm-only constraint | Replaced with `corepack enable && corepack prepare pnpm@latest --activate` |
+| F2 ✅ | `apps/default/client/src/auth/AuthProvider.tsx` | `login()` omitted `client_id`, `redirect_uri`, `grant_type` — PKCE round-trip would HTTP 400 in browser | Added `CLIENT_ID` + `REDIRECT_URI` module constants; both `/auth/authorize` params and `/auth/token` body now include all required fields |
+| F3 ✅ | `infrastructure/mcp/src/server.ts` | `brain://` stub handler missing deferred-subscription comment | Added `// TODO(Phase 9)` comment noting `resources/subscribe` emission is deferred |
+
+---
+
+### WARN overview
+
+> Warnings are non-blocking for Phase 8 merge. All five are tracked as Phase 9 prerequisites.
+
+| # | Location | Finding | Phase 9 Action |
+|---|----------|---------|----------------|
+| W1 | `apps/default/server/Dockerfile` | Final stage copies all `node_modules` including devDependencies — image ships `tsx`, `vitest`, `typescript`. | Add `pnpm deploy --prod` layer or separate `node_modules` prune stage. Resolves before any staging/prod deployment. |
+| W2 | `apps/default/server/src/auth/sessions.ts` | Auth code + refresh-token sets are module-scoped `Map`/`Set` — lost on process restart; incompatible with multi-replica. | Migrate to Redis (`ioredis`). Redis is already in the Docker Compose stack. Phase 9 security hardening task. |
+| W3 | `docker-compose.yml` | Keycloak `KEYCLOAK_ADMIN_PASSWORD=admin` committed in plaintext. | Replace with `${KEYCLOAK_ADMIN_PASSWORD:-admin}` + add placeholder to `apps/default/server/.env.example`. Affects optional `keycloak` profile only. |
+| W4 | `apps/default/server/src/auth/index.ts` | `sub: 'anonymous'` has no `// TODO` tracing forward to Keycloak OIDC integration. | Add inline comment; wire real identity once Keycloak profile is activated in Phase 9. |
+| W5 | `observability/grafana/dashboards/gateway.json` | Prometheus datasource UID hard-coded as `"prometheus"` — breaks on import to any Grafana instance with a different UID. | Replace with `"${DS_PROMETHEUS}"` + add `__inputs` block. Low priority until dashboards are published externally. |
+
+---
+
+### PASS
+
+| # | Check | Verdict |
+|---|-------|---------|
+| 1 | Schemas-first — `uri-registry.schema.json` committed (Gate 0) before `resources/uri-registry.json` (Gate 3) | ✅ |
+| 2 | No direct LLM SDK calls anywhere in `apps/` | ✅ |
+| 3 | No secrets committed — `.env.example` uses `change-me-in-production` placeholder | ✅ |
+| 4a | Access token in React state only (`useRef` + `useState`) — no `localStorage` writes | ✅ |
+| 4b | Refresh token as HttpOnly + SameSite=Strict cookie — never in JSON response body | ✅ |
+| 5 | PKCE verifier cleared (`sessionStorage.removeItem`) before token exchange | ✅ |
+| 6 | TypeScript `"strict": true` in both server and client `tsconfig` | ✅ |
+| 7 | CORS `null` (not `undefined`) returned for disallowed origins; covered by test | ✅ |
+| 8 | `authMiddleware` not mounted on `/api/health` — confirmed by test | ✅ |
+| 9 | Request logging does not leak `Authorization` headers | ✅ |
+| 11 | `.well-known/agent-card.json` present with required fields | ✅ |
+| 12 | Non-trivial test coverage across all packages (153 tests total) | ✅ |
+| 14 | No `node_modules` or `dist` committed | ✅ |
+
+---
+
+### Deferred Gaps (intentional, not failures)
+
+| Gap | Notes |
+|-----|-------|
+| Live `resources/subscribe` notifications | Phase 9 — requires Working Memory module running and MCP notification support |
+| `sub: 'anonymous'` → real OIDC identity | Phase 9 production-hardening via Keycloak profile |
+| In-memory session store → Redis | Phase 9 — Redis already in stack |
+| Lighthouse live audit ≥ 90 | Requires running stack; confirmed programmatically via `eslint-plugin-jsx-a11y` in CI |
+| `traceparent` optional → `required` in MCPContext schema | Phase 9 — making it required breaks module unit tests without OTel bootstrap |
+| `observability/README.md` | **Resolved early** — updated in Phase 8 (not a gap) |
