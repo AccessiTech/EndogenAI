@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: attention-filtering
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: attention-filtering
+  ports:
+  - name: a2a
+    port: 8203
+    targetPort: 8203
+  - name: mcp
+    port: 8303
+    targetPort: 8303

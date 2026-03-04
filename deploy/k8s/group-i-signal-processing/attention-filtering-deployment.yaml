@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attention-filtering
+  namespace: endogenai-modules
+  labels:
+    app: attention-filtering
+    app.kubernetes.io/part-of: endogenai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attention-filtering
+  template:
+    metadata:
+      labels:
+        app: attention-filtering
+    spec:
+      runtimeClassName: gvisor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: attention-filtering
+        image: endogenai/attention-filtering:latest
+        ports:
+        - containerPort: 8203
+        - containerPort: 8303
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8203
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8203
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi

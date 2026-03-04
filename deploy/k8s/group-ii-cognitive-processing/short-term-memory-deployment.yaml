@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: short-term-memory
+  namespace: endogenai-modules
+  labels:
+    app: short-term-memory
+    app.kubernetes.io/part-of: endogenai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: short-term-memory
+  template:
+    metadata:
+      labels:
+        app: short-term-memory
+    spec:
+      runtimeClassName: gvisor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: short-term-memory
+        image: endogenai/short-term-memory:latest
+        ports:
+        - containerPort: 8211
+        - containerPort: 8311
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8211
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8211
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi

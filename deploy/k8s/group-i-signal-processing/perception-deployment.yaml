@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perception
+  namespace: endogenai-modules
+  labels:
+    app: perception
+    app.kubernetes.io/part-of: endogenai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: perception
+  template:
+    metadata:
+      labels:
+        app: perception
+    spec:
+      runtimeClassName: gvisor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: perception
+        image: endogenai/perception:latest
+        ports:
+        - containerPort: 8202
+        - containerPort: 8302
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8202
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8202
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi

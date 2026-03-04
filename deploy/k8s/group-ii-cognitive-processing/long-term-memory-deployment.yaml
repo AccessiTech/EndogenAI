@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: long-term-memory
+  namespace: endogenai-modules
+  labels:
+    app: long-term-memory
+    app.kubernetes.io/part-of: endogenai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: long-term-memory
+  template:
+    metadata:
+      labels:
+        app: long-term-memory
+    spec:
+      runtimeClassName: gvisor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: long-term-memory
+        image: endogenai/long-term-memory:latest
+        ports:
+        - containerPort: 8212
+        - containerPort: 8312
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8212
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8212
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi

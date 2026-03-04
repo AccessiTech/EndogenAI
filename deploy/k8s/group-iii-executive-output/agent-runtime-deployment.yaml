@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-runtime
+  namespace: endogenai-modules
+  labels:
+    app: agent-runtime
+    app.kubernetes.io/part-of: endogenai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent-runtime
+  template:
+    metadata:
+      labels:
+        app: agent-runtime
+    spec:
+      runtimeClassName: gvisor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: agent-runtime
+        image: endogenai/agent-runtime:latest
+        ports:
+        - containerPort: 8221
+        - containerPort: 8321
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8221
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /.well-known/agent-card.json
+            port: 8221
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
