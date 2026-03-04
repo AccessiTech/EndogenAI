@@ -30,7 +30,9 @@
         "git restore": true,
         "read": true,
         "node": true,
-        "gzip": true
+        "gzip": true,
+        "docker compose": true,
+        "cp": true
     },
     "python.analysis.extraPaths": [
         "shared/a2a/python/src",
