@@ -4,7 +4,9 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { fileURLToPath } from 'url'
 import { randomUUID } from 'crypto'
+import { propagation, context } from '@opentelemetry/api'
 import type { McpClient } from '../mcp-client.js'
+import { sseConnectionsGauge } from '../middleware/metrics.js'
 
 // Resolve registry path relative to this source file so it works regardless of cwd.
 // src/routes/api.ts → ../../../../../resources/uri-registry.json = workspace root
@@ -47,12 +49,22 @@ export function createApiRouter(mcpClient: McpClient): Hono {
       return c.json({ error: 'message is required' }, 400)
     }
     const sessionId = randomUUID()
+    // Inject W3C TraceContext into MCP message (§6.3 traceparent propagation)
+    const carrier: Record<string, string> = {}
+    propagation.inject(context.active(), carrier)
+    const traceparent = carrier['traceparent']
     try {
       await mcpClient.send({
         jsonrpc: '2.0',
         id: sessionId,
         method: 'tools/call',
-        params: { name: 'chat', arguments: { message } },
+        params: {
+          name: 'chat',
+          arguments: {
+            message,
+            ...(traceparent ? { traceparent } : {}),
+          },
+        },
       })
     } catch {
       // MCP may not be running in dev/test — return session ID regardless
@@ -62,21 +74,26 @@ export function createApiRouter(mcpClient: McpClient): Hono {
 
   // GET /api/stream — protected, SSE relay
   api.get('/stream', (c) => {
+    sseConnectionsGauge.add(1)
     return streamSSE(c, async (stream) => {
-      // Send initial heartbeat
-      await stream.writeSSE({ event: 'heartbeat', data: JSON.stringify({ ts: Date.now() }) })
-
-      // Relay from MCP (best-effort — if MCP is unavailable, keep stream open with heartbeats)
       try {
-        for await (const event of mcpClient.subscribe()) {
-          await stream.writeSSE({
-            data: event.data,
-            event: event.type ?? 'mcp-push',
-            id: event.id,
-          })
+        // Send initial heartbeat
+        await stream.writeSSE({ event: 'heartbeat', data: JSON.stringify({ ts: Date.now() }) })
+
+        // Relay from MCP (best-effort — if MCP is unavailable, keep stream open with heartbeats)
+        try {
+          for await (const event of mcpClient.subscribe()) {
+            await stream.writeSSE({
+              data: event.data,
+              event: event.type ?? 'mcp-push',
+              id: event.id,
+            })
+          }
+        } catch {
+          await stream.writeSSE({ event: 'error', data: JSON.stringify({ message: 'mcp-unavailable' }) })
         }
-      } catch {
-        await stream.writeSSE({ event: 'error', data: JSON.stringify({ message: 'mcp-unavailable' }) })
+      } finally {
+        sseConnectionsGauge.add(-1)
       }
     })
   })

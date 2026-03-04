@@ -1,0 +1,32 @@
+# Grafana Tempo configuration — brAIn distributed trace backend.
+# Used by the optional `observability-full` Docker Compose profile.
+# Start with: docker compose --profile observability-full up -d tempo
+#
+# @see docs/research/phase-8c-detailed-workplan.md §10
+
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+
+ingester:
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    block_retention: 48h
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks
+    wal:
+      path: /tmp/tempo/wal

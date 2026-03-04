@@ -1,0 +1,56 @@
+# Prometheus alert rules — Hono API Gateway (Phase 8)
+# @see docs/research/phase-8c-detailed-workplan.md §9
+#
+# Metric names include the `brain_` prefix applied by the OTel Collector
+# Prometheus exporter (namespace: brain in observability/otel-collector.yaml).
+groups:
+  - name: gateway
+    interval: 30s
+    rules:
+      - alert: GatewayHighErrorRate
+        expr: rate(brain_hono_gateway_requests_total{status_code=~"5.."}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Gateway 5xx error rate above 5%"
+          description: "Error rate: {{ $value | humanize }}/s"
+
+      - alert: GatewayAuthFailureSpike
+        expr: rate(brain_hono_gateway_auth_failures_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elevated auth failures on gateway"
+          description: "Auth failure rate: {{ $value | humanize }}/s — potential invalid token issue"
+
+      - alert: GatewayHighLatency
+        expr: histogram_quantile(0.99, rate(brain_hono_gateway_input_latency_ms_bucket[5m])) > 5000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Gateway /api/input P99 latency above 5 s"
+          description: "P99: {{ $value | humanize }} ms"
+
+      - alert: NoActiveSSEConnections
+        expr: brain_hono_gateway_sse_active_connections == 0
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "No active SSE connections to gateway"
+          description: "No browser sessions active — system idle or unreachable"
+
+  - name: module-health
+    interval: 60s
+    rules:
+      - alert: ModuleDown
+        expr: probe_success{job="module-health-blackbox"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Module {{ $labels.instance }} health probe failing"
+          description: "HTTP health probe returned non-200 or body mismatch for {{ $labels.instance }}"

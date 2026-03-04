@@ -44,6 +44,7 @@ exporters:
     verbosity: normal
 
   # Forward traces to Jaeger or Grafana Tempo (wire in production)
+  # Uncomment for `observability-full` profile — requires Tempo running
   # otlp/tempo:
   #   endpoint: tempo:4317
   #   tls:

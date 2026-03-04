@@ -101,6 +101,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/dashboards:/etc/grafana/dashboards:ro
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -109,6 +111,26 @@ services:
       - prometheus
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+# ---------------------------------------------------------------------------
+  # Observability — Blackbox Exporter (Phase 8 module health probes)
+  # Probes each module's health endpoint via HTTP for probe_success metrics.
+  # @see observability/blackbox.yml for probe config
+  # @see observability/prometheus.yml for scrape config
+  # ---------------------------------------------------------------------------
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./observability/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9115/health"]
       interval: 15s
       timeout: 5s
       retries: 5

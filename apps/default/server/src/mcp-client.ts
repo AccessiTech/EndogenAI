@@ -2,6 +2,7 @@
  * MCP Streamable HTTP client for the Hono gateway.
  * Implements MCP 2025-06-18 Streamable HTTP transport.
  */
+import { propagation, context } from '@opentelemetry/api'
 
 export interface McpMessage {
   jsonrpc: '2.0'
@@ -106,12 +107,17 @@ export class McpClient {
   }
 
   private async post(body: McpMessage | object): Promise<Response> {
+    // Inject W3C TraceContext into outbound MCP HTTP headers (§6.2)
+    const traceCarrier: Record<string, string> = {}
+    propagation.inject(context.active(), traceCarrier)
+
     return fetch(this.serverUrl, {
       method: 'POST',
       headers: {
         ...this.buildHeaders(),
         'Content-Type': 'application/json',
         Accept: 'application/json, text/event-stream',
+        ...traceCarrier,
       },
       body: JSON.stringify(body),
     })

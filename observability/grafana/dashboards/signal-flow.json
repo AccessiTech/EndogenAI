@@ -1,0 +1,111 @@
+{
+  "annotations": { "list": [] },
+  "description": "Cross-module signal flow latency — gateway → MCP → module chain. Module panels require OTel span metrics (spanmetrics connector) to be fully populated.",
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1000 }, { "color": "red", "value": 5000 }] } },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, rate(brain_hono_gateway_input_latency_ms_bucket[5m]))",
+          "legendFormat": "Gateway P99",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway \u2192 MCP Latency P99 (ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 2000 }, { "color": "red", "value": 10000 }] } },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, rate(brain_traces_spanmetrics_duration_milliseconds_bucket{service_name=\"executive-agent\"}[5m]))",
+          "legendFormat": "exec-agent P99",
+          "refId": "A"
+        }
+      ],
+      "title": "Executive-Agent Span P99 (ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 500 }, { "color": "red", "value": 2000 }] } },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, rate(brain_traces_spanmetrics_duration_milliseconds_bucket{service_name=\"motor-output\"}[5m]))",
+          "legendFormat": "motor-output P99",
+          "refId": "A"
+        }
+      ],
+      "title": "Motor-Output Span P99 (ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.50, rate(brain_hono_gateway_input_latency_ms_bucket[5m]))",
+          "legendFormat": "P50 gateway latency",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, rate(brain_hono_gateway_input_latency_ms_bucket[5m]))",
+          "legendFormat": "P95 gateway latency",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, rate(brain_hono_gateway_input_latency_ms_bucket[5m]))",
+          "legendFormat": "P99 gateway latency",
+          "refId": "C"
+        }
+      ],
+      "title": "End-to-End Latency Trend (Browser \u2192 Gateway 202)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["brain", "phase-8", "signal-flow"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "brAIn \u2014 Signal Flow Latency",
+  "uid": "brain-signal-flow",
+  "version": 1
+}

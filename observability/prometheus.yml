@@ -43,3 +43,27 @@ scrape_configs:
   - job_name: "redis"
     static_configs:
       - targets: ["redis:6379"]
+
+  # Phase 8 — Blackbox Exporter: HTTP health probes for each module
+  # Exposed as probe_success{instance="<url>"} and probe_duration_seconds
+  # Requires Blackbox Exporter running at blackbox:9115
+  # @see observability/blackbox.yml for probe config
+  - job_name: "module-health-blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_health]
+    static_configs:
+      - targets:
+          - http://gateway:3001/api/health
+          - http://executive-agent:8161/.well-known/agent-card.json
+          - http://motor-output:8163/.well-known/agent-card.json
+          - http://working-memory:8201/.well-known/agent-card.json
+          - http://reasoning:8206/.well-known/agent-card.json
+          - http://metacognition:8171/.well-known/agent-card.json
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

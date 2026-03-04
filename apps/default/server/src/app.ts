@@ -7,6 +7,8 @@ import { createApiRouter } from './routes/api.js'
 import wellknownRouter from './routes/wellknown.js'
 import authRouter from './auth/index.js'
 import { McpClient } from './mcp-client.js'
+import { tracingMiddleware } from './middleware/tracing.js'
+import { metricsMiddleware } from './middleware/metrics.js'
 
 const allowedOrigins = () =>
   (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173').split(',').map((s) => s.trim())
@@ -15,6 +17,8 @@ export function createApp(mcpClient?: McpClient): Hono {
   const client = mcpClient ?? new McpClient(process.env.MCP_SERVER_URL ?? 'http://localhost:8000')
   const app = new Hono()
 
+  app.use('*', tracingMiddleware)
+  app.use('*', metricsMiddleware)
   app.use('*', logger())
   app.use('*', secureHeaders())
 

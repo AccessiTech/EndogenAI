@@ -35,6 +35,7 @@ from fastapi.responses import JSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from executive_agent.a2a_handler import handle_task
+from executive_agent.instrumentation.otel_setup import configure_telemetry
 from executive_agent.deliberation import DeliberationLoop
 from executive_agent.feedback import FeedbackHandler
 from executive_agent.goal_stack import GoalStack
@@ -168,6 +169,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         cycle_ms=identity_config.deliberation_cycle_ms,
     )
     await _deliberation.start()
+
+    # Configure OTel tracing + structlog trace_id injection (§8.4)
+    otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+    configure_telemetry(otlp_endpoint=otlp_endpoint)
 
     logger.info(
         "executive_agent.server.startup",
