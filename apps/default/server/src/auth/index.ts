@@ -15,6 +15,15 @@ const ALLOWED_CLIENT_ID = 'apps-default-browser'
 const AUTH_CODE_TTL_MS = 60_000 // 1 minute
 const REFRESH_COOKIE = 'refresh_token'
 
+// Allowlist of permitted redirect URIs. Set REDIRECT_URI_ALLOWLIST env var
+// (comma-separated) to override. Defaults permit the local Vite dev server and
+// its standard OAuth callback path.
+const ALLOWED_REDIRECT_URIS = (
+  process.env.REDIRECT_URI_ALLOWLIST ?? 'http://localhost:5173,http://localhost:5173/callback'
+)
+  .split(',')
+  .map((u) => u.trim())
+
 const auth = new Hono()
 
 // GET /authorize — PKCE authorization endpoint
@@ -30,6 +39,9 @@ auth.get('/authorize', (c) => {
   }
   if (!redirect_uri) {
     return c.json({ error: 'invalid_request', error_description: 'redirect_uri is required' }, 400)
+  }
+  if (!ALLOWED_REDIRECT_URIS.includes(redirect_uri)) {
+    return c.json({ error: 'invalid_redirect_uri', error_description: 'redirect_uri not in allowlist' }, 400)
   }
   if (!code_challenge) {
     return c.json({ error: 'invalid_request', error_description: 'code_challenge is required' }, 400)
