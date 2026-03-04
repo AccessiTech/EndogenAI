@@ -28,7 +28,9 @@
         "git rebase": true,
         "git reset": true,
         "git restore": true,
-        "read": true
+        "read": true,
+        "node": true,
+        "gzip": true
     },
     "python.analysis.extraPaths": [
         "shared/a2a/python/src",
