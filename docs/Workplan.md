@@ -903,27 +903,53 @@ from browser request to effector output, visible in Grafana; `brain://` URI regi
 
 **Goal**: Harden the system, package it for deployment, and ensure the documentation is complete and self-referential.
 
+### §9 Gate 0 — Pre-Implementation Gate
+
+<!-- All items in this gate must be confirmed before any Phase 9 implementation code is written. -->
+
+- [x] M8 declared complete (153/153 tests passing, 2026-03-03)
+- [x] Architecture decisions confirmed (D3 §8.1 Decision Log, 2026-03-04): OPA shared server audit→enforce; gVisor CI+prod only; self-signed mTLS CA; raw K8s manifests; `security` Compose profile
+- [x] 14 modules confirmed, 16 services total (14 modules + `infrastructure/mcp` + `apps/default/server`)
+- [ ] **[BLOCKING]** Author `shared/schemas/agent-card.schema.json` — confirmed absent 2026-03-04; delegate to Schema Executive; must pass `uv run python scripts/schema/validate_all_schemas.py` before any Phase 9 implementation <!-- blocks §9.0.1 (/api/agents endpoint), §9.1.2 (gen_opa_data.py), and OPA data generation; derive shape from existing agent-card.json files -->
+- [ ] `traceparent` OTel coverage pre-check across all module test fixtures before promoting field to `required` <!-- prerequisite for §9.0.4; grep modules/ --include="*.py" for traceparent coverage count -->
+
 ### 9.0 Deferred Phase 8 Items
 
-<!-- These items were explicitly deferred from the M8 milestone declaration (2026-03-03). -->
+<!-- These items were explicitly deferred from the M8 milestone declaration (2026-03-03). All four are independent and can be worked in parallel. -->
+<!-- §9.0.1 is blocked until shared/schemas/agent-card.schema.json is authored (Gate 0 BLOCKING item above). -->
 
-- [ ] Wire `/api/agents` endpoint in `apps/default/server` so the Internals panel performs live agent-card discovery (fetches `/.well-known/agent-card.json` per module) rather than falling back to module resource URLs <!-- browser Internals panel currently wired to /api/resources; /api/agents deferred from Phase 8 -->
+- [ ] Wire `/api/agents` endpoint in `apps/default/server` so the Internals panel performs live agent-card discovery (fetches `/.well-known/agent-card.json` per module) rather than falling back to module resource URLs <!-- browser Internals panel currently wired to /api/resources; /api/agents deferred from Phase 8; response shape: { agents: AgentCard[], timestamp: ISO8601 }; use Promise.allSettled for graceful degradation (D9-10); env var: MODULE_URLS -->
 - [ ] Implement live `resources/subscribe` notifications in the Working Memory module — emit `notifications/resources/updated` A2A events rather than returning stub responses <!-- resources/subscribe handler present as stub; live Working Memory notifications deferred from Phase 8 -->
-- [ ] Run Lighthouse live browser audit against the `localhost` shell; achieve score ≥ 90 across Performance, Accessibility, Best Practices, and SEO <!-- Phase 8 only verified via test suite; live browser run deferred -->
-- [ ] Promote `traceparent` field from optional to `required` in `shared/schemas/mcp-context.schema.json` once all modules bootstrap OTel and the field is reliably present in every MCP context envelope <!-- deferred from Phase 8; prerequisite: Phase 7 OTel bootstrap verified across all modules -->
+- [ ] Run Lighthouse live browser audit against the `localhost` shell; achieve score ≥ 90 across Performance, Accessibility, Best Practices, and SEO <!-- Phase 8 only verified via test suite; live browser run deferred; requires lighthouserc.json -->
+- [ ] Promote `traceparent` field from optional to `required` in `shared/schemas/mcp-context.schema.json` once all modules bootstrap OTel and the field is reliably present in every MCP context envelope <!-- deferred from Phase 8; prerequisite: Gate 0 traceparent coverage pre-check passes -->
+
 ### 9.1 Security (`security/`)
 
-- [ ] Define module sandboxing policies and capability isolation rules with OPA
-- [ ] Configure gVisor sandbox templates for module containers
-- [ ] Perform security review of all inter-module interfaces; document findings
-- [ ] Author `README.md` and `docs/guides/security.md`
+- [ ] Create `security/` directory; add OPA shared server to `docker-compose.yml` under `security` profile <!-- D9-1: single shared OPA server, audit mode default; security profile keeps it opt-in for local dev; start with OPA_ENFORCE=false -->
+- [ ] Author `scripts/gen_opa_data.py` — generate `security/data/modules.json` from all `agent-card.json` files (endogenous-first) <!-- D9-8: policy grounded in existing system knowledge; blocked until shared/schemas/agent-card.schema.json exists -->
+- [ ] Author `security/policies/module-capabilities.rego` with OPA unit tests (`security/tests/module-capabilities_test.rego`) <!-- default deny; allow if requested_capability in agent-card capabilities array -->
+- [ ] Author `security/policies/inter-module-comms.rego` with OPA unit tests (`security/tests/inter-module-comms_test.rego`) <!-- default deny A2A calls; allow declared consumers + gateway bypass + mcp-server target -->
+- [ ] `opa test security/policies/` — all tests pass in audit mode <!-- Gate 2 verification command -->
+- [ ] Configure gVisor `RuntimeClass` manifest at `deploy/k8s/runtime-class-gvisor.yaml` (CI/prod only; not required for local macOS dev) <!-- D9-2: no macOS port; Docker Desktop lacks KVM; set runtime: runsc under security profile only; no raw sockets, no /proc writes in any Dockerfile -->
+- [ ] Author `scripts/gen_certs.sh` — self-signed mTLS CA + per-module certificates; mount via Kubernetes Secret <!-- D9-3: self-signed CA for Phase 9; SPIFFE/SPIRE automatic rotation deferred to Phase 10; security/certs/ must be gitignored -->
+- [ ] Run Trivy scan on all `endogenai/*` images; remediate HIGH/CRITICAL findings; document any accepted waivers in `.trivyignore` with CVE ID and rationale <!-- also scan deploy/k8s/ for K8s manifest misconfigurations: trivy config deploy/k8s/ -->
+- [ ] Apply `securityContext.runAsNonRoot: true`, `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]`, `seccompProfile.type: RuntimeDefault` to all 16 pod specs <!-- use emptyDir tmpfs for writable scratch space where needed -->
+- [ ] Perform inter-module security review; document findings in `security/review/phase-9-security-review.md` <!-- review checklist: unauthenticated calls, exposed ports, non-root users, readOnlyRootFilesystem, NetworkPolicy, OPA, mTLS, Trivy -->
+- [ ] Author `docs/guides/security.md` and `security/README.md` <!-- also counted in §9.3; primary remaining documentation gap; covers OPA, gVisor, NetworkPolicy, mTLS, Trivy, secrets management, security review process -->
 
 ### 9.2 Deployment (`deploy/`)
 
-- [ ] Write per-module `Dockerfile` definitions; author base image
-- [ ] Write Kubernetes manifests: per-module deployments, services, HPA configurations
-- [ ] Validate `docker-compose.yml` covers the full local development stack
+- [ ] Author `deploy/docker/base-python.Dockerfile` and `deploy/docker/base-node.Dockerfile` (multi-stage, non-root user, gVisor-compatible — no raw sockets, no `/proc` writes)
+- [ ] Author per-service `Dockerfile` for all 16 services (14 modules + `infrastructure/mcp` + `apps/default/server`); multi-stage build, non-root user (`nobody` UID 65534), `readOnlyRootFilesystem`-compatible <!-- Python modules use base-python; TS services use base-node; add .dockerignore to each module root -->
+- [ ] Author `scripts/build_images.sh` — build all module images in dependency order; include Trivy post-build scan step <!-- supports --push and --skip-base flags; uses IMAGE_TAG env var -->
+- [ ] Create `deploy/k8s/` directory structure; author `namespace.yaml` (endogenai-modules + endogenai-infra) and `network-policy-default-deny.yaml`
+- [ ] Author per-service Kubernetes `Deployment`, `Service`, and `HPA` manifests (16 services); all include `runtimeClassName: gvisor`, non-root `securityContext`, resource requests/limits, readiness/liveness probes <!-- D9-7: 70% CPU threshold; working-memory, executive-agent, agent-runtime, gateway at minReplicas: 2 for HA -->
+- [ ] Apply per-service `NetworkPolicy`: ingress from `mcp-server` only; egress to `a2a-broker` only (default-deny backdrop; per-module allowlist)
+- [ ] Audit `docker-compose.yml` against 16-service inventory; add `security` profile (OPA server); author `docker-compose.override.yml` for local dev (hot-reload volumes, no gVisor) <!-- D9-6: security profile backwards-compatible; override.yml disables runtime: runsc for macOS Docker Desktop -->
+- [ ] `kubectl apply --dry-run=client -R -f deploy/k8s/` exits 0 <!-- Gate 3 verification -->
+- [ ] `docker compose config` exits 0 (no syntax errors)
 - [x] Author `docs/guides/deployment.md`
+- [ ] Author `deploy/k8s/README.md` <!-- content: prerequisites, quick deploy, kind local test, env vars, HPA scaling, troubleshooting gVisor -->
 
 ### 9.3 Documentation Completion
 
@@ -932,9 +958,31 @@ from browser request to effector output, visible in Grafana; `brain://` URI regi
 - [x] Author `docs/guides/adding-a-module.md` — step-by-step module creation guide
 - [x] Author `docs/guides/observability.md` — telemetry setup and dashboard usage
 - [x] Review and finalize `README.md` quick-start guide
+- [ ] Author `docs/guides/security.md` (primary remaining doc gap — also counted in §9.1) <!-- Gate 4 blocker; covers OPA, gVisor, NetworkPolicy, mTLS, Trivy, secrets, security review process -->
+- [ ] Update `observability/README.md` with Phase 8 gateway instrumentation additions (deferred from M8) <!-- add Tempo to services table; gateway OTel setup (OTEL_SERVICE_NAME=gateway); "add new service to OTel pipeline" section; trace query example -->
+- [ ] Install `markdown-link-check`; author `.markdown-link-check.json`; run broken-link audit on all `docs/` files; fix all broken internal links; add as `pnpm run linkcheck` script and CI step <!-- Gate 4 check: zero broken internal links -->
+- [ ] Cross-linking audit: verify each module's `README.md` links to its `agent-card.json`, upstream protocol docs, and relevant workplan sections <!-- see §9.3.5 cross-link requirements table in phase-9-detailed-workplan.md -->
+- [ ] Audit all 14 module `README.md` files; author any that are missing or incomplete (must cover Purpose, Interface, Configuration, Deployment per AGENTS.md) <!-- run: for CARD in $(find modules/ -name "agent-card.json"); do [[ ! -f "$(dirname $CARD)/README.md" ]] && echo "MISSING: $(dirname $CARD)"; done -->
 
 **Deliverables**: system deployable via `docker-compose up` locally and via `kubectl apply` to a Kubernetes cluster, all
 documentation complete and cross-linked.
+
+**M9 milestone declaration gate** — all of the following must pass before M9 is recorded as complete:
+
+- [ ] `kubectl apply --dry-run=client -R -f deploy/k8s/` — exits 0
+- [ ] `docker compose up -d --profile modules --profile security` — complete local stack healthy within 60 s
+- [ ] All tests passing (153+ baseline + Phase 9 additions)
+- [ ] `pnpm run lighthouse` — all four categories ≥ 90
+- [ ] `opa test security/policies/` — all policy tests pass
+- [ ] `pnpm run linkcheck` (`markdown-link-check`) — zero broken internal links
+- [ ] `docs/guides/security.md` authored and cross-linked
+- [ ] `deploy/k8s/README.md` authored
+- [ ] `security/review/phase-9-security-review.md` authored
+- [ ] `shared/schemas/agent-card.schema.json` validated and merged
+- [ ] `traceparent` promoted to `required` in `mcp-context.schema.json`
+- [ ] All 14 module `README.md` files present and complete
+- [ ] Trivy scans: zero unwaived HIGH/CRITICAL findings across all images
+- [ ] `scripts/gen_opa_data.py`, `scripts/gen_certs.sh`, `scripts/build_images.sh` — all authored and functional
 
 
 ---
