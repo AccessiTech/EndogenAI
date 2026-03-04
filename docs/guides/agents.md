@@ -122,6 +122,32 @@ tools:
 - **Parallel**: the executive instructs multiple subagents to run simultaneously and synthesises their independent
   results. Use for independent review perspectives (e.g. accuracy, completeness, and freshness in parallel).
 
+### Context window efficiency and `.tmp.md`
+
+Delegation + `.tmp.md` allow an orchestrator to handle large tasks without exhausting its
+context window:
+
+- The orchestrator delegates bounded sub-tasks to specialists. Each specialist operates with a
+  short, focused context window and writes structured output to `.tmp.md` under a named heading.
+- The orchestrator reads `.tmp.md` section summaries rather than receiving full sub-agent
+  transcripts inline, keeping the executive's context window clear for high-level decisions.
+- Sub-delegation (a specialist delegates to a sub-specialist) amplifies this further — context
+  savings multiply with each delegation tier.
+
+`.tmp.md` is gitignored and never committed. Each agent appends under `## <Phase/Task> Results`.
+The executive reads `.tmp.md` before each delegation step to avoid re-discovering already-gathered context.
+
+### Insufficient-posture escalation
+
+When a sub-agent cannot complete a task, it must not stop silently. It must:
+
+1. Write `## <AgentName> Escalation` to `.tmp.md`: what was completed, the blocking issue, the
+   recommended next agent, and step-by-step instructions.
+2. Return to the executive via the “Back to [Executive]” handoff button.
+
+The executive then decides: re-delegate to a different agent, create a new specialist, or handle
+the block directly.
+
 ### Sub-fleet map
 
 | Executive | Sub-agents |
@@ -191,6 +217,31 @@ Test Coverage       — re-run coverage; enforce 80% threshold per module
 Test Review         — assert quality, Testcontainers hygiene, mocking discipline
         ↓
 Review → GitHub
+```
+
+### Running a large orchestrated session (Executive Orchestrator pattern)
+
+For multi-phase, multi-domain work (test upgrades, full docs passes, phase deliveries):
+
+1. **Use Plan first** — agree scope before any agent acts.
+2. **Delegate, don't inline** — use one executive per domain (Test, Docs, Phase N).
+3. **Gate phases with Review** — after each domain executive completes, route through Review
+   before committing, then GitHub.
+4. **Use `.tmp.md` as scratchpad** — executives write phase summaries; sub-agents write gap
+   reports and escalation notes. Read `.tmp.md` at the start of each step.
+5. **Ask clarifying questions** — for any trade-off or ambiguous scope, ask before acting.
+   One question costs less context than redoing large amounts of work.
+6. **Create specialist agents on demand** — when a task domain is deep enough to recur, author
+   a `.agent.md`, commit it, then invoke it. The file is itself the documentation of the decision.
+7. **State exclusions explicitly** — full-execution agents default to full scope. Always tell a
+   delegated agent which file types it must NOT touch.
+
+```
+Orchestrator (Copilot Agent mode / Plan agent)
+     │
+     ├─ Domain Executive A → .tmp.md output → Review → GitHub (commit)
+     ├─ Domain Executive B → .tmp.md output → Review → GitHub (commit)
+     └─ Docs Executive    → completeness + accuracy → Review → GitHub (commit)
 ```
 
 ### Diagnosing a failing test or runtime error
@@ -415,6 +466,16 @@ invoke **Docs Scaffold** to generate the missing files.
 `scripts/schema/validate_all_schemas.py` validates JSON/YAML schemas used by agents and backing tools. Run it locally
 to reproduce CI failures and update or add the referenced schemas as needed. See `docs/Workplan.md` §3.4 for expected
 schema coverage.
+
+**Sub-agent produced incomplete or unexpected output**  
+Check `.tmp.md` for an escalation note under `## <AgentName> Escalation`. If present, follow
+the recommended next action. If absent, re-invoke the sub-agent with a more tightly scoped
+prompt or elevated posture.
+
+**Agent edited files outside its stated scope (scope bleed)**  
+Full-execution agents default to full scope. When delegating with restricted scope, always list
+excluded file types explicitly in the delegation prompt. To recover: `git diff` the affected
+files, `git checkout HEAD -- <file>` to revert unwanted changes, then re-invoke with exclusions.
 
 ---
 

@@ -110,6 +110,20 @@ testing lifecycle and coordinate the testing sub-agent fleet.
 
 ## Workflow
 
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Test Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
+
 ```bash
 # 1. Run Python tests (from repo root)
 uv run pytest -v
@@ -149,3 +163,7 @@ pnpm --filter <package-name> run test -- --coverage
 - **`uv run` only**: never invoke bare `python` for Python scripts.
 - **Workplan updates**: after each sub-agent completes, mark the corresponding
   `docs/Workplan.md` checklist item `[x]`.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).

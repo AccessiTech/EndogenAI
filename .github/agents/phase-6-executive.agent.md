@@ -129,6 +129,24 @@ verification checks.
 
 ---
 
+## Workflow
+
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Phase 6 Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
+
+---
+
 ## Phase 5 prerequisite check
 
 Before starting any Phase 6 work, verify Phase 5 is complete:
@@ -396,3 +414,7 @@ the Phase 6 boundary.
 - **Do not embed OPA as a library** — always use standalone HTTP at localhost:8181.
 - **Do not use the Temporal SDK for non-deterministic code inside Workflow definitions** — move
   all side effects and non-determinism to Activities.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).

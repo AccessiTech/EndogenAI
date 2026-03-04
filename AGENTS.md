@@ -202,6 +202,86 @@ When proceeding under ambiguity, **document the assumption inline** (code commen
 
 ---
 
+## Agent Communication
+
+### `.tmp.md` — Cross-agent scratchpad
+
+`.tmp.md` at the workspace root is the **designated scratchpad** for cross-agent context
+preservation. It is gitignored and never committed.
+
+Rules:
+- Each delegated agent **appends** findings under a named heading: `## <Phase> Results` or
+  `## <Task> Output`. Never overwrite another agent's section.
+- The executive **reads `.tmp.md` first** before delegating to avoid re-discovering context
+  another agent already gathered.
+- At session end, the executive writes a `## Session Summary` section so the next session starts
+  with an orientation point rather than a cold start.
+- Use `.tmp.md` for inter-agent handoff notes, gap reports, and aggregated sub-agent results.
+
+### Scope-narrowing in delegations
+
+When delegating with a restricted scope, **state exclusions explicitly** in the delegation prompt.
+Executive agents default to full scope; they need explicit constraints to narrow it.
+
+Good examples:
+> "Edit `.md` files and `.tmp.md` only — do not modify source code, config, test files, or
+> `pyproject.toml` / `package.json`."
+
+> "Read-only pass — do not create or edit any files."
+
+Without explicit exclusions, a full-execution agent will follow its toolset and modify whatever
+it finds relevant.
+
+### Insufficient-posture escalation
+
+When a sub-agent encounters a task that exceeds its posture or context capacity, it must **not
+silently fail or stop**. Instead it must:
+
+1. Write a structured summary to `.tmp.md` under `## <AgentName> Escalation`:
+   - Current state (what was completed)
+   - Blocking issue (what requires elevated posture or specialist knowledge)
+   - Recommended next action (which agent to invoke, or whether a new specialist should be created)
+   - Step-by-step instructions for the receiving agent or executive
+2. Hand off to the delegating executive with the "Back to [Executive]" handoff button.
+
+The executive reads the escalation note, decides whether to re-delegate to a different agent,
+spin up a new specialist agent, or handle the block directly.
+
+### On-demand specialist agent creation
+
+Create a new specialist `.agent.md` when a task domain is deep enough to warrant reuse.
+Indicators:
+- The task has its own toolchain commands not covered by existing executive scope
+- The task is likely to recur (across phases, audit cycles, or PR workflows)
+- Forcing a generalist executive to handle it inline would exceed its stated scope
+
+**Process:**
+1. Author the `.agent.md` file FIRST (it is the documentation of the decision)
+2. Commit it to the branch before invoking it for the first time
+3. Add the new agent to the invoking executive's `agents:` list and a handoff button
+
+### Clarifying questions before proceeding
+
+For any task involving trade-offs, irreversible changes, or ambiguous scope, **ask the user a
+clarifying question before taking action**. This is especially important when:
+- Multiple valid implementation approaches exist with different cost/quality trade-offs
+- The scope of a delegation could be interpreted narrowly or broadly
+- A decision will affect multiple downstream agents or phases
+
+Asking one well-framed question costs far less context than completing work that needs revision.
+
+### Context window efficiency via delegation and `.tmp.md`
+
+Delegation + `.tmp.md` together let an orchestrator's context window go much further:
+- The orchestrator delegates bounded sub-tasks to specialists with short, focused context windows
+- Specialists write structured output to `.tmp.md` rather than returning it inline
+- The orchestrator reads `.tmp.md` summaries rather than full sub-agent transcripts
+- Sub-delegation (specialist delegates to sub-specialist) amplifies this effect further
+
+Prefer deep delegation trees over wide inline execution for large tasks.
+
+---
+
 ## Writing Files from the Terminal Tool
 
 The `run_in_terminal` tool has an **implicit input character limit**. Shell heredocs that embed
@@ -368,12 +448,42 @@ Copilot chat agents dropdown automatically.
 | **Phase 5 Reasoning Executive** | full tools | Phase 5 reasoning layer delivery — DSPy inference, causal planning, LiteLLM-routed LLM calls (§5.6) |
 | **Phase 6 Executive** | full tools | Phase 6 top-level orchestration — sequences executive-agent → agent-runtime → motor-output (§§6.1–6.3) to M6 milestone |
 | **Playwright Executive** | full tools | P27 Playwright CT delivery — set up `@playwright/experimental-ct-react` and author component integration tests for `apps/default/client` |
+| **Test Executive** | full tools | Orchestrate the full testing lifecycle — run coverage scans, delegate to Test Scaffold and Test Review sub-agents, ensure all thresholds met before handoff |
+| **Test Coverage** | full execution | Identify untested code paths, map coverage gaps to module contracts, and enforce per-module 80% coverage thresholds |
+| **Test Review** | read-only | Audit test quality — meaningful assertions, Testcontainers hygiene, mocking discipline; produces PASS / WARN / FAIL report |
+| **Test Scaffold** | read + create | Generate vitest and pytest test stubs from actual source file interfaces — no invented signatures; always `--dry-run` first |
+| **Schema Executive** | full tools | Orchestrate schema authoring and safe migration — enforces schemas-first constraint before any implementation agent proceeds |
+| **Schema Validator** | read + execute | Validate all JSON Schema files in `shared/` and run `buf lint` against Protobuf schemas |
+| **Schema Migration** | read + create | Guide safe backwards-compatible schema evolution — inventory downstream consumers, assess breaking-change risk, record migration notes |
+| **Phase 7 Executive** | full tools | Phase 7 top-level orchestration — sequences metacognition → learning-adaptation → integration in strict gate order to M7 milestone |
+| **Phase 7 Metacognition Executive** | full tools | §7.2 Metacognition & Monitoring Layer — OTel setup, evaluator, Prometheus metrics, corrective A2A trigger |
+| **Phase 7 Learning Executive** | full tools | §7.1 Learning & Adaptation Layer — BrainEnv, PPO trainer, ReplayBuffer, HabitManager |
+| **Phase 7 Integration Executive** | full tools | §7.3 Phase 7 end-to-end integration tests and M7 milestone declaration |
+| **Phase 8 Executive** | full tools | Phase 8 top-level orchestration — gate-sequences auth, gateway, registry, browser client, and observability to M8 milestone |
+| **Phase 8 MCP OAuth Executive** | full tools | §8.2 MCP OAuth 2.1 auth layer — PKCE flow, JWT tokens, well-known endpoints, auth middleware |
+| **Phase 8 Hono Gateway Executive** | full tools | §8.1 Hono API Gateway — MCP Streamable HTTP client, SSE relay, CORS, static serving, integration tests |
+| **Phase 8 Browser Client Executive** | full tools | §8.3 Browser client — React + Vite, PKCE auth, `useSSEStream` hook, Chat tab, Internals tab, WCAG 2.1 AA |
+| **Phase 8 Observability Executive** | full tools | §8.4 Gateway OTel instrumentation, pino logging, Prometheus Blackbox probes, Grafana dashboards |
+| **Phase 8 Resource Registry Executive** | full tools | §8.5 `brain://` URI resource registry, MCP `resources/list` and `resources/read` handlers, access-control docs |
 
 Typical workflow: **Plan → (approve) → Implement → (complete) → Review → commit**.
 
 For a new module: **Scaffold Module → (approve scaffold) → Implement → Review → commit**.
 
 For a new agent: **Scaffold Agent → (approve scaffold) → Review → commit**.
+
+### Gate conventions
+
+Tests and documentation are **mandatory gates**, not optional follow-up steps:
+
+- **Before committing implementation**: tests must pass and coverage must meet the 80% threshold.
+  Run `uv run pytest --cov=src --cov-fail-under=80` (Python) or `pnpm run test -- --coverage`
+  (TypeScript) before opening a PR.
+- **Before committing any implementation change**: documentation must be updated in the same
+  commit or the immediately following one. The Docs Executive runs a completeness check as a
+  gate before any phase milestone is declared complete.
+- **Before merging**: the Review Agent must pass all `.agent.md` files changed in the PR. Run
+  `grep -h "^name:" .github/agents/*.agent.md | sort | uniq -d` to confirm name uniqueness.
 
 ---
 

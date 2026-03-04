@@ -39,6 +39,9 @@ handoffs:                       # Required. At least one handoff per agent.
 - `description` must be one sentence, ≤ 200 characters.
 - Every `handoffs[].agent` value must match an existing agent's `name` field exactly.
 - `tools` must be the **minimum** set required for the agent's posture (see below).
+- Every `handoffs[].agent` value must also appear in the `agents:` list when the agent carries
+  the `agent` toolset. The `agents:` list is a functional allow-list, not metadata — a handoff
+  target absent from `agents:` will fail silently at runtime.
 
 ---
 
@@ -55,6 +58,11 @@ Choose the minimum posture that fulfils the agent's stated purpose. Do not add t
 | **Read-only** (review, plan, audit) | `search`, `read`, `changes`, `usages` |
 | **Read + create** (scaffold) | adds `edit`, `web` |
 | **Full execution** (implement, debug, executive) | adds `execute`, `terminal`, `agent` |
+
+> **`web` toolset**: Never add `web` unless the agent body contains a step that explicitly
+> fetches a remote URL. It is the most commonly over-provisioned toolset. If the agent only
+> reads local files, runs local commands, or delegates — `web` is incorrect. When in doubt,
+> omit it; it can be added later via Update Agent.
 
 **Toolset contents (reference):**
 
@@ -92,6 +100,33 @@ Executive  →  sub-agents  →  Review  →  GitHub
 - Sub-agents should hand off back to their executive or directly to Review/GitHub.
 - Read-only agents (review, plan, audit) hand off to action agents or GitHub.
 - The `send: false` default is strongly preferred — avoid auto-submitting prompts.
+
+### Takeback gates (recommended pattern)
+
+The most reliable delegation pattern is the **takeback**: a sub-agent's final handoff returns
+control to the executive, rather than chaining forward to the next sub-agent.
+
+```
+Executive → Sub-agent A → [Back to Executive] → Sub-agent B → [Back to Executive] → Review
+```
+
+Benefits: the executive reviews each sub-agent's output before proceeding; errors are caught
+before they propagate; the executive can re-delegate or escalate at each checkpoint.
+
+**Anti-pattern — free-chaining** (`A → B → C → D → Review`): loses the executive's oversight
+role; a problem in A reaches Review undetected.
+
+### Insufficient-posture escalation
+
+When a sub-agent cannot complete its task (posture limit, tool unavailability, context
+saturation), it must not stop silently. It must:
+
+1. Write `## <AgentName> Escalation` to `.tmp.md`: current state, blocking issue, recommended
+   next agent, step-by-step instructions for the receiving party.
+2. Use its “Back to [Executive]” handoff button to return control.
+
+The executive reads the escalation note, then decides: re-delegate, create a specialist, or
+handle directly.
 
 ---
 
@@ -152,3 +187,8 @@ grep -h "^name:" .github/agents/*.agent.md | sort | uniq -d
 # Pre-commit hooks (frontmatter/formatting)
 pre-commit run --all-files
 ```
+
+> **Any session that creates or modifies `.agent.md` files must delegate to Review Agent before
+> committing.** Review Agent checks posture compliance, `agents:` list completeness, body
+> structure, and handoff graph validity — it catches errors that frontmatter linting cannot.
+> This is especially important after adding new toolsets or expanding `agents:` lists.

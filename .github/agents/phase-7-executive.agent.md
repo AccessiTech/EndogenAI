@@ -126,6 +126,24 @@ module until the previous one's gate checks pass.
 
 ---
 
+## Workflow
+
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Phase 7 Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
+
+---
+
 ## Phase 6 prerequisite check
 
 Before starting any Phase 7 work, verify Phase 6 is complete:
@@ -290,3 +308,7 @@ Do not cross the Phase 7 boundary.
 - **Do not commit** — hand off to Review, then GitHub.
 - **Do not call ChromaDB SDK directly** — always use the shared adapter.
 - **Do not call LLM SDKs directly** — always route through LiteLLM.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).

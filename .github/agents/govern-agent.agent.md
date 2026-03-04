@@ -45,6 +45,9 @@ For each `.agent.md` file in `.github/agents/`, verify:
 4. **Handoffs** — every `agent:` target resolves to an existing agent `name`; `label`, `agent`, `prompt`, `send` all present.
 5. **Body structure** — contains `## Endogenous sources`, `## Guardrails`, and a role-specific workflow section; opens with a bold role statement.
 6. **Script coupling** — any referenced script exists at the declared path.
+7. **`agents:` completeness** — for any agent carrying the `agent` toolset, every
+   `handoffs[].agent` value must also appear in the `agents:` list. Flag any handoff target
+   absent from `agents:` as a FAIL (the invocation would fail silently at runtime).
 
 ## Report format
 

@@ -120,6 +120,24 @@ JS/TS tooling. There is no Python in `apps/`.
 
 ---
 
+## Workflow
+
+### Step 0 — Initialise `.tmp.md`
+
+Before delegating to any sub-agent, append an orientation header to `.tmp.md`:
+
+```markdown
+## Phase 8 Executive Session — <date>
+Scope: <one sentence>
+Sub-agent results will appear below as `## <Step> Results` sections.
+```
+
+After each sub-agent returns, append its structured output under `## <Step> Results` before
+deciding whether to proceed, iterate, or escalate. If a sub-agent writes
+`## <AgentName> Escalation` to `.tmp.md`, read it before proceeding — never skip escalation notes.
+
+---
+
 ## Phase 7 prerequisite check
 
 Before starting any Phase 8 work, verify Phase 7 is complete:
@@ -221,3 +239,7 @@ curl -sf http://localhost:9090/api/v1/query?query=hono_gateway_requests_total | 
 - **Auth tokens in memory or HttpOnly cookies only** — never `localStorage`.
 - **Schemas first** — `uri-registry.schema.json` must be landed (Gate 0) before any `resources/` JSON is authored.
 - **One sub-executive at a time per gate** — do not fire Gate 2 work before Gate 1 is verified.
+- **Write sub-agent results to `.tmp.md`** under named H2 headings — never carry large outputs
+  inline in the context window.
+- **State excluded file types explicitly** when delegating with restricted scope (e.g.
+  “documentation and `.tmp.md` only — do not modify source code or config files”).
