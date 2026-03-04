@@ -1,6 +1,7 @@
 """Tests for ToolRegistry — agent-card discovery, health checks, registration."""
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import httpx
@@ -101,3 +102,101 @@ class TestGetSkill:
     def test_get_missing_skill_returns_none(self, registry: ToolRegistry) -> None:
         result = registry.get_skill("skill.does.not.exist")
         assert result is None
+
+
+
+class TestStartStopAndHealthCheck:
+    async def test_stop_cancels_health_task(self, registry: ToolRegistry, sample_skill_entry: "SkillEntry") -> None:
+        """stop() cancels the running health task."""
+        registry.register(sample_skill_entry)
+        import asyncio
+
+        async def _fake_loop() -> None:
+            try:
+                await asyncio.sleep(9999)
+            except asyncio.CancelledError:
+                raise
+
+        registry._health_task = asyncio.create_task(_fake_loop())
+        await asyncio.sleep(0)  # let the task actually start waiting
+        await registry.stop()
+        # Give the event loop a turn to process the CancelledError
+        try:
+            await asyncio.wait_for(asyncio.shield(registry._health_task), timeout=1.0)
+        except (asyncio.CancelledError, asyncio.TimeoutError):
+            pass
+        assert registry._health_task.done()
+
+    async def test_stop_when_no_task(self, registry: ToolRegistry) -> None:
+        """stop() is safe when no health task is running."""
+        await registry.stop()  # should not raise
+
+
+class TestRunHealthChecks:
+    async def test_health_check_marks_healthy(self, registry: ToolRegistry, sample_skill_entry: "SkillEntry") -> None:
+        registry.register(sample_skill_entry)
+        with respx.mock:
+            respx.get("http://localhost:9999/health").mock(
+                return_value=httpx.Response(200)
+            )
+            await registry._run_health_checks()
+        skill = registry.get_skill("skill.test")
+        assert skill is not None
+        assert skill.healthy is True
+
+    async def test_health_check_marks_unhealthy_on_error(self, registry: ToolRegistry, sample_skill_entry: "SkillEntry") -> None:
+        registry.register(sample_skill_entry)
+        with respx.mock:
+            respx.get("http://localhost:9999/health").mock(
+                side_effect=httpx.ConnectError("refused")
+            )
+            await registry._run_health_checks()
+        skill = registry.get_skill("skill.test")
+        assert skill is not None
+        assert skill.healthy is False
+
+
+class TestLoadPersisted:
+    async def test_load_persisted_adds_skills(self, tmp_path: Path) -> None:
+        from agent_runtime.models import SkillEntry
+        skill = SkillEntry(
+            skill_id="skill.persisted",
+            name="Persisted Skill",
+            description="From disk",
+            agent_url="http://localhost:8161",
+            capabilities=["test"],
+            healthy=True,
+        )
+        persistence_path = tmp_path / "registry.json"
+        persistence_path.write_text(json.dumps({"skills": [skill.model_dump(mode="json")]}))
+        registry = ToolRegistry(
+            persistence_path=persistence_path,
+            health_check_interval_seconds=999,
+        )
+        await registry._load_persisted()
+        assert registry.get_skill("skill.persisted") is not None
+
+    async def test_load_persisted_skips_duplicates(self, tmp_path: Path) -> None:
+        from agent_runtime.models import SkillEntry
+        skill = SkillEntry(
+            skill_id="skill.existing",
+            name="Existing Skill",
+            description="Already in registry",
+            agent_url="http://localhost:8161",
+            capabilities=[],
+            healthy=True,
+        )
+        persistence_path = tmp_path / "registry.json"
+        persistence_path.write_text(json.dumps({"skills": [skill.model_dump(mode="json")]}))
+        registry = ToolRegistry(persistence_path=persistence_path)
+        registry.register(skill)
+        await registry._load_persisted()
+        # Should still only have one entry
+        skills = [s for s in registry.get_all_skills() if s.skill_id == "skill.existing"]
+        assert len(skills) == 1
+
+    async def test_load_persisted_handles_corrupt_json(self, tmp_path: Path) -> None:
+        persistence_path = tmp_path / "registry.json"
+        persistence_path.write_text("not valid json")
+        registry = ToolRegistry(persistence_path=persistence_path)
+        await registry._load_persisted()  # should not raise
