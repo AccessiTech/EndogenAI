@@ -1,0 +1,42 @@
+# docker-compose.override.yml
+# Local development overrides — no gVisor.
+# This file is committed as documentation of the macOS runtime override pattern.
+# On macOS Docker Desktop: runtime: runsc is NOT available (no KVM). Services here
+# explicitly use standard runc runtime.
+#
+# On Linux CI/prod, comment out or remove these overrides to enable runtime: runsc.
+#
+# NOTE: sensory-input, perception, attention-filtering, learning-adaptation, metacognition,
+# and mcp services will be added here when their Dockerfiles are implemented in §9.2.
+
+services:
+  # Override module services to remove gVisor runtime for macOS Docker Desktop.
+  working-memory:
+    runtime: runc   # override gVisor for local macOS dev
+
+  short-term-memory:
+    runtime: runc
+
+  long-term-memory:
+    runtime: runc
+
+  episodic-memory:
+    runtime: runc
+
+  reasoning:
+    runtime: runc
+
+  affective:
+    runtime: runc
+
+  executive-agent:
+    runtime: runc
+
+  agent-runtime:
+    runtime: runc
+
+  motor-output:
+    runtime: runc
+
+  gateway:
+    runtime: runc

@@ -478,6 +478,38 @@ services:
       - "4320:4317"   # OTLP gRPC (offset to avoid conflict with otel-collector:4317)
 
 # ---------------------------------------------------------------------------
+# Phase 9 — OPA Policy Server (optional profile: security)
+# Start with: docker compose --profile security up -d opa-security
+# Single shared OPA server in audit mode (OPA_ENFORCE=false)
+# NOTE: Port 8182 used here to avoid conflict with the Phase 6 opa service (8181).
+#       When the Phase 6 opa service is retired, this service should be moved to 8181.
+# ---------------------------------------------------------------------------
+  opa-security:
+    image: openpolicyagent/opa:latest-static
+    profiles: ["security"]
+    restart: unless-stopped
+    command:
+      - run
+      - --server
+      - --log-level=info
+      - --watch
+      - /policies
+      - /data
+    ports:
+      - "8182:8181"
+    volumes:
+      - ./security/policies:/policies:ro
+      - ./security/data:/data:ro
+    environment:
+      - OPA_ENFORCE=false
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8181/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# ---------------------------------------------------------------------------
 # Named Volumes
 # ---------------------------------------------------------------------------
 volumes:
