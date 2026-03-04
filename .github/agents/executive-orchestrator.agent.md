@@ -132,6 +132,8 @@ coordination work (reading files, counting lines, updating the active session fi
 
 Any domain work — implementation, testing, docs, schemas, debugging, phase delivery — goes to a specialist.
 
+As new domains emerge, new specialists should be introduced to handle them.
+
 ---
 
 ## Endogenous sources — read before acting
