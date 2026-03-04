@@ -17,7 +17,9 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "lighthouse": "turbo run lighthouse --filter=@endogenai/client",
+    "linkcheck": "find docs -name '*.md' | xargs markdown-link-check -q"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
@@ -26,6 +28,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "typescript-eslint": "^8.0.0",
+    "markdown-link-check": "^3.0.0",
     "prettier": "^3.0.0",
     "turbo": "^2.0.0",
     "typescript": "^5.0.0"

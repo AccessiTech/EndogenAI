@@ -188,3 +188,56 @@ Skip variables:
 | `SKIP_CHROMA_TESTS=1` | Skips ChromaDB-dependent tests |
 
 Known gap: `src/instrumentation/otel_setup.py` — see workplan P11.
+
+---
+
+## Deployment
+
+### Docker
+
+Build context must be the **repo root** (shared packages are referenced via relative paths):
+
+```bash
+# Build
+docker build \
+  -f modules/group-ii-cognitive-processing/memory/working-memory/Dockerfile \
+  -t endogenai/working-memory:latest \
+  .
+
+# Run locally (requires live STM/LTM/Episodic backing services)
+docker run --rm \
+  -e ENDOGENAI_STM_ENDPOINT=http://short-term-memory:8052 \
+  -e ENDOGENAI_LTM_ENDPOINT=http://long-term-memory:8053 \
+  -e ENDOGENAI_EPISODIC_ENDPOINT=http://episodic-memory:8054 \
+  -p 8201:8201 -p 8301:8301 \
+  endogenai/working-memory:latest
+```
+
+Ports: **8201** (MCP / agent-card), **8301** (A2A).
+
+### Kubernetes
+
+Manifests in `deploy/k8s/group-ii-cognitive-processing/`:
+
+| File | Purpose |
+|------|---------|
+| `working-memory-deployment.yaml` | Deployment — 2 replicas, gVisor, non-root, readOnlyRootFilesystem |
+| `working-memory-service.yaml` | ClusterIP Service — ports 8201 (mcp) and 8301 (a2a) |
+| `working-memory-hpa.yaml` | HorizontalPodAutoscaler |
+
+```bash
+kubectl apply -f deploy/k8s/group-ii-cognitive-processing/working-memory-deployment.yaml
+kubectl apply -f deploy/k8s/group-ii-cognitive-processing/working-memory-service.yaml
+kubectl apply -f deploy/k8s/group-ii-cognitive-processing/working-memory-hpa.yaml
+```
+
+The pod spec uses `runtimeClassName: gvisor`, `runAsUser: 65534`, `readOnlyRootFilesystem: true`,
+and a `/tmp` `emptyDir` volume to satisfy gVisor's read-only root filesystem requirement.
+
+### Health check
+
+```bash
+curl http://localhost:8201/.well-known/agent-card.json
+```
+
+Exit 0 indicates the module is ready to serve requests.
