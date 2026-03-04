@@ -97,6 +97,7 @@ async def test_emit_tolerates_failure(emitter: FeedbackEmitter) -> None:
         action_id="act-004",
         type="test.call",
         channel=ChannelType.HTTP,
+        goal_id="goal-004",
     )
     fb = emitter.build_feedback(spec, {"success": True}, dispatched_at=_now())
     # No mock — connection will fail, but emit() should log and continue
