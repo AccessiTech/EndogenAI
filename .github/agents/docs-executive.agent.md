@@ -15,6 +15,27 @@ agents:
   - Docs Scaffold
   - Docs Completeness Review
   - Docs Accuracy Review
+  - Docs Executive Researcher
+  - Phase 1 Executive
+  - Phase 2 Executive
+  - Phase 3 Executive
+  - Phase 4 Executive
+  - Phase 5 Executive
+  - Phase 5 Memory Executive
+  - Phase 5 Motivation Executive
+  - Phase 5 Reasoning Executive
+  - Phase 6 Executive
+  - Phase 7 Executive
+  - Phase 7 Integration Executive
+  - Phase 7 Learning Executive
+  - Phase 7 Metacognition Executive
+  - Phase 8 Executive
+  - Phase 8 Browser Client Executive
+  - Phase 8 Hono Gateway Executive
+  - Phase 8 MCP OAuth Executive
+  - Phase 8 Observability Executive
+  - Phase 8 Resource Registry Executive
+  - Test Executive
 handoffs:
   - label: Scaffold Missing Docs
     agent: Docs Scaffold

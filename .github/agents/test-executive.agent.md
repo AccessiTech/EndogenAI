@@ -15,6 +15,26 @@ agents:
   - Test Scaffold
   - Test Coverage
   - Test Review
+  - Phase 1 Executive
+  - Phase 2 Executive
+  - Phase 3 Executive
+  - Phase 4 Executive
+  - Phase 5 Executive
+  - Phase 5 Memory Executive
+  - Phase 5 Motivation Executive
+  - Phase 5 Reasoning Executive
+  - Phase 6 Executive
+  - Phase 7 Executive
+  - Phase 7 Integration Executive
+  - Phase 7 Learning Executive
+  - Phase 7 Metacognition Executive
+  - Phase 8 Executive
+  - Phase 8 Browser Client Executive
+  - Phase 8 Hono Gateway Executive
+  - Phase 8 MCP OAuth Executive
+  - Phase 8 Observability Executive
+  - Phase 8 Resource Registry Executive
+  - Docs Executive
 handoffs:
   - label: Scaffold Missing Tests
     agent: Test Scaffold
@@ -27,6 +47,34 @@ handoffs:
   - label: Test Quality Review
     agent: Test Review
     prompt: "Coverage gaps addressed. Please review the test suite for assertion quality, Testcontainers use, and mocking discipline."
+    send: false
+  - label: Sweep Shared & Infra
+    agent: Phase 2 Executive
+    prompt: "Please review the test coverage and quality for shared/ and infrastructure/ (MCP, A2A, adapters, vector-store). Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Sweep Group I
+    agent: Phase 4 Executive
+    prompt: "Please review the test coverage and quality for modules/group-i-signal-processing/. Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Sweep Group II
+    agent: Phase 5 Executive
+    prompt: "Please review the test coverage and quality for modules/group-ii-cognitive-processing/ (memory, affective, reasoning). Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Sweep Group III
+    agent: Phase 6 Executive
+    prompt: "Please review the test coverage and quality for modules/group-iii-executive-output/ (executive-agent, agent-runtime, motor-output). Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Sweep Group IV
+    agent: Phase 7 Executive
+    prompt: "Please review the test coverage and quality for modules/group-iv-adaptive-systems/ (learning-adaptation, metacognition). Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Sweep Apps Layer
+    agent: Phase 8 Executive
+    prompt: "Please review the test coverage and quality for apps/default/ (client and server). Report all gaps, missing tests, and quality issues back to the Test Executive."
+    send: false
+  - label: Produce Test Workplan
+    agent: Docs Executive
+    prompt: "All phase domain reports received. Please produce docs/test-upgrade-workplan.md consolidating all findings: coverage gaps by module, quality issues by severity, and a prioritised upgrade task list."
     send: false
   - label: Review Changes
     agent: Review
