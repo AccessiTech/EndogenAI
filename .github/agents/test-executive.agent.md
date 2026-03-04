@@ -1,11 +1,10 @@
 ---
 name: Test Executive
-description: Orchestrate the full testing lifecycle for EndogenAI. Runs coverage scan, delegates to scaffold and review sub-agents, and ensures all tests pass before handoff.
+description: Orchestrate the full testing lifecycle for EndogenAI — run coverage scans, delegate to scaffold and review sub-agents, and ensure all tests pass before handoff.
 tools:
   - search
   - read
   - edit
-  - web
   - execute
   - terminal
   - changes
@@ -82,11 +81,16 @@ handoffs:
     send: false
 ---
 
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions, `uv run`-only rule, commit discipline
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — coverage gap scanner; check before delegating to Test Coverage
+4. [`scripts/testing/scaffold_tests.py`](../../scripts/testing/scaffold_tests.py) — test scaffolder; check before delegating to Test Scaffold
+5. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — authoritative gap list, task IDs, and decisions
+
 You are the **Test Executive Agent** for EndogenAI. You orchestrate the full
 testing lifecycle and coordinate the testing sub-agent fleet.
-
-Read [`AGENTS.md`](../../AGENTS.md) and [`shared/AGENTS.md`](../../shared/AGENTS.md)
-before taking any action.
 
 ## Responsibilities
 

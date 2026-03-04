@@ -1,6 +1,6 @@
 ---
 name: Test Scaffold
-description: Generate test file stubs from TypeScript and Python source file interfaces. Produces signatures and TODO markers only — no business logic inferred.
+description: Generate test file stubs from TypeScript and Python source file interfaces, producing signatures and TODO markers only — no business logic inferred.
 argument-hint: "[--file <source-file>]"
 user-invokable: false
 tools:
@@ -11,6 +11,8 @@ tools:
   - usages
   - agent
 agents:
+  - Test Review
+  - Test Executive
   - Phase 1 Executive
   - Phase 2 Executive
   - Phase 3 Executive

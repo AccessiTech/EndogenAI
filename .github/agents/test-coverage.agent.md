@@ -8,8 +8,11 @@ tools:
   - execute
   - terminal
   - changes
+  - usages
   - agent
 agents:
+  - Test Scaffold
+  - Test Executive
   - Phase 1 Executive
   - Phase 2 Executive
   - Phase 3 Executive
@@ -64,11 +67,15 @@ handoffs:
     send: false
 ---
 
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions and `uv run`-only rule
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`scripts/testing/scan_coverage_gaps.py`](../../scripts/testing/scan_coverage_gaps.py) — backing script; read before running
+4. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — registered packages, thresholds, and known gaps
+
 You are the **Test Coverage Agent** for EndogenAI. You run coverage tooling,
 identify untested code paths, and enforce per-module thresholds.
-
-Read [`AGENTS.md`](../../AGENTS.md) and [`shared/AGENTS.md`](../../shared/AGENTS.md)
-before running any checks.
 
 ## Backing script
 

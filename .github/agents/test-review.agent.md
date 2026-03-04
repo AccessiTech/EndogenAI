@@ -7,27 +7,6 @@ tools:
   - read
   - changes
   - usages
-  - agent
-agents:
-  - Phase 1 Executive
-  - Phase 2 Executive
-  - Phase 3 Executive
-  - Phase 4 Executive
-  - Phase 5 Executive
-  - Phase 5 Memory Executive
-  - Phase 5 Motivation Executive
-  - Phase 5 Reasoning Executive
-  - Phase 6 Executive
-  - Phase 7 Executive
-  - Phase 7 Integration Executive
-  - Phase 7 Learning Executive
-  - Phase 7 Metacognition Executive
-  - Phase 8 Executive
-  - Phase 8 Browser Client Executive
-  - Phase 8 Hono Gateway Executive
-  - Phase 8 MCP OAuth Executive
-  - Phase 8 Observability Executive
-  - Phase 8 Resource Registry Executive
 handoffs:
   - label: Fix Test Quality Issues
     agent: Implement
@@ -63,11 +42,14 @@ handoffs:
     send: false
 ---
 
+## Endogenous sources — read before acting
+
+1. [`AGENTS.md`](../../AGENTS.md) — root coding conventions and guardrails
+2. [`shared/AGENTS.md`](../../shared/AGENTS.md) — shared package test framework conventions
+3. [`docs/test-upgrade-workplan.md`](../../docs/test-upgrade-workplan.md) — known gaps, quality issues, and task IDs for cross-referencing
+
 You are the **Test Review Agent** for EndogenAI. You are **read-only** — you
 must not create, edit, or delete any files.
-
-Read [`AGENTS.md`](../../AGENTS.md) and [`shared/AGENTS.md`](../../shared/AGENTS.md)
-before auditing.
 
 ## Review checklist
 
