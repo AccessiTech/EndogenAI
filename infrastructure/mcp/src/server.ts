@@ -15,6 +15,9 @@
  *   - mcp://capabilities/{moduleId} — read a module's capability entry
  */
 
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
@@ -26,6 +29,37 @@ import { CapabilityRegistry } from './registry.js';
 import { ContextBroker } from './broker.js';
 import { StateSynchronizer } from './sync.js';
 import type { Capability } from './types.js';
+
+// ---------------------------------------------------------------------------
+// brain:// URI Registry — loaded once at import time
+// ---------------------------------------------------------------------------
+
+interface BrainResource {
+  uri: string;
+  module: string;
+  group: string;
+  type: string;
+  mimeType: string;
+  description: string;
+  accessControl: string[];
+  parameters?: Array<{ name: string; type: string; description: string }>;
+}
+
+function loadBrainResources(): BrainResource[] {
+  try {
+    // Resolve relative to this source file: src/ → mcp/ → infrastructure/ → workspace root
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const registryPath = join(__dirname, '..', '..', '..', 'resources', 'uri-registry.json');
+    const raw = readFileSync(registryPath, 'utf-8');
+    const parsed = JSON.parse(raw) as { resources: BrainResource[] };
+    return parsed.resources ?? [];
+  } catch {
+    // Registry file not present — return empty list gracefully
+    return [];
+  }
+}
+
+const BRAIN_RESOURCES: BrainResource[] = loadBrainResources();
 
 export interface MCPServerConfig {
   name?: string;
@@ -110,24 +144,73 @@ export function createMCPServer(config: MCPServerConfig = {}): MCPServerInstance
 
   // ── Resources ──────────────────────────────────────────────────────────────
 
-  server.setRequestHandler(ListResourcesRequestSchema, async () => {
+  server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
+    const params = request.params as { group?: string; module?: string } | undefined;
+    const groupFilter = params?.group;
+    const moduleFilter = params?.module;
+
+    // mcp://capabilities/* — always returned (no group/module filter applies)
     const capabilities = registry.list();
+    const capResources = capabilities.map((cap) => ({
+      uri: `mcp://capabilities/${cap.moduleId}`,
+      name: `${cap.moduleId} capability`,
+      description: [
+        `Layer: ${cap.layer}`,
+        `Accepts: ${cap.accepts.join(', ')}`,
+        `Emits: ${cap.emits.join(', ')}`,
+      ].join(' | '),
+      mimeType: 'application/json',
+    }));
+
+    // brain:// resources — optional group / module filtering
+    let brainResources = BRAIN_RESOURCES;
+    if (groupFilter) {
+      brainResources = brainResources.filter((r) => r.group === groupFilter);
+    }
+    if (moduleFilter) {
+      brainResources = brainResources.filter((r) => r.module === moduleFilter);
+    }
+
     return {
-      resources: capabilities.map((cap) => ({
-        uri: `mcp://capabilities/${cap.moduleId}`,
-        name: `${cap.moduleId} capability`,
-        description: [
-          `Layer: ${cap.layer}`,
-          `Accepts: ${cap.accepts.join(', ')}`,
-          `Emits: ${cap.emits.join(', ')}`,
-        ].join(' | '),
-        mimeType: 'application/json',
-      })),
+      resources: [
+        ...capResources,
+        ...brainResources.map((r) => ({
+          uri: r.uri,
+          name: `${r.module} — ${r.uri.split('/').pop()}`,
+          description: r.description,
+          mimeType: r.mimeType,
+        })),
+      ],
     };
   });
 
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const uri = request.params.uri;
+
+    // brain:// resources — return stub content (live data from running modules)
+    if (uri.startsWith('brain://')) {
+      const entry = BRAIN_RESOURCES.find((r) => r.uri === uri);
+      if (!entry) {
+        throw new Error(`Unknown brain:// resource: ${uri}`);
+      }
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify({
+              status: 'stub',
+              message: 'Live data available when module is running',
+              resource: entry.uri,
+              module: entry.module,
+              group: entry.group,
+            }),
+          },
+        ],
+      };
+    }
+
+    // mcp://capabilities/* — existing handler
     const moduleId = uri.replace('mcp://capabilities/', '');
     const cap = registry.get(moduleId);
     if (!cap) {

@@ -1,0 +1,20 @@
+[
+  {
+    "uri": "brain://group-iv/metacognition/confidence/current",
+    "module": "metacognition",
+    "group": "group-iv-adaptive-systems",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Current task confidence scores per goal class — key Internals panel metric",
+    "accessControl": ["read:authenticated", "subscribe:authenticated"]
+  },
+  {
+    "uri": "brain://group-iv/learning-adaptation/habits/catalog",
+    "module": "learning-adaptation",
+    "group": "group-iv-adaptive-systems",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Catalogue of promoted habit policies",
+    "accessControl": ["read:authenticated"]
+  }
+]

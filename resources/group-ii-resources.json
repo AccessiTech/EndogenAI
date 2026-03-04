@@ -1,0 +1,30 @@
+[
+  {
+    "uri": "brain://group-ii/working-memory/context/current",
+    "module": "working-memory",
+    "group": "group-ii-cognitive-processing",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Current context window assembled by Working Memory — primary Internals panel resource",
+    "accessControl": ["read:authenticated", "subscribe:authenticated"]
+  },
+  {
+    "uri": "brain://group-ii/episodic-memory/episode/{id}",
+    "module": "episodic-memory",
+    "group": "group-ii-cognitive-processing",
+    "type": "template",
+    "mimeType": "application/json",
+    "description": "Specific memory episode by ID",
+    "parameters": [{"name": "id", "type": "string", "description": "Episode UUID"}],
+    "accessControl": ["read:authenticated"]
+  },
+  {
+    "uri": "brain://group-ii/reasoning/plan/current",
+    "module": "reasoning",
+    "group": "group-ii-cognitive-processing",
+    "type": "direct",
+    "mimeType": "application/json",
+    "description": "Current DSPy reasoning plan",
+    "accessControl": ["read:authenticated", "subscribe:authenticated"]
+  }
+]
