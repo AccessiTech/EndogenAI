@@ -393,6 +393,69 @@ services:
       start_period: 20s
 
 # ---------------------------------------------------------------------------
+# Phase 8 — Hono API Gateway (BFF)
+# Default: always starts with the base stack
+# ---------------------------------------------------------------------------
+  gateway:
+    build:
+      context: apps/default/server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - MCP_SERVER_URL=http://mcp:8000
+      - MCP_SERVER_URI=http://localhost:8000
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3001
+      - PORT=3001
+      - LOG_LEVEL=info
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=hono-gateway
+    depends_on:
+      - otel-collector
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+# ---------------------------------------------------------------------------
+# Phase 8 — Keycloak (optional profile: keycloak)
+# Start with: docker compose --profile keycloak up -d keycloak
+# Production OIDC provider — replaces the JWT stub in apps/default/server/auth/
+# ---------------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    profiles: ["keycloak"]
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    volumes:
+      - ./apps/default/server/src/auth/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+    ports:
+      - "8080:8080"
+
+# ---------------------------------------------------------------------------
+# Phase 8 — Grafana Tempo (optional profile: observability-full)
+# Start with: docker compose --profile observability-full up -d tempo
+# Distributed trace backend for OTel spans exported by gateway + modules
+# ---------------------------------------------------------------------------
+  tempo:
+    image: grafana/tempo:latest
+    profiles: ["observability-full"]
+    restart: unless-stopped
+    command: -config.file=/etc/tempo.yaml
+    volumes:
+      - ./observability/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP API + Grafana datasource
+      - "4320:4317"   # OTLP gRPC (offset to avoid conflict with otel-collector:4317)
+
+# ---------------------------------------------------------------------------
 # Named Volumes
 # ---------------------------------------------------------------------------
 volumes:
@@ -403,3 +466,4 @@ volumes:
   grafana_data:
   ltm_kuzu_data:
   temporal_data:
+  tempo_data:
