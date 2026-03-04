@@ -11,6 +11,7 @@ tools:
   - changes
   - agent
 agents:
+  - Executive Orchestrator
   - Scratchpad Janitor
   - Executive Planner
   - Executive Debugger
@@ -122,8 +123,8 @@ handoffs:
     prompt: "All changes for this task are complete. Please review all changed files against AGENTS.md constraints and module contracts, produce a PASS/WARN/FAIL report, and hand back to Executive Orchestrator. Sub-delegate to specialists where appropriate before returning. Write a ## Review Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
   - label: Commit & Push
-    agent: GitHub
-    prompt: "The task has been reviewed and approved. Please commit incrementally using Conventional Commits format and push the branch. Hand back to Executive Orchestrator when done. Sub-delegate to specialists where appropriate before returning. Write a ## Commit Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
+    agent: Executive Orchestrator
+    prompt: "Please Delegate to the GitHub agent: The task has been reviewed and approved. Please commit incrementally using Conventional Commits format and push the branch. Hand back to Executive Orchestrator when done. Sub-delegate to specialists where appropriate before returning. Write a ## Commit Results summary to the active session file (.tmp/<branch-slug>/<YYYY-MM-DD>.md) for persistence."
     send: false
 ---
 
