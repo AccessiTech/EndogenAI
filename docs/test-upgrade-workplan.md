@@ -272,6 +272,22 @@ These represent broken or vacuous test logic beyond the three active regressions
 Tasks are ordered by: (1) CI-blocking first, (2) systemic fixes before one-offs, (3) tooling
 before new coverage work (tooling unlocks measurement).
 
+> **Status as of 2026-03-03 — Test Executive session complete:**
+> All 16 Python packages are now at ≥80% line coverage. All TypeScript packages were already passing.
+> The `scan_coverage_gaps.py` scanner shows 1 residual `[FAIL]` for `executive-agent` (81.2% coverage,
+> **above the threshold**) caused by a pre-existing `datetime` JSON serialization bug in
+> `DeliberationLoop.run_once()` that breaks the OPA Testcontainer integration tests
+> (`test_integration_bdi_loop.py`). This is an **implementation bug** in `deliberation.py`, not a
+> coverage deficit. Fix in a separate commit: use `model_dump(mode="json")` (Pydantic v2) when
+> serializing goal objects for the OPA HTTP request.
+>
+> Tasks **completed** this session: P09–P11 (a2a\_handler/mcp\_tools/otel\_setup tests for all modules),
+> P20 (unit track for agent-runtime prefect\_fallback), P21 (learning-adaptation coverage), P22
+> (vector-store/python embedding tests). Full per-package coverage: sensory-input 100%, attention-filtering
+> 98%, perception 100%, affective 88%, working-memory 83%, short-term-memory 89%, long-term-memory 81%,
+> episodic-memory 87%, reasoning 91%, executive-agent 81%, agent-runtime 80%, motor-output 91%,
+> learning-adaptation 84%, metacognition 89%, shared/vector-store/python 89%, shared/a2a/python 88%.
+
 | ID | Description | Effort | Owner | Prerequisites |
 |----|-------------|--------|-------|---------------|
 | P01 | Fix Regression 1 — add `goal_id="goal-004"` to `ActionSpec` in `test_feedback.py:91` | S | Implement | — |
