@@ -74,10 +74,10 @@ export const gateway = {
   health: (token: string | null) =>
     apiFetch<{ status: string }>('/api/health', token),
 
-  sendInput: (token: string | null, content: string, sessionId?: string) =>
+  sendInput: (token: string | null, message: string, sessionId?: string) =>
     apiFetch<SendInputResponse>('/api/input', token, {
       method: 'POST',
-      body: JSON.stringify({ message: content, ...(sessionId ? { sessionId } : {}) }),
+      body: JSON.stringify({ message, ...(sessionId ? { sessionId } : {}) }),
     }),
 
   listAgents: (token: string | null) =>
@@ -94,8 +94,11 @@ export const gateway = {
     return res.json() as Promise<AgentCard>
   },
 
-  listResources: (token: string | null, group?: string) => {
+  listResources: (token: string | null, group?: string): Promise<ResourceEntry[]> => {
     const params = group ? `?group=${encodeURIComponent(group)}` : ''
-    return apiFetch<ResourceEntry[]>(`/api/resources${params}`, token)
+    return apiFetch<{ resources: ResourceEntry[]; total: number }>(
+      `/api/resources${params}`,
+      token,
+    ).then(body => body.resources)
   },
 }
