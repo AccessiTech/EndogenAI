@@ -243,7 +243,11 @@ Rules:
 | New session day | Run `python scripts/prune_scratchpad.py --init` to create today's file |
 | New branch start | Re-init: `python scripts/prune_scratchpad.py --init` on the new branch |
 
-**Archive convention:** completed sections become one-line stubs:
+> **Scratchpad pruning — do not automate.** Running `scripts/prune_scratchpad.py`
+> (or any automated janitor pass) costs more tokens in orchestrator context than
+> it saves in file size. Prune manually only when a session file exceeds ~500 lines.
+
+**Archive convention:** completed sections may be compressed to one-line stubs:
 ```
 ## <Heading> (archived <YYYY-MM-DD> — <first-content-line>)
 ```
