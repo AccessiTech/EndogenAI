@@ -3,7 +3,7 @@
 Script to rename brAIn => frankenbrAIn throughout the EndogenAI repository.
 
 Usage:
-    python /tmp/rename_brain.py [--dry-run]
+    python scripts/rename_brain_to_frankenbrain.py [--dry-run]
 
 Replaces all occurrences of the string 'brAIn' with 'frankenbrAIn' in all
 text files in the repository, excluding binary files and generated/dependency
@@ -11,10 +11,9 @@ directories.
 """
 
 import os
-import sys
 import argparse
 
-REPO_ROOT = "/home/runner/work/EndogenAI/EndogenAI"
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SKIP_DIRS = {
     ".git",
