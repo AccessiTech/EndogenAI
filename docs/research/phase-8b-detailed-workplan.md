@@ -100,7 +100,7 @@ This framing means the two tabs are architecturally equivalent: both are subscri
 | Feature | Description |
 |---|---|
 | Two-tab navigation | `<nav role="tablist">` with Chat and Internals tabs |
-| Header | App title ("brAIn"), tab nav, connection status indicator |
+| Header | App title ("frankenbrAIn"), tab nav, connection status indicator |
 | Mobile responsive | Single-column < 768 px; touch targets ≥ 44 × 44 px |
 | Dark/light mode | System `prefers-color-scheme` only; no manual toggle | 
 | WCAG 2.1 AA | Full compliance — see §9 |
@@ -108,7 +108,7 @@ This framing means the two tabs are architecturally equivalent: both are subscri
 
 **D5-E — RESOLVED ✅**: **System `prefers-color-scheme` only — no toggle** (resolved 2026-03-03). App defers entirely to OS/browser default. CSS custom properties are authored to make a user toggle easy to add as a P2 feature without architectural changes.
 
-**D5-F — RESOLVED ✅**: **Configurable via `VITE_APP_TITLE` env var, default "brAIn"** (resolved 2026-03-03). Used in `<title>`, `<h1>` header, and any other title surface. Zero cost over hardcoding; deployments can customise without a code change.
+**D5-F — RESOLVED ✅**: **Configurable via `VITE_APP_TITLE` env var, default "frankenbrAIn"** (resolved 2026-03-03). Used in `<title>`, `<h1>` header, and any other title surface. Zero cost over hardcoding; deployments can customise without a code change.
 
 ### 1.5 Feature Scope — Auth UX
 
@@ -133,7 +133,7 @@ This framing means the two tabs are architecturally equivalent: both are subscri
 | D5-C | Agent URL discovery method? | **Option B — gateway `GET /api/agents`** | 2026-03-03 |
 | D5-D | Internals default panel? | **Agent Card Browser** | 2026-03-03 |
 | D5-E | Dark/light mode toggle? | **System preference only** — no toggle in Phase 8B | 2026-03-03 |
-| D5-F | App title configurable? | **`VITE_APP_TITLE` env var**, default "brAIn" | 2026-03-03 |
+| D5-F | App title configurable? | **`VITE_APP_TITLE` env var**, default "frankenbrAIn" | 2026-03-03 |
 | D5-G | Login page stub? | **Yes** — minimal `<LoginPage>` triggering PKCE redirect | 2026-03-03 |
 
 ---
@@ -671,7 +671,7 @@ function ConfidencePanel() {
 <body>
   <div id="root">
     <header role="banner">
-      <h1>{import.meta.env.VITE_APP_TITLE ?? 'brAIn'}</h1>
+      <h1>{import.meta.env.VITE_APP_TITLE ?? 'frankenbrAIn'}</h1>
       <nav role="tablist" aria-label="Main navigation">
         <button role="tab" aria-controls="panel-chat">Chat</button>
         <button role="tab" aria-controls="panel-internals">Internals</button>
@@ -943,5 +943,5 @@ pnpm build && gzip -c dist/assets/index.*.js | wc -c
 | D5-C | Gateway `GET /api/agents` for module URL discovery ✅ | Option B confirmed — server-side config; client needs no build-time knowledge of module URLs (resolved 2026-03-03) |
 | D5-D | Agent Card Browser as default Internals panel ✅ | Resolved 2026-03-03 |
 | D5-E | System `prefers-color-scheme` only — no toggle ✅ | Defers to OS/browser default; toggle deferred to P2 (resolved 2026-03-03) |
-| D5-F | `VITE_APP_TITLE` env var, default "brAIn" ✅ | Resolved 2026-03-03 |
+| D5-F | `VITE_APP_TITLE` env var, default "frankenbrAIn" ✅ | Resolved 2026-03-03 |
 | D5-G | `<LoginPage>` stub included ✅ | Enables Keycloak opt-in readiness; recoverable auth failure surface (resolved 2026-03-03) |

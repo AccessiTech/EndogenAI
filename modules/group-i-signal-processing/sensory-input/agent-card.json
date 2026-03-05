@@ -1,6 +1,6 @@
 {
   "name": "sensory-input",
-  "description": "Multi-modal signal ingestion, normalisation, and upward dispatch — the brAIn system's interface with the external environment. Analogous to the Sensory Cortex.",
+  "description": "Multi-modal signal ingestion, normalisation, and upward dispatch — the frankenbrAIn system's interface with the external environment. Analogous to the Sensory Cortex.",
   "version": "0.1.0",
   "capabilities": ["mcp-context", "a2a-task"],
   "modalities": ["text", "image", "audio", "sensor", "api-event"],

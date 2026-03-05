@@ -32,7 +32,7 @@
 
 ## 1. Phase 8 Architecture Summary
 
-Phase 8 introduces Group V — the interface layer between the brAIn cognitive backbone (Groups I–IV) and the outside world. Unlike previous phases (which built inward-facing cognitive modules), Phase 8 builds outward-facing surfaces.
+Phase 8 introduces Group V — the interface layer between the frankenbrAIn cognitive backbone (Groups I–IV) and the outside world. Unlike previous phases (which built inward-facing cognitive modules), Phase 8 builds outward-facing surfaces.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -234,7 +234,7 @@ pnpm run typecheck
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "uri-registry.schema.json",
   "title": "URI Registry",
-  "description": "Consolidated registry of all MCP resource URIs exposed by the brAIn system.",
+  "description": "Consolidated registry of all MCP resource URIs exposed by the frankenbrAIn system.",
   "type": "object",
   "required": ["version", "generated", "resources"],
   "properties": {

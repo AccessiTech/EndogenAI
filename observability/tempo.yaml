@@ -1,4 +1,4 @@
-# Grafana Tempo configuration — brAIn distributed trace backend.
+# Grafana Tempo configuration — frankenbrAIn distributed trace backend.
 # Used by the optional `observability-full` Docker Compose profile.
 # Start with: docker compose --profile observability-full up -d tempo
 #

@@ -26,7 +26,7 @@ tags:
 
 Maps to: `modules/group-ii-cognitive-processing/affective`
 
-The **Limbic System** provides the neuroanatomical reference for the brAIn **Affective / Motivational Layer** — the
+The **Limbic System** provides the neuroanatomical reference for the frankenbrAIn **Affective / Motivational Layer** — the
 generator of reward signals, emotional weighting, and drive modulation.
 
 ## Function

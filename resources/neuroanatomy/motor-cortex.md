@@ -26,7 +26,7 @@ tags:
 Maps to: `modules/group-iii-executive-output/motor-output`
 
 The **Motor Cortex** (primary motor cortex M1, premotor cortex PMd/PMv, and supplementary motor area SMA) provides
-the neuroanatomical reference for the brAIn **Motor / Output / Effector Layer** — the module responsible for
+the neuroanatomical reference for the frankenbrAIn **Motor / Output / Effector Layer** — the module responsible for
 dispatching parameterised actions into the environment, selecting the correct output channel, and emitting structured
 feedback after every action.
 

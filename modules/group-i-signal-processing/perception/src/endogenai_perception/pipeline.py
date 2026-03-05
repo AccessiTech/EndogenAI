@@ -1,5 +1,5 @@
 """
-Perception pipeline for the brAIn Perception Layer.
+Perception pipeline for the frankenbrAIn Perception Layer.
 
 PerceptionPipeline orchestrates:
   1. Feature extraction from filtered signals (entities, intent, summary)

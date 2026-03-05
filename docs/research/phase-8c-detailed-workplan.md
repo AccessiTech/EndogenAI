@@ -584,7 +584,7 @@ All Grafana dashboard JSON files are stored in `observability/grafana/dashboards
 ### 8.1 Gateway Dashboard (`gateway.json`)
 
 **UID**: `brain-gateway`
-**Title**: `brAIn — Gateway`
+**Title**: `frankenbrAIn — Gateway`
 
 | Panel | Query | Type |
 |---|---|---|
@@ -599,7 +599,7 @@ All Grafana dashboard JSON files are stored in `observability/grafana/dashboards
 ### 8.2 Signal Flow Dashboard (`signal-flow.json`)
 
 **UID**: `brain-signal-flow`
-**Title**: `brAIn — Signal Flow Latency`
+**Title**: `frankenbrAIn — Signal Flow Latency`
 
 Per-module latency approximation using OTel-derived Prometheus histograms:
 
@@ -617,7 +617,7 @@ Per-module latency approximation using OTel-derived Prometheus histograms:
 ### 8.3 Module Health Dashboard (`module-health.json`)
 
 **UID**: `brain-module-health`
-**Title**: `brAIn — Module Health`
+**Title**: `frankenbrAIn — Module Health`
 
 Requires Prometheus Blackbox Exporter (add to `docker-compose.yml` if not present):
 

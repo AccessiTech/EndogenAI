@@ -26,7 +26,7 @@ tags:
 Maps to: `modules/group-iii-executive-output/executive-agent`
 
 The **Basal Ganglia** (striatum, globus pallidus, subthalamic nucleus, substantia nigra) provides the neuroanatomical
-reference for the **goal commitment, capacity enforcement, and abort mechanisms** within the brAIn Executive / Agent
+reference for the **goal commitment, capacity enforcement, and abort mechanisms** within the frankenbrAIn Executive / Agent
 Layer — specifically the `goal_stack.py` lifecycle transitions driven by the direct, indirect, and hyperdirect
 corticobasal pathways.
 
