@@ -16,7 +16,7 @@ The Executive Orchestrator sits above all other agents. Invoke it at session sta
 
 | Agent | File | Posture | Trigger | Handoffs |
 |-------|------|---------|---------|----------|
-| **Executive Orchestrator** | `executive-orchestrator.agent.md` | full | Cold start (new branch / new session / stale `.tmp.md`) **or** ambiguous/cross-cutting user request | Executive Planner, Plan, Executive Debugger, Phase 1–8 Executives, Schema Executive, Test Executive, Docs Executive, Review, GitHub, Scratchpad Janitor |
+| **Executive Orchestrator** | `executive-orchestrator.agent.md` | full | Cold start (new branch / new session / stale `.tmp.md`) **or** ambiguous/cross-cutting user request | Executive Planner, Plan, Executive Debugger, Executive Scripter, Executive Automator, Phase 1–8 Executives, Schema Executive, Test Executive, Docs Executive, Review, GitHub, Scratchpad Janitor |
 
 ---
 
@@ -53,6 +53,17 @@ The Executive Orchestrator sits above all other agents. Invoke it at session sta
 | Agent | File | Posture | Trigger | Handoffs |
 |-------|------|---------|---------|----------|
 | **Executive Planner** | `executive-planner.agent.md` | read + edit | Reconcile `docs/Workplan.md` against current codebase state; update checklist; recommend next agent | Review, GitHub, Executive Planner (iterate) |
+
+---
+
+## Scripting & Automation Agents
+
+Enforce the programmatic-first principle — encode repeated tasks as scripts and non-agent automation.
+
+| Agent | File | Posture | Trigger | Handoffs | Backing Script |
+|-------|------|---------|---------|----------|----------------|
+| **Executive Scripter** | `executive-scripter.agent.md` | full | Identify tasks done >2 times interactively; audit `scripts/` for gaps; write or extend scripts | Review, GitHub, Executive Automator | `scripts/README.md` |
+| **Executive Automator** | `executive-automator.agent.md` | full | Design file watchers, pre-commit hooks, CI tasks, VS Code background tasks; first escalation for event-driven automation | Review, GitHub, Executive Scripter | `scripts/watch_scratchpad.py` |
 
 ---
 
