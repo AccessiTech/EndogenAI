@@ -45,7 +45,7 @@ The Vite dev server proxies `/api`, `/auth`, and `/.well-known` to `http://local
 
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_APP_TITLE` | `brAIn` | App title shown in `<h1>` and `<title>` |
+| `VITE_APP_TITLE` | `frankenbrAIn` | App title shown in `<h1>` and `<title>` |
 | `VITE_GATEWAY_URL` | `` (empty) | Override gateway base URL (dev uses Vite proxy) |
 
 Copy `.env.example` to `.env.local` for local overrides.

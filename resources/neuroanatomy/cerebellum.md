@@ -29,7 +29,7 @@ Maps to:
 - `modules/group-iii-executive-output/agent-runtime`
 - `modules/group-iii-executive-output/motor-output`
 
-The **Cerebellum** provides the neuroanatomical reference for the brAIn **Agent Execution (Runtime) Layer** and **Motor
+The **Cerebellum** provides the neuroanatomical reference for the frankenbrAIn **Agent Execution (Runtime) Layer** and **Motor
 / Output / Effector Layer** — the engine of reliable, precise, and coordinated action execution.
 
 ## Function

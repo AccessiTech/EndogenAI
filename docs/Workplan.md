@@ -1,6 +1,6 @@
 # Initial Workplan Document
 
-This document outlines the initial workplan for the development of the brAIn framework. It serves as a roadmap for the
+This document outlines the initial workplan for the development of the frankenbrAIn framework. It serves as a roadmap for the
 first phase of implementation, focusing on establishing the core architecture, defining module interfaces, and creating
 foundational components.
 

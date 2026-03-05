@@ -25,7 +25,7 @@ tags:
 
 Maps to: `modules/group-i-signal-processing/attention-filtering`
 
-The **Thalamus** provides the neuroanatomical reference for the brAIn **Attention & Filtering Layer** — the gating and
+The **Thalamus** provides the neuroanatomical reference for the frankenbrAIn **Attention & Filtering Layer** — the gating and
 routing hub for all incoming signals.
 
 ## Function

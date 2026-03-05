@@ -13,7 +13,7 @@ maps-to-modules:
 > **Neuroanatomy analogy**: [Sensory Cortex](../../../resources/neuroanatomy/sensory-cortex.md)
 
 Multi-modal signal ingestion, normalisation, timestamping, and upward dispatch
-for the brAIn framework.  This is the system's boundary with the external
+for the frankenbrAIn framework.  This is the system's boundary with the external
 environment — the analogue of the sensory cortex.
 
 ---

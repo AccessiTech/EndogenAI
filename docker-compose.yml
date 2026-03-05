@@ -1,4 +1,4 @@
-# brAIn — Docker Compose
+# frankenbrAIn — Docker Compose
 # Local development stack: ChromaDB · Ollama · Redis · Observability
 # Usage: docker compose up -d
 # Override with docker-compose.override.yml for local customisation (gitignored)

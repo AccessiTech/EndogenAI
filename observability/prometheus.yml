@@ -1,4 +1,4 @@
-# Prometheus Configuration — brAIn
+# Prometheus Configuration — frankenbrAIn
 # Scrapes metrics from the OTel Collector and local services.
 
 global:

@@ -24,7 +24,7 @@ tags:
 
 Maps to: `modules/group-i-signal-processing/sensory-input`
 
-The **Sensory Cortex** provides the neuroanatomical reference for the brAIn **Sensory / Input Layer** — the system's
+The **Sensory Cortex** provides the neuroanatomical reference for the frankenbrAIn **Sensory / Input Layer** — the system's
 interface with the external environment.
 
 ## Function

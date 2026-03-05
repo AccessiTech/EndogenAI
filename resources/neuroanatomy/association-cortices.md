@@ -25,7 +25,7 @@ tags:
 
 Maps to: `modules/group-i-signal-processing/perception`
 
-The **Association Cortices** provide the neuroanatomical reference for the brAIn **Perception Layer** — the site of
+The **Association Cortices** provide the neuroanatomical reference for the frankenbrAIn **Perception Layer** — the site of
 meaningful feature extraction and multimodal integration.
 
 ## Function

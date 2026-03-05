@@ -1,6 +1,6 @@
 {
   "name": "attention-filtering",
-  "description": "Salience scoring, relevance filtering, and signal routing — the brAIn system's attentional gate and relay hub. Analogous to the Thalamus.",
+  "description": "Salience scoring, relevance filtering, and signal routing — the frankenbrAIn system's attentional gate and relay hub. Analogous to the Thalamus.",
   "version": "0.1.0",
   "capabilities": ["mcp-context", "a2a-task"],
   "endpoints": {
