@@ -3,7 +3,7 @@
 **Group III — Executive & Output Modules**
 
 The Executive Agent implements the BDI (Belief-Desire-Intention) deliberation loop for the
-EndogenAI `brAIn` framework. It models the **prefrontal cortex / basal-ganglia** circuit:
+EndogenAI `frankenbrAIn` framework. It models the **prefrontal cortex / basal-ganglia** circuit:
 DLPFC-style goal stack with priority ordering, OFC-weighted value scoring, and
 striatal pathway analogues for commit (direct), suppress (indirect), and abort (hyperdirect).
 

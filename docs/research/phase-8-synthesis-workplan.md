@@ -10,7 +10,7 @@ _Generated: 2026-03-03 by Docs Executive Researcher_
 
 ## 1. Phase Overview
 
-Phase 8 instantiates the interface layer of the brAIn system — the boundary between the cognitive backbone (Groups I–IV) and the outside world. The five sub-phases are:
+Phase 8 instantiates the interface layer of the frankenbrAIn system — the boundary between the cognitive backbone (Groups I–IV) and the outside world. The five sub-phases are:
 
 | Sub-phase | Brain Analogue (D1) | Technology (D2) | Deliverable |
 |---|---|---|---|

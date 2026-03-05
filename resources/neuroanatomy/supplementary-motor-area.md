@@ -27,7 +27,7 @@ tags:
 Maps to: `modules/group-iii-executive-output/agent-runtime`
 
 The **Supplementary Motor Area** (SMA proper and pre-SMA) provides the neuroanatomical reference for the **task
-decomposition and pre-execution planning phase** of the brAIn Agent Execution (Runtime) Layer — specifically the
+decomposition and pre-execution planning phase** of the frankenbrAIn Agent Execution (Runtime) Layer — specifically the
 separation of the decomposition Activity from execution Activities in the Temporal `IntentionWorkflow`, and the
 Bereitschaftspotential analogue of pre-fetching tool dependencies before execution begins.
 

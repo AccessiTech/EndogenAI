@@ -1,6 +1,6 @@
 # Observability Stack
 
-Local observability stack for the brAIn framework, providing structured telemetry collection, metrics scraping, and
+Local observability stack for the frankenbrAIn framework, providing structured telemetry collection, metrics scraping, and
 dashboarding.
 
 ## Components

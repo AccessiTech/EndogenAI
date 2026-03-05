@@ -684,7 +684,7 @@ Public resources (`read:public`) are served without auth middleware.
 
 ### 7.3 `brain://` URI Scheme
 
-The `brain://` URI scheme is the canonical addressing scheme for all MCP resources in the brAIn system. It is consistent with the vector store collection naming convention (`brain.<module-name>`) established in Phase 1.
+The `brain://` URI scheme is the canonical addressing scheme for all MCP resources in the frankenbrAIn system. It is consistent with the vector store collection naming convention (`brain.<module-name>`) established in Phase 1.
 
 Format: `brain://<group-or-layer>/<module>/<resource-path>[/{id}]`
 

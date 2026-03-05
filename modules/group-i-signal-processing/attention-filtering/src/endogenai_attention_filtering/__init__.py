@@ -2,7 +2,7 @@
 EndogenAI Attention & Filtering Layer.
 
 Provides salience scoring, relevance filtering, signal routing, and top-down
-attention modulation for the brAIn framework.  Consumes Signal envelopes from
+attention modulation for the frankenbrAIn framework.  Consumes Signal envelopes from
 the Sensory / Input Layer and forwards gated signals to the Perception Layer.
 """
 

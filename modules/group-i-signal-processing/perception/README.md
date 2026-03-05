@@ -13,7 +13,7 @@ maps-to-modules:
 > **Neuroanatomy analogy**: [Association Cortices](../../../resources/neuroanatomy/association-cortices.md)
 
 Feature extraction, pattern recognition, language understanding, multimodal
-fusion, and `brain.perception` vector embedding for the brAIn framework.
+fusion, and `brain.perception` vector embedding for the frankenbrAIn framework.
 Analogous to the association cortices — the site where raw signals become
 structured semantic representations.
 

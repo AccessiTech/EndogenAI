@@ -1,4 +1,4 @@
-# Contributing to brAIn / EndogenAI
+# Contributing to frankenbrAIn / EndogenAI
 
 Thank you for your interest in contributing! This project follows a **documentation-first, endogenous-growth**
 philosophy — every contribution should expand the system's capacity to generate further components.
