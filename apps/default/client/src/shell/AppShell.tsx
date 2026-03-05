@@ -29,7 +29,7 @@ export function AppShell({
     <div className="app-shell">
       <header role="banner" className="app-header">
         <h1 className="app-title">
-          {import.meta.env['VITE_APP_TITLE'] ?? 'brAIn'}
+          {import.meta.env['VITE_APP_TITLE'] ?? 'frankenbrAIn'}
         </h1>
         <TabBar activeTab={activeTab} onTabChange={onTabChange} />
         <StatusBar sseStatus={sseStatus} reconnectCount={reconnectCount} />

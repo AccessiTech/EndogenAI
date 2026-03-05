@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://endogenai.accessitech.com/shared/schemas/uri-registry.schema.json",
   "title": "URI Registry",
-  "description": "Consolidated registry of all MCP resource URIs exposed by the brAIn system.",
+  "description": "Consolidated registry of all MCP resource URIs exposed by the frankenbrAIn system.",
   "type": "object",
   "required": ["version", "generated", "resources"],
   "additionalProperties": false,

@@ -380,7 +380,7 @@ Sources: [D1 §2](phase-6-neuroscience-executive-output.md), [D2 §2](phase-6-te
 
 ```json
 {
-  "agentName": "brAIn",
+  "agentName": "frankenbrAIn",
   "agentVersion": "0.1.0",
   "coreValues": [
     "helpfulness",

@@ -33,7 +33,7 @@ Maps to:
 - `modules/group-ii-cognitive-processing/memory/long-term-memory`
 - `modules/group-ii-cognitive-processing/memory/episodic-memory`
 
-The **Hippocampus** provides the neuroanatomical reference for the entire brAIn **Memory Layer** — the substrate for
+The **Hippocampus** provides the neuroanatomical reference for the entire frankenbrAIn **Memory Layer** — the substrate for
 encoding, consolidating, and retrieving information across all timescales.
 
 ## Function
@@ -72,7 +72,7 @@ Key subregions:
 
 ## Key Design Notes
 
-- **Timescale stratification**: the brAIn Memory Layer mirrors the hippocampal pipeline across four timescales — working
+- **Timescale stratification**: the frankenbrAIn Memory Layer mirrors the hippocampal pipeline across four timescales — working
   (immediate), short-term (session), long-term (persistent), episodic (ordered events).
 - **Retrieval-augmented assembly**: working memory loads relevant context from short-term and long-term stores per turn,
   respecting token budgets — analogous to hippocampal pattern completion feeding prefrontal working memory.

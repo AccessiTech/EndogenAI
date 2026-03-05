@@ -32,7 +32,7 @@ Maps to:
 - `modules/group-ii-cognitive-processing/reasoning` (Phase 5 — inference, causal planning, DSPy)
 - `modules/group-iii-executive-output/executive-agent` (Phase 6 — BDI loop, OPA policy engine, identity)
 
-The **Prefrontal Cortex** provides the neuroanatomical reference for two brAIn layers:
+The **Prefrontal Cortex** provides the neuroanatomical reference for two frankenbrAIn layers:
 
 1. **Decision-Making & Reasoning Layer** (Phase 5): the site of logical inference, causal reasoning, planning, and
    conflict resolution — implemented via DSPy + LiteLLM in `modules/group-ii-cognitive-processing/reasoning`.
