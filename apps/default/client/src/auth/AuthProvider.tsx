@@ -36,6 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(token)
     setStatus('authenticated')
     setError(null)
+    // Persist a hint so the next page load can attempt a silent token refresh.
+    localStorage.setItem('auth_session_hint', '1')
 
     // Schedule silent refresh at 80% of expiry
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
@@ -81,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     tokenRef.current = null
     setAccessToken(null)
+    localStorage.removeItem('auth_session_hint')
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current)
     setStatus('unauthenticated')
   }, [])
@@ -143,16 +146,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setError(err instanceof Error ? err.message : 'Token exchange failed')
         })
     } else {
-      // Attempt silent refresh via HttpOnly refresh cookie
-      fetch('/auth/refresh', { method: 'POST', credentials: 'include' })
-        .then(async (res) => {
-          if (!res.ok) return // Not authenticated — stay unauthenticated
-          const data = (await res.json()) as TokenResponse
-          storeToken(data.access_token, data.expires_in)
-        })
-        .catch(() => {
-          // Silently ignore — user is unauthenticated
-        })
+      // Only attempt silent refresh when a previous session hint exists.
+      // This avoids a 401 console error (flagged by Lighthouse) when the user
+      // has no session at all and there is no HttpOnly refresh cookie present.
+      if (localStorage.getItem('auth_session_hint') === '1') {
+        fetch('/auth/refresh', { method: 'POST', credentials: 'include' })
+          .then(async (res) => {
+            if (!res.ok) {
+              // Hint is stale — clear it and stay unauthenticated
+              localStorage.removeItem('auth_session_hint')
+              return
+            }
+            const data = (await res.json()) as TokenResponse
+            storeToken(data.access_token, data.expires_in)
+          })
+          .catch(() => {
+            // Silently ignore — user is unauthenticated
+            localStorage.removeItem('auth_session_hint')
+          })
+      }
     }
 
     return () => {

@@ -25,7 +25,7 @@ export function LoginPage() {
         <button
           className="login-btn"
           onClick={() => void login()}
-          aria-label="Sign in with PKCE"
+
         >
           Log in
         </button>
