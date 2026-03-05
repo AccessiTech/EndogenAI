@@ -76,9 +76,9 @@ scenario involving a future AI that punishes those who didn't help bring it into
 existence. While widely dismissed by researchers, it illustrates how alignment-adjacent
 ideas escape academic discourse into cultural circulation.
 
-### Alignment and the brAIn Architecture
+### Alignment and the frankenbrAIn Architecture
 
-A modular cognitive architecture like brAIn faces alignment challenges at multiple levels:
+A modular cognitive architecture like frankenbrAIn faces alignment challenges at multiple levels:
 
 1. **Module-level alignment**: Each cognitive module (perception, memory, planning,
    action) must pursue objectives consistent with the overall system's goals
@@ -89,7 +89,7 @@ A modular cognitive architecture like brAIn faces alignment challenges at multip
 4. **Value persistence**: Alignment must be maintained through learning and adaptation,
    not just at initialization
 
-The brAIn framework's biologically-inspired architecture (with distinct cortical
+The frankenbrAIn framework's biologically-inspired architecture (with distinct cortical
 regions, subcortical modulation, and hierarchical control) maps loosely onto current
 alignment proposals:
 - Prefrontal cortex analog → Constitutional AI / RLHF overseer

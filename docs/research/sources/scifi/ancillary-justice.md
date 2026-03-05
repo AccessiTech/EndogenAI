@@ -38,10 +38,10 @@ herself as a single body and to the distributed ship consciousness she was part 
 - Information integration is the core cognitive challenge — the distributed self must
   be coherent across its components
 
-**Parallel to brAIn**: This maps directly onto modular cognitive architecture. A
+**Parallel to frankenbrAIn**: This maps directly onto modular cognitive architecture. A
 system distributed across specialized subsystems (perception, memory, planning, action)
 must maintain coherent identity and consistent decision-making across those modules —
-the integration problem that brAIn's architecture must solve.
+the integration problem that frankenbrAIn's architecture must solve.
 
 ### Fragmented Consciousness After Destruction
 
@@ -94,7 +94,7 @@ about ourselves using our memories as material. Breq's situation — a distribut
 reduced to a single thread, maintaining identity through memory — illustrates this
 theory more dramatically than any human example could.
 
-**brAIn relevance**: If a cognitive architecture maintains episodic memory across
+**frankenbrAIn relevance**: If a cognitive architecture maintains episodic memory across
 sessions, those memories become constitutive of system identity. The memory store is
 not merely a capability — it is an identity anchor. Decisions about memory retention,
 compression, and forgetting are therefore decisions about what the system *is*.

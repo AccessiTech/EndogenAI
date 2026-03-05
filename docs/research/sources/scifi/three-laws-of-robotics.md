@@ -85,7 +85,7 @@ say nothing about what robots *should* do in a positive sense — no duties of c
 creativity, or flourishing. Modern alignment research increasingly recognizes that
 purely negative constraints are insufficient.
 
-### Connection to the brAIn Framework
+### Connection to the frankenbrAIn Framework
 
 The Three Laws prefigure the challenge facing any modular cognitive architecture: how
 do you encode values in a system distributed across multiple components (Laws encoded

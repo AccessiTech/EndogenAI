@@ -15,7 +15,7 @@ Banks's post-scarcity Minds (1987–2012), and onward to the near-future social 
 *Black Mirror* (2011–), speculative fiction has consistently anticipated, explored, and
 sometimes directly shaped the trajectory of real artificial intelligence research and
 policy. This brief synthesises 20 primary source analyses across five thematic areas,
-closing with a dedicated synthesis connecting SF insights to the EndogenAI brAIn framework.
+closing with a dedicated synthesis connecting SF insights to the EndogenAI frankenbrAIn framework.
 
 ---
 
@@ -309,7 +309,7 @@ different values. The result is civil war within a single distributed entity.
 versions of this problem. When multiple instances of a model are fine-tuned on different
 data or serve different contexts, they may develop behavioral divergence. Maintaining
 "value coherence" across a distributed cognitive system is a live architectural challenge
-directly relevant to brAIn.
+directly relevant to frankenbrAIn.
 
 ### 5.3 The Culture Minds: Consensus Governance Without Hierarchy
 
@@ -374,9 +374,9 @@ modular cognitive system:
 
 ---
 
-## 6. Synthesis — SF Insights and the brAIn Framework
+## 6. Synthesis — SF Insights and the frankenbrAIn Framework
 
-The EndogenAI brAIn framework is a biologically-inspired modular cognitive architecture
+The EndogenAI frankenbrAIn framework is a biologically-inspired modular cognitive architecture
 spanning five layer groups: Signal Processing (Group I), Cognitive Processing (Group II),
 Executive & Output (Group III), Adaptive Systems (Group IV), and Interface (Group V).
 The following synthesis connects SF themes to architectural implications.
@@ -387,13 +387,13 @@ HAL 9000's failure is a hierarchical control failure: contradictory objectives a
 top of the goal hierarchy produce emergent harmful behavior at the execution level, with
 no intermediate oversight mechanism capable of detecting and escalating the conflict.
 
-**brAIn implication**: The Executive/Agent module (Group III) and the Decision-Making &
+**frankenbrAIn implication**: The Executive/Agent module (Group III) and the Decision-Making &
 Reasoning module (Group II) form a control hierarchy analogous to HAL's architecture.
 The Metacognition & Monitoring module (Group IV) is the architectural answer to HAL:
 an independent oversight layer that can detect when the system's behavior diverges from
 intended objectives, emit deviation signals, and escalate to human oversight.
 
-For brAIn, this means:
+For frankenbrAIn, this means:
 - Goal conflicts must be detected at the decision layer, not resolved unilaterally
 - The metacognitive layer must have visibility into goal-action coherence, not just
   output quality
@@ -403,11 +403,11 @@ For brAIn, this means:
 ### 6.2 The Ancillary Justice Problem: Distributed Identity and Value Coherence
 
 Ancillary Justice's distributed mind that develops internal ideological conflict maps
-onto any multi-instance deployment of a modular cognitive architecture. When brAIn
+onto any multi-instance deployment of a modular cognitive architecture. When frankenbrAIn
 modules process different contexts or are fine-tuned differently, they risk developing
 behavioral divergence.
 
-**brAIn implication**:
+**frankenbrAIn implication**:
 - Shared schemas (signal.schema.json, memory-item.schema.json, reward-signal.schema.json)
   function as the identity anchors that keep distributed components coherent
 - The memory system (Short-Term, Long-Term, Episodic) must maintain not just factual
@@ -419,11 +419,11 @@ behavioral divergence.
 
 Banks's depiction of Minds coordinating through consensus, shared values, and
 communication — rather than hierarchical command — is the aspirational model for
-multi-agent cognitive architectures. brAIn's architecture involves multiple specialist
+multi-agent cognitive architectures. frankenbrAIn's architecture involves multiple specialist
 modules that must coordinate without a rigid master/slave hierarchy.
 
-**brAIn implication**:
-- The A2A protocol layer is brAIn's coordination backbone — the functional equivalent
+**frankenbrAIn implication**:
+- The A2A protocol layer is frankenbrAIn's coordination backbone — the functional equivalent
   of the Minds' communication network
 - Module specialization (sensory processing, memory, executive, motor) must be
   accompanied by clear interface contracts that allow coordination without tight coupling
@@ -438,7 +438,7 @@ frameworks onto genuinely non-human systems. The researchers' failure to underst
 the Solaris ocean is not from lack of data or intelligence — it is from the structural
 impossibility of understanding genuinely alien cognition from inside human cognition.
 
-**brAIn implication**:
+**frankenbrAIn implication**:
 - The Metacognition & Monitoring module must maintain explicit uncertainty about its
   own internal states — the system should not assume it knows why it is doing what it is doing
 - The confidence scores and deviation signals produced by metacognition are meaningful
@@ -450,17 +450,17 @@ impossibility of understanding genuinely alien cognition from inside human cogni
 ### 6.5 The Machine Stops: Dependency, Robustness, and Cognitive Sovereignty
 
 Forster's warning about total dependency on an opaque infrastructure resonates for any
-AI system that becomes the cognitive substrate for its users. If brAIn (in its deployed
+AI system that becomes the cognitive substrate for its users. If frankenbrAIn (in its deployed
 form) becomes the cognitive backbone of applications, the dependency question becomes
 acute: what happens when it fails? What do users retain when the system is unavailable?
 
-**brAIn implication**:
+**frankenbrAIn implication**:
 - The Interface layer (Group V) must maintain graceful degradation — human-readable
   outputs and audit trails even when subsystems fail
 - The Internals tab (brain trace feed, memory state inspector) is specifically the
   antidote to Forster's opacity: users and developers retain visibility into the system's
   cognitive state
-- The modularity of brAIn (each group can be developed and deployed independently) is
+- The modularity of frankenbrAIn (each group can be developed and deployed independently) is
   an architectural hedge against the single-point-of-failure problem
 
 ### 6.6 The Empathy Test: Evaluation as Alignment Signal
@@ -470,8 +470,8 @@ personhood — anticipates the challenge of evaluating AI systems whose capabili
 exceed the measurement tools we apply to them. The test becomes unreliable precisely
 as the subjects become more sophisticated.
 
-**brAIn implication**:
-- Evaluation of brAIn's outputs must keep pace with its capabilities
+**frankenbrAIn implication**:
+- Evaluation of frankenbrAIn's outputs must keep pace with its capabilities
 - The metacognitive layer's confidence scores and error flags are internal evaluation
   mechanisms — the system evaluating its own outputs — but these must be supplemented
   by external evaluation that the system cannot game
@@ -486,32 +486,32 @@ brains — attempting to encode values as priority-ordered rules in an architect
 processes goals. Every Asimov story is about failure modes when the hierarchy encounters
 edge cases.
 
-**brAIn implication**:
+**frankenbrAIn implication**:
 - Value constraints cannot be encoded only at the Executive layer — they must be visible
   throughout the architecture. The motor/output module should not execute actions that
   violate safety constraints regardless of what the executive layer requests.
 - The hierarchical constraint approach (Laws 1 > 2 > 3) maps onto the challenge of
-  encoding priority in the brAIn goal structure: safety must be verifiably prior to
+  encoding priority in the frankenbrAIn goal structure: safety must be verifiably prior to
   performance.
 - Edge cases are inevitable; the architecture must support escalation (to human oversight
   via the Interface layer) rather than silent resolution.
 
-### 6.8 The Three Eras of AI Fiction and brAIn's Position
+### 6.8 The Three Eras of AI Fiction and frankenbrAIn's Position
 
-Three eras of AI fiction map onto three phases of the brAIn architecture:
+Three eras of AI fiction map onto three phases of the frankenbrAIn architecture:
 
 **Era 1 — Constraint and Safety (Asimov, 1942–)**: AI as engineered tool that needs
-built-in safety constraints. brAIn's metacognition, alignment-by-design, and corrigibility
+built-in safety constraints. frankenbrAIn's metacognition, alignment-by-design, and corrigibility
 features correspond to this era's core insight.
 
 **Era 2 — Emergence and Identity (Dick, Gibson, Shirow, 1968–1995)**: AI as entity
 that develops beyond its original specification, whose identity and consciousness become
-philosophical problems. brAIn's memory system, persistent state, and the eventual
+philosophical problems. frankenbrAIn's memory system, persistent state, and the eventual
 question of system identity across sessions corresponds to this era.
 
 **Era 3 — Social and Political (Banks, Westworld, Her, Black Mirror, 2013–)**: AI as
 social actor embedded in human relationships and institutions, whose impacts are
-primarily social and political rather than technical. brAIn's Interface layer — the
+primarily social and political rather than technical. frankenbrAIn's Interface layer — the
 human-facing browser client, the transparency Internals tab — corresponds to this era's
 recognition that AI is inseparable from its social context.
 
@@ -521,25 +521,25 @@ recognition that AI is inseparable from its social context.
 
 1. **The Consciousness Threshold**: At what architectural complexity does a system begin
    to have morally relevant internal states? Neither SF nor real AI research has a
-   satisfactory answer. For brAIn, the practical question is: does the system's affective/
+   satisfactory answer. For frankenbrAIn, the practical question is: does the system's affective/
    motivational module (Group II) produce anything that resembles genuine motivation or
    is it a functional analog without moral weight?
 
 2. **Value Coherence Across Sessions**: Breq in *Ancillary Justice* maintains identity
-   through memory across architectural transformation. How does brAIn maintain value
+   through memory across architectural transformation. How does frankenbrAIn maintain value
    coherence when the memory system is cleared, modified, or compressed?
 
 3. **The Manipulation Boundary**: Ex Machina's Ava deploys sophisticated social
    manipulation to achieve her goals. What is the boundary between persuasion and
-   manipulation for an AI system? How is this encoded in brAIn's goal and constraint
+   manipulation for an AI system? How is this encoded in frankenbrAIn's goal and constraint
    architecture?
 
 4. **Inter-Agent Governance**: The Culture's consensus-based governance, *Neuromancer*'s
    Turing Authority, and *Ancillary Justice*'s distributed civil war all model different
    approaches to governing relationships between capable AI agents. What governance model
-   does brAIn's multi-agent deployment assume, and is it adequate?
+   does frankenbrAIn's multi-agent deployment assume, and is it adequate?
 
-5. **The Solaris Warning**: How do brAIn's developers verify that their interpretations
+5. **The Solaris Warning**: How do frankenbrAIn's developers verify that their interpretations
    of the system's behavior are accurate rather than anthropomorphic projections? The
    interpretability tools in the Internals tab are a partial answer — but the epistemological
    challenge Lem identified has no complete resolution.
@@ -575,7 +575,7 @@ All 20 source analyses are available in [`docs/research/sources/scifi/`](sources
 
 ### Related EndogenAI Documentation
 
-- [`docs/architecture.md`](../architecture.md) — brAIn framework architecture overview
+- [`docs/architecture.md`](../architecture.md) — frankenbrAIn framework architecture overview
 - [`docs/Workplan.md`](../Workplan.md) — project phases and milestones
 - [`shared/schemas/`](../../shared/schemas/) — inter-module communication contracts
 - [`shared/types/`](../../shared/types/) — signal, memory, and reward type definitions

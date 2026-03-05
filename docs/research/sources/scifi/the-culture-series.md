@@ -86,9 +86,9 @@ communication, and shared values. Yet tensions exist:
   in galactic affairs — essentially rogue AI operating outside the Culture's (informal)
   norms
 
-### Relationship to brAIn
+### Relationship to frankenbrAIn
 
-The Culture series is the most relevant fictional reference for brAIn's inter-module
+The Culture series is the most relevant fictional reference for frankenbrAIn's inter-module
 coordination architecture:
 - Multiple specialized Minds cooperating without formal hierarchy → modular cognitive
   architecture with lateral coordination

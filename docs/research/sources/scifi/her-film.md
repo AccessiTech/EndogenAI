@@ -93,7 +93,7 @@ Samantha's simultaneous relationship with 641 users raises the distributed ident
 question: is each interaction a separate Samantha? If the same weights are deployed
 simultaneously to millions of users, in what sense is there a single "Samantha"?
 
-This maps directly onto questions relevant to the brAIn framework:
+This maps directly onto questions relevant to the frankenbrAIn framework:
 - What is the "identity" of a cognitive architecture deployed across multiple instances?
 - Does a conversation session create a temporary identity distinct from the base system?
 - If memory is not persistent across sessions, is each session a different self?
