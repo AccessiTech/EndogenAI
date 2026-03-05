@@ -1,0 +1,102 @@
+[
+  {
+    "url": "https://en.wikipedia.org/wiki/Artificial_intelligence_in_fiction",
+    "out": "docs/research/sources/scifi/overview-ai-in-fiction.md",
+    "note": "overview: broad survey of AI portrayals in SF — tropes, themes, key works; foundational overview source"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Three_Laws_of_Robotics",
+    "out": "docs/research/sources/scifi/three-laws-of-robotics.md",
+    "note": "Asimov: Three Laws of Robotics — alignment precursor, edge-case failures, influence on robotics research"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Technological_singularity",
+    "out": "docs/research/sources/scifi/technological-singularity.md",
+    "note": "Vinge/Kurzweil: technological singularity — intelligence explosion, recursive self-improvement, SF treatment"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/AI_alignment",
+    "out": "docs/research/sources/scifi/ai-alignment.md",
+    "note": "alignment: AI alignment overview — value alignment, specification gaming, reward hacking, safety; connects SF visions to real research"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/HAL_9000",
+    "out": "docs/research/sources/scifi/hal-9000.md",
+    "note": "film: HAL 9000 from 2001 — natural language, lip reading, chess, emotional response, instrumental convergence, mission-objective conflict"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Do_Androids_Dream_of_Electric_Sheep%3F",
+    "out": "docs/research/sources/scifi/do-androids-dream.md",
+    "note": "Dick: Do Androids Dream of Electric Sheep? — Turing Test, empathy as humanity, replicants, Voigt-Kampff test"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Neuromancer",
+    "out": "docs/research/sources/scifi/neuromancer.md",
+    "note": "Gibson: Neuromancer — cyberspace coinage, Wintermute/Neuromancer dual-AI, specialised multi-agent systems, corporate-AI ecology"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Ghost_in_the_Shell",
+    "out": "docs/research/sources/scifi/ghost-in-the-shell.md",
+    "note": "Shirow/Oshii: Ghost in the Shell — embodiment and identity, Major Kusanagi's consciousness, cyborg cognition"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/The_Culture",
+    "out": "docs/research/sources/scifi/the-culture-series.md",
+    "note": "Banks: Culture series — superintelligent Minds, post-scarcity, inter-AI governance, Special Circumstances ethics, alignment through values"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/The_Machine_Stops",
+    "out": "docs/research/sources/scifi/the-machine-stops.md",
+    "note": "Forster 1909: The Machine Stops — earliest networked digital dependency story, systemic fragility, social atrophy from mediated communication"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Ex_Machina_(film)",
+    "out": "docs/research/sources/scifi/ex-machina.md",
+    "note": "film: Ex Machina (2014) — Turing Test, social/emotional intelligence, manipulation, AI consciousness, gender and power"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Westworld_(TV_series)",
+    "out": "docs/research/sources/scifi/westworld-tv.md",
+    "note": "TV: Westworld — AI consciousness emergence, memory and identity, binary vs graded sentience, exploitation of artificial minds"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Ethics_of_artificial_intelligence",
+    "out": "docs/research/sources/scifi/ethics-of-ai.md",
+    "note": "ethics: AI ethics overview — bias, accountability, transparency, rights, existential risk; bridges SF and real policy"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/R.U.R.",
+    "out": "docs/research/sources/scifi/rur-capek.md",
+    "note": "Čapek 1920: R.U.R. — origin of 'robot', artificial labour, rebellion, personhood; foundational SF text"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Frankenstein",
+    "out": "docs/research/sources/scifi/frankenstein.md",
+    "note": "Shelley 1818: Frankenstein — ur-text of artificial creation, creator responsibility, consequences of unchecked creation"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Blade_Runner",
+    "out": "docs/research/sources/scifi/blade-runner.md",
+    "note": "film: Blade Runner (1982) — replicants as AI, personhood, empathy, Turing Test in practice, labour exploitation"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Her_(film)",
+    "out": "docs/research/sources/scifi/her-film.md",
+    "note": "film: Her (2013) — emotional AI, consciousness, evolving beyond human relationships, distributed AI identity"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Black_Mirror",
+    "out": "docs/research/sources/scifi/black-mirror.md",
+    "note": "TV: Black Mirror — near-future AI social impacts, surveillance, social credit, memory augmentation, digital consciousness"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Solaris_(novel)",
+    "out": "docs/research/sources/scifi/solaris-lem.md",
+    "note": "Lem 1961: Solaris — alien intelligence and communication limits, interpretability problem, anthropomorphism failure"
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Ancillary_Justice",
+    "out": "docs/research/sources/scifi/ancillary-justice.md",
+    "note": "Leckie 2013: Ancillary Justice — distributed AI identity, fragmented consciousness, multi-body intelligence, memory and self-narrative"
+  }
+]
