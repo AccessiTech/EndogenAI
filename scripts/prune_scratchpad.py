@@ -53,6 +53,10 @@ Usage:
     # Initialise a new session file for today (creates if absent)
     python scripts/prune_scratchpad.py --init
 
+    # Annotate H2 headings with line ranges (run after every write; idempotent)
+    python scripts/prune_scratchpad.py --annotate
+    python scripts/prune_scratchpad.py --annotate --file .tmp/my-branch/2026-03-05.md
+
 Exit codes:
     0 — success (pruned, initialised, or no pruning needed)
     1 — file not found or parse error
@@ -199,6 +203,57 @@ def parse_sections(text: str) -> list[dict]:
     return sections
 
 
+def annotate(text: str) -> str:
+    """
+    Annotate each H2 heading with its buffered line range in the file.
+
+    Example:
+        ## Executive Orchestrator — 2026-03-05
+    becomes:
+        ## Executive Orchestrator — 2026-03-05 [L12–L47]
+
+    Line numbers are 1-based. The range spans from the heading line to the last
+    line of the section (inclusive). Any previous [Ldd–Ldd] annotation is stripped
+    before recalculating, so this function is idempotent.
+
+    The annotation is encoded directly in the heading text so it survives copying,
+    broken links, and rendering — agents can cite the exact line range for precision.
+    """
+    lines = text.splitlines(keepends=True)
+
+    # First pass: strip any existing [L\d+–L\d+] annotations from H2 lines
+    stripped: list[str] = []
+    for line in lines:
+        cleaned = re.sub(
+            r"^(## .+?) \[L\d+[–-]L?\d+\](\s*)$",
+            lambda m: m.group(1) + m.group(2),
+            line.rstrip("\n"),
+        )
+        stripped.append(cleaned + "\n" if line.endswith("\n") else cleaned)
+
+    # Second pass: annotate each H2 with its section's line range
+    result: list[str] = []
+    i = 0
+    while i < len(stripped):
+        line = stripped[i]
+        h2_match = re.match(r"^(## .+?)\s*$", line.rstrip("\n"))
+        if h2_match:
+            heading_text = h2_match.group(1)
+            start_line = i + 1  # 1-based: heading is on this line
+            # Walk forward to find the next H2 or EOF
+            j = i + 1
+            while j < len(stripped) and not re.match(r"^## ", stripped[j]):
+                j += 1
+            end_line = j  # 1-based exclusive → last content line is j (== next H2 line - 1 + 1)
+            result.append(f"{heading_text} [L{start_line}–L{end_line}]\n")
+            i += 1
+        else:
+            result.append(line)
+            i += 1
+
+    return "".join(result)
+
+
 def prune(text: str, today: str) -> tuple[str, list[str], list[str]]:
     """
     Prune the scratchpad text.
@@ -280,6 +335,14 @@ def main() -> int:
         action="store_true",
         help="Initialise today's session file and exit",
     )
+    parser.add_argument(
+        "--annotate",
+        action="store_true",
+        help=(
+            "Annotate each H2 heading with its line range [Lstart–Lend] "
+            "then exit. Idempotent — safe to run after every write."
+        ),
+    )
     args = parser.parse_args()
 
     today = date.today().isoformat()
@@ -297,6 +360,19 @@ def main() -> int:
     if not path.exists():
         print(f"ERROR: {path} not found.", file=sys.stderr)
         return 1
+
+    if args.annotate:
+        text = path.read_text(encoding="utf-8")
+        annotated = annotate(text)
+        if annotated == text:
+            # Nothing changed — avoid a pointless write (which would re-trigger the watcher)
+            return 0
+        if args.dry_run:
+            print(annotated)
+            return 0
+        path.write_text(annotated, encoding="utf-8")
+        print(f"Annotated headings in {path}")
+        return 0
 
     text = path.read_text(encoding="utf-8")
     line_count = text.count("\n")
