@@ -20,9 +20,9 @@ WORKDIR /repo/modules/group-iv-adaptive-systems/metacognition
 
 RUN uv sync --no-dev
 
-EXPOSE 8231 8331
+EXPOSE 8171
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8231/.well-known/agent-card.json')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8171/.well-known/agent-card.json')"
 
-CMD ["uv", "run", "python", "-m", "uvicorn", "metacognition.server:app", "--host", "0.0.0.0", "--port", "8231"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "metacognition.server:app", "--host", "0.0.0.0", "--port", "8171"]

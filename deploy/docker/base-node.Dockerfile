@@ -6,3 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Run as non-root by default (UID 65534 = nobody).
+USER 65534

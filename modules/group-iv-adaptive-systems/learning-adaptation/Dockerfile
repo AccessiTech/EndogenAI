@@ -20,9 +20,9 @@ WORKDIR /repo/modules/group-iv-adaptive-systems/learning-adaptation
 
 RUN uv sync --no-dev
 
-EXPOSE 8230 8330
+EXPOSE 8170
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8230/.well-known/agent-card.json')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8170/.well-known/agent-card.json')"
 
-CMD ["uv", "run", "python", "-m", "uvicorn", "learning_adaptation.server:app", "--host", "0.0.0.0", "--port", "8230"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "learning_adaptation.server:app", "--host", "0.0.0.0", "--port", "8170"]

@@ -74,9 +74,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if _REGISTRY_CONFIG_PATH.exists():
         registry_config = json.loads(_REGISTRY_CONFIG_PATH.read_text())
 
-    targets: list[int] = registry_config.get("discoveryTargets", [8161, 8163])
-    discovery_targets = [f"http://localhost:{p}" for p in targets]
-    persistence_path = registry_config.get("registryPersistencePath", ".tool-registry.json")
+    raw_targets: list = registry_config.get("discoveryTargets", [8161, 8163])
+    discovery_targets = [
+        t if isinstance(t, str) else f"http://localhost:{t}"
+        for t in raw_targets
+    ]
+    persistence_path = Path(registry_config.get("registryPersistencePath", ".tool-registry.json"))
     health_interval: int = registry_config.get("healthCheckIntervalSeconds", 30)
 
     _tool_registry = ToolRegistry(

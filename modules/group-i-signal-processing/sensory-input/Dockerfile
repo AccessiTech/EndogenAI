@@ -20,9 +20,9 @@ WORKDIR /repo/modules/group-i-signal-processing/sensory-input
 
 RUN uv sync --no-dev
 
-EXPOSE 8201 8301
+EXPOSE 8101
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8201/.well-known/agent-card.json')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8101/.well-known/agent-card.json')"
 
-CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_sensory_input.server:app", "--host", "0.0.0.0", "--port", "8201"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_sensory_input.server:app", "--host", "0.0.0.0", "--port", "8101"]

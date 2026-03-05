@@ -1,30 +1,22 @@
 FROM python:3.11-slim
 
-WORKDIR /app
-
 # Install uv
 RUN pip install --no-cache-dir uv
 
-# Copy dependency manifests
-COPY pyproject.toml ./
+WORKDIR /repo
 
-# Copy shared packages (path dependencies)
-# Paths are relative to the repo-root build context set in docker-compose.yml
-COPY shared/vector-store/python /shared/vector-store/python
-COPY shared/a2a/python /shared/a2a/python
+# Shared local dependencies (copied first for layer caching)
+# Build context: repo root — paths below are relative to repo root
+COPY shared/vector-store/python/ shared/vector-store/python/
+COPY shared/a2a/python/ shared/a2a/python/
 
-# Sync dependencies via uv
+# Module source (preserves ./src, ./policies, pyproject.toml, config JSONs)
+COPY modules/group-iii-executive-output/executive-agent/ \
+     modules/group-iii-executive-output/executive-agent/
+
+WORKDIR /repo/modules/group-iii-executive-output/executive-agent
+
 RUN uv sync --no-dev
-
-# Copy source
-COPY src/ ./src/
-COPY policies/ ./policies/
-
-# Copy config files
-COPY identity.config.json ./
-COPY vector-store.config.json ./
-COPY embedding.config.json ./
-COPY agent-card.json ./
 
 # Expose A2A and MCP ports
 EXPOSE 8161 8261

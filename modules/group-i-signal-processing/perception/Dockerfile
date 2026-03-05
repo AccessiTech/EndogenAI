@@ -20,9 +20,9 @@ WORKDIR /repo/modules/group-i-signal-processing/perception
 
 RUN uv sync --no-dev
 
-EXPOSE 8202 8302
+EXPOSE 8103
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8202/.well-known/agent-card.json')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8103/.well-known/agent-card.json')"
 
-CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_perception.server:app", "--host", "0.0.0.0", "--port", "8202"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_perception.server:app", "--host", "0.0.0.0", "--port", "8103"]

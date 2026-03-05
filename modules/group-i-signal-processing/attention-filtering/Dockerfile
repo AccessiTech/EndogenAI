@@ -20,9 +20,9 @@ WORKDIR /repo/modules/group-i-signal-processing/attention-filtering
 
 RUN uv sync --no-dev
 
-EXPOSE 8203 8303
+EXPOSE 8102
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8203/.well-known/agent-card.json')"
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8102/.well-known/agent-card.json')"
 
-CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_attention_filtering.server:app", "--host", "0.0.0.0", "--port", "8203"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "endogenai_attention_filtering.server:app", "--host", "0.0.0.0", "--port", "8102"]
