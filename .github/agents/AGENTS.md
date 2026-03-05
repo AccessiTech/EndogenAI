@@ -5,6 +5,16 @@
 
 ---
 
+## Programmatic-First
+
+> The **programmatic-first** constraint from [root AGENTS.md](../../AGENTS.md#programmatic-first-principle) applies here without exception.
+
+Before authoring, reviewing, or auditing agents interactively, check `scripts/` for existing scaffold, validation, or audit scripts.
+Agent scaffolding, frontmatter validation, and fleet compliance checks are all encoded as scripts — extend them, don't repeat steps by hand.
+Escalate scripting gaps to the `Executive Scripter`; automation design (watchers, hooks) to the `Executive Automator`.
+
+---
+
 ## Purpose
 
 This file governs the authoring, review, and maintenance of VS Code Copilot custom agents

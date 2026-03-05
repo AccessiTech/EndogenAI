@@ -5,6 +5,16 @@
 
 ---
 
+## Programmatic-First
+
+> The **programmatic-first** constraint from [root AGENTS.md](../AGENTS.md#programmatic-first-principle) applies here without exception.
+
+Before scaffolding, validating, or migrating any module interactively, check `scripts/` for an existing scaffold or validation script.
+Module boilerplate generation, test scaffolding, and coverage checks are all encoded as scripts — extend them, don't repeat steps by hand.
+Escalate scripting gaps to the `Executive Scripter`; automation design (watchers, hooks) to the `Executive Automator`.
+
+---
+
 ## Purpose
 
 This file governs all AI coding agent activity inside the `modules/` directory.
