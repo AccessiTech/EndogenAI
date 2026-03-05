@@ -241,6 +241,10 @@ Rules:
 
 Daily rotation (one file per branch per day) keeps session files small. At session end, write a `## Session Summary` section as a persistent orientation point for the next session.
 
+> **Scratchpad pruning — do not automate.** Running `scripts/prune_scratchpad.py`
+> (or any automated janitor pass) costs more tokens in orchestrator context than
+> it saves in file size. Prune manually only when a session file exceeds ~500 lines.
+
 **Archive convention:** completed sections may be compressed to one-line stubs:
 ```
 ## <Heading> (archived <YYYY-MM-DD> — <first-content-line>)
