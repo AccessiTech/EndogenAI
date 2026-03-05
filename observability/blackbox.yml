@@ -1,4 +1,4 @@
-# Blackbox Exporter configuration — brAIn module health probes.
+# Blackbox Exporter configuration — frankenbrAIn module health probes.
 # Probes each module's health endpoint via HTTP and reports probe_success.
 #
 # Modules:

@@ -1,6 +1,6 @@
 # Resources
 
-Static knowledge resources for the brAIn framework. These files are the **morphogenetic seed** — the initial encoding
+Static knowledge resources for the frankenbrAIn framework. These files are the **morphogenetic seed** — the initial encoding
 from which all module analogies, interfaces, and conventions are derived.
 
 ## Directory Structure
@@ -49,7 +49,7 @@ Neuroanatomical region stubs — one file per primary module-mapped brain region
 
 - The brain region's biological function
 - Its signal inputs and outputs
-- Key design notes for the corresponding brAIn module
+- Key design notes for the corresponding frankenbrAIn module
 
 These files are enriched from `raw_data_dumps/Human_Brain__wiki.md` as part of Phase 0 seed knowledge population.
 

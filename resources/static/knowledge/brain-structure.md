@@ -26,12 +26,12 @@ maps-to-modules:
 # Brain Structure
 
 An overview of the human brain's structure, including its major regions and their functions. This document is the
-**authoritative descriptive reference** for neuromorphic analogies across the brAIn framework — each region's function,
+**authoritative descriptive reference** for neuromorphic analogies across the frankenbrAIn framework — each region's function,
 connectivity, and characteristics inform the design of the corresponding cognitive module.
 
 > Each major region section follows a consistent structure where applicable:
 >
-> - **Module analogy** — which brAIn module(s) this region maps to
+> - **Module analogy** — which frankenbrAIn module(s) this region maps to
 > - **Function** — primary cognitive/biological role
 > - **Inputs from** — upstream regions
 > - **Outputs to** — downstream regions

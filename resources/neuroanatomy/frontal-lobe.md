@@ -27,7 +27,7 @@ tags:
 Maps to: `modules/group-iii-executive-output/executive-agent`
 
 The **Frontal Lobe** (specifically the prefrontal and anterior regions) provides the neuroanatomical reference for the
-brAIn **Executive / Agent Layer** — the seat of identity, persistent goals, values, and high-level reasoning strategy.
+frankenbrAIn **Executive / Agent Layer** — the seat of identity, persistent goals, values, and high-level reasoning strategy.
 
 ## Function
 

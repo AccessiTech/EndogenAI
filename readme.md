@@ -630,7 +630,7 @@ the overall framework.
 
 ### Resources
 
-MCP resources are URI-addressed data objects that servers expose to clients. In brAIn, resources are organized at two
+MCP resources are URI-addressed data objects that servers expose to clients. In frankenbrAIn, resources are organized at two
 levels: a top-level `resources/` directory for shared, cross-module resources (organized by cognitive layer group), and
 a per-module `resources/` subdirectory within each cognitive module for module-scoped resource definitions, dynamic
 providers, and access-control rules.
@@ -658,7 +658,7 @@ providers, and access-control rules.
   declarations linking each region to its corresponding module. Each region section uses a consistent structure:
   function, inputs-from, outputs-to, module analogy, and key design notes. Primary seed document for
   `brain.long-term-memory`. _(descriptive — drives analogy and module mapping, not implementation)_
-- `brain-architecture.md` — Framework-facing architectural overview: how brAIn's cognitive layers map to brain regions;
+- `brain-architecture.md` — Framework-facing architectural overview: how frankenbrAIn's cognitive layers map to brain regions;
   references `brain-structure.md` as its source of truth
 - `cognitive-models.md` — Cognitive science reference material informing module design decisions
 - `signal-taxonomy.md` — Taxonomy of signal types, modalities, and encoding conventions used throughout the system

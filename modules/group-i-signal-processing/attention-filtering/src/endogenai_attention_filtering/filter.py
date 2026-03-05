@@ -1,5 +1,5 @@
 """
-Attention & Filtering logic for the brAIn Attention Layer.
+Attention & Filtering logic for the frankenbrAIn Attention Layer.
 
 AttentionFilter implements:
   - Salience scoring based on signal priority, modality, and type

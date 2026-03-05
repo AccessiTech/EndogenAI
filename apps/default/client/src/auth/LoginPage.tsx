@@ -11,8 +11,8 @@ export function LoginPage() {
   return (
     <main className="login-page" aria-label="Sign in">
       <div className="login-card">
-        <h1 className="app-title" aria-label="brAIn — sign in required">
-          {import.meta.env['VITE_APP_TITLE'] ?? 'brAIn'}
+        <h1 className="app-title" aria-label="frankenbrAIn — sign in required">
+          {import.meta.env['VITE_APP_TITLE'] ?? 'frankenbrAIn'}
         </h1>
         <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>
           Sign in to access the workspace.

@@ -1,6 +1,6 @@
 {
   "name": "perception",
-  "description": "Feature extraction, pattern recognition, language understanding, multimodal fusion, and brain.perception embedding — the brAIn system's site of semantic meaning-making. Analogous to the Association Cortices.",
+  "description": "Feature extraction, pattern recognition, language understanding, multimodal fusion, and brain.perception embedding — the frankenbrAIn system's site of semantic meaning-making. Analogous to the Association Cortices.",
   "version": "0.1.0",
   "capabilities": ["mcp-context", "a2a-task"],
   "endpoints": {

@@ -13,7 +13,7 @@ maps-to-modules:
 > **Neuroanatomy analogy**: [Thalamus](../../../resources/neuroanatomy/thalamus.md)
 
 Salience scoring, relevance filtering, signal gating, and signal routing for the
-brAIn framework.  Analogous to the thalamus — the relay hub that regulates which
+frankenbrAIn framework.  Analogous to the thalamus — the relay hub that regulates which
 signals reach higher cortical layers.
 
 ---

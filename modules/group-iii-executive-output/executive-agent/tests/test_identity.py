@@ -31,7 +31,7 @@ def _write_config(tmp_path: Path, data: dict) -> Path:
 
 
 SAMPLE_CONFIG = {
-    "agentName": "brAIn",
+    "agentName": "frankenbrAIn",
     "agentVersion": "0.1.0",
     "coreValues": ["honesty", "helpfulness"],
     "deliberationCycleMs": 1000,
@@ -48,7 +48,7 @@ class TestLoadIdentityConfig:
     def test_loads_valid_config(self, tmp_path: Path) -> None:
         cfg_path = _write_config(tmp_path, SAMPLE_CONFIG)
         cfg = load_identity_config(cfg_path)
-        assert cfg.agent_name == "brAIn"
+        assert cfg.agent_name == "frankenbrAIn"
         assert "honesty" in cfg.core_values
 
     def test_raises_on_missing_file(self, tmp_path: Path) -> None:
@@ -74,7 +74,7 @@ class TestIdentityManager:
         mgr = self._make_manager()
         model = mgr.get_self_model()
         assert "honesty" in model.core_values
-        assert model.agent_name == "brAIn"
+        assert model.agent_name == "frankenbrAIn"
 
     async def test_update_self_model_is_append_only(self) -> None:
         mgr = self._make_manager()

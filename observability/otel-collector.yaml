@@ -1,4 +1,4 @@
-# OpenTelemetry Collector Configuration — brAIn
+# OpenTelemetry Collector Configuration — frankenbrAIn
 # Receives traces/metrics/logs from all modules and exports to local backends.
 #
 # Receivers:  OTLP (gRPC + HTTP)
