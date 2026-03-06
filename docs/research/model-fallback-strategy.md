@@ -150,7 +150,10 @@ The columns below use the following shorthands:
 > **Status: DRAFT ONLY — not to be committed to `AGENTS.md` directly.** This section is for
 > human review. Copy-paste when approved.
 
-```markdown
+Note: the draft below includes the `COPILOT_PLAN` config variable (Q4 decision)
+   and a quarterly-review anchor for the CI lint rule (Q1 decision).
+
+   ```markdown
 ## Model Selection
 
 All LLM inference in EndogenAI source code routes through LiteLLM — direct SDK calls to
@@ -220,21 +223,31 @@ Verify current values at:
 
 ---
 
-## 7. Open Questions
+## 7. Decisions — Resolved 2026-03-06
 
-1. **Auto pool stability** — The Auto model pool is documented as "may change over time". The
-   draft AGENTS.md section references this caveat, but a staleness check process is not defined.
-   Recommended: add a quarterly review note to the AGENTS.md section or a CI lint rule.
+1. **Auto pool stability** ✅
+   Add a **quarterly review CI lint rule** that fails with a warning comment when the
+   `AGENTS.md ## Model Selection` section's "last reviewed" date is more than 90 days old.
+   This keeps the tier table from going stale as Copilot's Auto pool evolves.
+   → Task: `scripts/lint/check_model_review_date.py` (to be implemented by Executive Scripter).
 
-2. **Continue.dev integration** — For inline completions from local models, Continue.dev is the
-   correct path (Domain A finding). This document does not cover Continue.dev configuration —
-   that is a separate setup task not in Domain C scope.
+2. **Continue.dev integration** ✅
+   Incorporate Continue.dev as the recommended inline-completion path for local models.
+   Human will be hands-on for setup when ready. The new-machine setup wizard (see
+   `docs/research/local-compute-findings.md §New Machine Setup`) will include a
+   Continue.dev configuration step.
 
-3. **LiteLLM model aliases** — The AGENTS.md constraint "all inference through LiteLLM" implies
-   that module-level LLM calls (Phases 5–7) should use LiteLLM model aliases (e.g.
-   `anthropic/claude-sonnet-4-6`) rather than Copilot Chat. The tiering table in §3 covers
-   **agent session** selections only. Module-level LiteLLM config is out of scope for Domain C.
+3. **LiteLLM model aliases — development savings first** ✅
+   Scope of this document is **agent-session (developer) token savings only**.
+   Once local-compute setup is validated in development, the cost-reduction findings
+   will be brought to module-level LiteLLM config (Phases 5–7 source code) in a
+   separate pass. Do not conflate agent-session choices with production inference routing.
 
-4. **Business/Enterprise plan status** — If EndogenAI moves to a Copilot Business plan, the
-   `BYOK` (custom endpoint) feature is disabled for Business/Enterprise. Local Ollama BYOK
-   requires an individual Pro plan. This distinction is not currently documented in AGENTS.md.
+4. **Subscription tier — Copilot Pro; make configurable** ✅
+   Current plan: **Copilot Pro** (individual). BYOK/local Ollama is supported on Pro.
+   BYOK is disabled on Business and Enterprise plans.
+   Introduce a config variable `COPILOT_PLAN` (values: `free` | `pro` | `business` |
+   `enterprise`) so guidance that depends on plan tier is gated at a single point.
+   Document in `AGENTS.md ## Model Selection` draft (§4 of this file) and in the
+   new-machine setup wizard. If the plan changes, update this variable and re-run the
+   setup wizard to regenerate applicable guidance.

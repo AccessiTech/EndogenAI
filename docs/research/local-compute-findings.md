@@ -150,3 +150,44 @@ ollama pull qwen2.5:14b               # chat + agentic
 | Best coding model (16 GB) | `qwen2.5-coder:14b` |
 | Best chat/agentic (8 GB) | `qwen2.5:7b` |
 | Ollama in Docker | Reach host via `http://host.docker.internal:11434` (macOS/Windows) |
+| Inline completions (Continue.dev) | Human hands-on setup when ready — steps in §New Machine Setup |
+| Sheela's M4 (LAN sharing) | Deferred — M1 validated first; LAN approach documented below |
+
+---
+
+## New Machine Setup
+
+_Decision 2026-03-06: make the setup process machine-agnostic and exploratory rather_
+_than M1-specific. A setup script / wizard is preferred over a static checklist._
+
+### Concept: `scripts/setup_local_compute.sh` (to be implemented)
+
+When a developer clones the repo to a new machine, a single script should:
+
+1. **Detect hardware** — Apple Silicon (M1/M2/M3/M4) vs. Intel vs. Linux; RAM tier
+2. **Recommend a model stack** — based on detected RAM (8 GB / 16 GB / 32 GB+)
+   using the tiering table in this document
+3. **Check prerequisites** — Ollama installed? VS Code + Copilot extension? Continue.dev?
+4. **Pull recommended models** — prompt to confirm, then `ollama pull <model>` for each
+5. **Configure VS Code** — write `BYOK` entry to `settings.json` for Ollama chat endpoint
+6. **Configure Continue.dev** — write `.continue/config.json` stub for inline completions
+7. **Gate on `COPILOT_PLAN`** — if plan is `business` or `enterprise`, skip BYOK steps
+   and note that local chat requires the Continue.dev path instead
+8. **LAN extension hook** — optional: expose Ollama on LAN for other machines
+   (e.g. Sheela's M4 connecting to M1); document the `OLLAMA_HOST=0.0.0.0` flag
+
+### Guiding principles for the wizard
+
+- **Agnostic**: works on macOS (Apple Silicon + Intel), Linux; Windows via WSL2
+- **Exploratory**: interactive prompts with sensible defaults; never destructive
+- **Idempotent**: safe to re-run after a plan change or hardware upgrade
+- **`--dry-run` flag**: prints what would be done without changing anything
+- **Config variable**: reads/writes `COPILOT_PLAN` to a local `.env.local` file
+  (gitignored); defaults to `pro`
+
+### Deferred: Sheela's M4 LAN sharing
+
+Once M1 is validated, the LAN-sharing step of the wizard covers:
+- `OLLAMA_HOST=0.0.0.0` on the host machine
+- `OLLAMA_BASE_URL=http://<host-ip>:11434` on the remote machine
+- Origin-header validation + Bearer auth before exposing outside trusted LAN
