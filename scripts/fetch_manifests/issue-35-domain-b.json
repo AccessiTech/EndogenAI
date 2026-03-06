@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://arxiv.org/html/2512.05470v1",
+    "out": "docs/research/sources/issue-35/aigne-framework.md",
+    "note": "AIGNE framework — MCP + Ollama/OpenAI/Claude/Gemini/DeepSeek mountable modules"
+  },
+  {
+    "url": "https://github.com/originalankur/GenerateAgents.md",
+    "out": "docs/research/sources/issue-35/generate-agents-md.md",
+    "note": "GenerateAgents.md — DSPy + LiteLLM; supports Ollama endpoints for AGENTS.md auto-generation"
+  },
+  {
+    "url": "https://www.freecodecamp.org/news/build-and-deploy-multi-agent-ai-with-python-and-docker/",
+    "out": "docs/research/sources/issue-35/freecodecamp-multiagent-docker.md",
+    "note": "FreeCodeCamp — Docker multi-agent AI; covers host.docker.internal:11434 for Ollama in Docker"
+  },
+  {
+    "url": "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-skills",
+    "out": "docs/research/sources/issue-35/github-copilot-create-skills.md",
+    "note": "GitHub Docs — Creating agent skills for GitHub Copilot CLI"
+  },
+  {
+    "url": "https://towardsdatascience.com/claude-skills-and-subagents-escaping-the-prompt-engineering-hamster-wheel/",
+    "out": "docs/research/sources/issue-35/claude-skills-subagents.md",
+    "note": "Towards Data Science — Claude Skills and Subagents; prompt engineering patterns"
+  }
+]

@@ -506,6 +506,144 @@ files, `git checkout HEAD -- <file>` to revert unwanted changes, then re-invoke 
 
 ---
 
+## Async Terminal Process Handling
+
+_Addresses Issue #33 — guidance for agents running long-lived or async terminal processes._
+
+Agents frequently run commands that take seconds to minutes (Docker builds, `uv sync`, model
+downloads, test suites). Incorrectly managing these — blocking when the response is ready, or
+fire-and-forgetting when status is needed — is the most common source of stuck or silent agents.
+This section gives a decision framework and concrete patterns.
+
+### Decision table — sync vs. interval check-in vs. background
+
+| Situation | Strategy | Why |
+|-----------|----------|-----|
+| Command completes in < 15 s reliably | **Sync** (wait for output) | No polling overhead; output in one step |
+| Command takes 15–120 s with observable status (Docker, uv, pytest) | **Interval check-in** (poll every 15–30 s) | Avoids context-window stall; lets agent act on partial output |
+| Command takes > 120 s or is open-ended (model download, server start) | **Background + status request** (`isBackground: true`, then `get_terminal_output`) | Frees the agent context for other work; status fetched on demand |
+| Command is one-shot batch with no useful intermediate output | **Sync** — but set an explicit timeout | Output only arrives at end; no benefit from polling |
+| Command must be running for a subsequent step (e.g. `docker compose up -d`) | **Background**, verify with a health check before proceeding | Service needs time to bind; health check confirms readiness |
+
+**Rule of thumb**: if you cannot predict the wall-clock time, use background + status request.
+If you _can_ predict < 30 s, use sync. The interval check-in middle path is for commands that
+print progress lines and where partial output helps diagnose stalls.
+
+### Recommended timeout values by task type
+
+| Task | Sync timeout | Notes |
+|------|-------------|-------|
+| `pip install` / `uv add` (single package, cached) | 30 s | Network-dependent; 60 s on first cold download |
+| `uv sync` (full environment) | 120 s | Resolves + fetches all wheels |
+| `pnpm install` (from lockfile) | 90 s | Network-dependent |
+| `pytest` (unit tests, no containers) | 120 s | Integration tests: 300 s |
+| `pnpm run test` / `vitest` | 60 s | |
+| `docker compose build` (cached layers) | 180 s | First build (no cache): 600 s+ — go background |
+| `docker compose up -d` (start services) | 30 s | Wait for health check separately |
+| `ollama pull <model>` (first download, 4 GB+) | background only | Can take 10–40 min on slow links |
+| `ollama pull <model>` (already cached) | 5 s | Instant if weights are local |
+| `curl`/`fetch` health check | 5 s | Use `--max-time 5` |
+
+These values match the patterns in [`scripts/healthcheck.sh`](../../scripts/healthcheck.sh), which uses `--max-time 5` for curl checks.
+
+### Code-pattern examples
+
+#### Sync — wait with explicit timeout
+
+```bash
+# Run pytest synchronously; timeout after 120 s
+timeout 120 uv run pytest tests/ -v 2>&1
+echo "exit: $?"
+```
+
+#### Interval check-in — poll Docker build progress
+
+```bash
+# Start Docker build in background, save PID
+docker compose build --progress=plain 2>&1 &
+DOCKER_PID=$!
+echo "Docker build started, PID=$DOCKER_PID"
+
+# Poll every 30 s; exit when done
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  sleep 30
+  if ! kill -0 "$DOCKER_PID" 2>/dev/null; then
+    echo "Docker build finished after ${i}x30 s"
+    break
+  fi
+  echo "Still building... (${i}x30 s elapsed)"
+  # Optional: grep last line of log to show progress
+done
+```
+
+#### Background + status request — model download
+
+```bash
+# Start download in background, redirect output to log
+nohup ollama pull qwen2.5-coder:7b > /tmp/ollama-pull.log 2>&1 &
+echo "Pull PID=$! — check /tmp/ollama-pull.log for progress"
+```
+
+Then in a later step (separate `get_terminal_output` call or terminal read):
+
+```bash
+tail -5 /tmp/ollama-pull.log
+# Check if model is ready
+ollama list | grep qwen2.5-coder
+```
+
+#### Service readiness — health check after `docker compose up`
+
+```bash
+docker compose up -d
+# Poll health endpoint until ready (up to 60 s)
+for i in $(seq 1 12); do
+  if curl -s --max-time 5 http://localhost:8000/api/v1/heartbeat | grep -q nanoseconds; then
+    echo "[PASS] ChromaDB ready"
+    break
+  fi
+  echo "Waiting for ChromaDB ($i/12)..."
+  sleep 5
+done
+```
+
+This is the same pattern used in `scripts/healthcheck.sh`.
+
+### Observability reference — what to parse per tool
+
+Use these patterns to get structured status for each tool without reading all output.
+
+| Tool | Observable output | What to grep / parse |
+|------|-------------------|---------------------|
+| `docker compose build` | `--progress=plain` lines to stderr | `=> CACHED`, `=> ERROR`, `Successfully built` |
+| `docker compose up` | `docker compose ps` JSON | `--format json \| python3 -c "import json,sys; [print(s['Service'],s['State']) for s in json.load(sys.stdin)]"` |
+| `docker compose logs` | per-service stdout | `--tail=10 <service>` to limit output |
+| `uv sync` / `uv add` | stdout summary line | grep `Resolved N packages` or `error:` |
+| `uv run pytest` | exit code + summary line | `PASSED`, `FAILED`, `ERROR`; last line contains totals |
+| `pnpm run test` / `vitest` | exit code + summary | `Tests N passed`, `Tests N failed` |
+| `pnpm run build` | exit code + turbo summary | `Tasks: N successful` or `ERROR in` |
+| `ollama pull` | progress bar lines | `pulling manifest`, `verifying sha256`, `success` — or `tail -1 /tmp/ollama-pull.log` |
+| `curl` health check | HTTP status code | `-s -o /dev/null -w "%{http_code}"` — expect `200` |
+
+### Executive agent: delegating long-running status checks
+
+When an executive delegates a sub-task that involves a long-running process, it should:
+
+1. **Pass the PID or log file path** to the sub-agent in the delegation prompt:
+   `"The Docker build was started with PID 12345, logging to /tmp/docker-build.log. Check status and report."`
+
+2. **Request a structured status line** rather than raw output:
+   `"Report: [RUNNING|DONE|FAILED], elapsed seconds, last log line."`
+
+3. **Set a check-in interval**: for processes > 5 min, instruct the sub-agent to check every
+   60 s and write progress to the active session file (`.tmp/<branch>/<date>.md`) under
+   `## Build Status` so the executive can read it without blocking on the sub-agent.
+
+4. **Never block the orchestrator context** on a background process. Start it in one step,
+   verify readiness with a health check in a second step, proceed with dependent work in a third.
+
+---
+
 ## References
 
 - [`.github/agents/README.md`](../../.github/agents/README.md) — machine-readable agent catalog (posture, triggers, handoffs, scripts)
