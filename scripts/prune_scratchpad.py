@@ -244,7 +244,14 @@ def annotate(text: str) -> str:
             j = i + 1
             while j < len(stripped) and not re.match(r"^## ", stripped[j]):
                 j += 1
-            end_line = j  # 1-based exclusive → last content line is j (== next H2 line - 1 + 1)
+            # end_line: j is the 0-indexed position of the next H2 (or len(stripped)
+            # at EOF). In 1-based terms this equals j, so the annotation range
+            # [Lstart–Lend] intentionally includes the blank line(s) immediately
+            # before the next heading. This is the desired behaviour — the range
+            # covers every line that belongs to this section, including trailing
+            # whitespace. To annotate only non-blank content lines, subtract 1
+            # and walk back over empty lines before assigning end_line.
+            end_line = j
             result.append(f"{heading_text} [L{start_line}–L{end_line}]\n")
             i += 1
         else:
