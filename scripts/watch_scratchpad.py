@@ -11,7 +11,22 @@ Purpose:
     _index.md and any heading-starting-with-underscore files are excluded.
 
     A cooldown window (COOLDOWN_SECONDS) prevents the annotator's own file write
-    from re-triggering an annotation loop.
+    from re-triggering an annotation loop. The cooldown timer is recorded AFTER
+    the subprocess completes so the window covers the period of the annotator's
+    own write (see _handle() in ScratchpadHandler).
+
+    ## Architecture — three layers
+
+    1. watchdog (Python library) — low-level OS filesystem event detection.
+       Tells this script "a .tmp/*.md file changed." Provides Observer +
+       FileSystemEventHandler; has no built-in debounce or cooldown.
+    2. watch_scratchpad.py (this script) — built on top of watchdog. Defines
+       WHAT to do on change (run prune_scratchpad.py --annotate) and implements
+       the cooldown timer manually (watchdog has no built-in debounce).
+    3. VS Code tasks.json "runOn: folderOpen" — tells VS Code to LAUNCH this
+       script automatically on workspace open. This is the VS Code task runner;
+       it is independent of watchdog. Removing runOn makes the task manual-only.
+       The auto-start is intentional — see .vscode/tasks.json detail field.
 
 Usage:
     uv run python scripts/watch_scratchpad.py
@@ -21,8 +36,9 @@ Usage:
     (see .vscode/tasks.json task "Watch Scratchpad"). Stop with Ctrl-C.
 
 Requirements:
-    watchdog >= 4.0 — listed in root pyproject.toml [dependency-groups] dev.
-    Install with: uv sync
+    watchdog >= 4.0 — listed in root pyproject.toml [dependency-groups] dev-tools.
+    Install with: uv sync  (all groups installed by default)
+    Or explicitly: uv sync --group dev-tools
 
 Exit codes:
     0 — clean exit (Ctrl-C or observer stopped)
@@ -109,8 +125,6 @@ class ScratchpadHandler(FileSystemEventHandler):
         if not self._cooldown_ok(src_path):
             return
 
-        self._record(src_path)
-
         try:
             rel = p.relative_to(REPO_ROOT)
         except ValueError:
@@ -123,6 +137,10 @@ class ScratchpadHandler(FileSystemEventHandler):
             capture_output=True,
             text=True,
         )
+
+        # Record cooldown AFTER subprocess completes so the timer covers the
+        # period when the annotator's own file write could re-trigger the watcher.
+        self._record(src_path)
 
         if result.returncode != 0:
             print(
