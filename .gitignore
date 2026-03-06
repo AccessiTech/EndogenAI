@@ -218,7 +218,7 @@ neo4j_data/
 # Infrastructure  (Docker · Kubernetes)
 # =============================================================================
 # Docker local volume mounts / generated compose overrides
-docker-compose.override.yml
+# NOTE: docker-compose.override.yml is intentionally committed (macOS gVisor override docs)
 .docker/
 
 # Kubernetes generated secrets / kubeconfig overrides
@@ -246,6 +246,7 @@ allure-results/
 allure-report/
 playwright-report/
 .nyc_output/
+.lighthouseci/
 
 
 # =============================================================================
@@ -258,6 +259,9 @@ shared/gen/
 # Raw data dumps  (external content — not source code)
 # =============================================================================
 raw_data_dumps/
+
+# Security — never commit private keys
+security/certs/
 
 
 *.tmp

@@ -18,7 +18,8 @@ services:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      # chromadb/chroma has bash but not curl/wget; use /dev/tcp to check the HTTP port
+      test: ["CMD", "bash", "-c", ">/dev/tcp/localhost/8000"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -35,7 +36,7 @@ services:
     volumes:
       - ollama_models:/root/.ollama
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      test: ["CMD", "bash", "-c", ">/dev/tcp/localhost/11434"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -161,7 +162,7 @@ services:
       - STM_A2A_URL=http://short-term-memory:8202
       - EPISODIC_A2A_URL=http://episodic-memory:8204
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8201/.well-known/agent-card.json')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8201/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -290,26 +291,49 @@ services:
 # Phase 6 Infrastructure: Temporal Workflow Server + OPA Policy Engine
 # Start with: docker compose up temporal opa -d
 # ---------------------------------------------------------------------------
+  temporal-postgresql:
+    # Dedicated Postgres for Temporal — auto-setup requires a real RDBMS.
+    # Using a separate container keeps it isolated from any app postgres.
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    volumes:
+      - temporal_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   temporal:
-    image: temporalio/auto-setup:latest
+    image: temporalio/auto-setup:1.24.2
     restart: unless-stopped
     ports:
       - "7233:7233"   # Temporal gRPC (Worker + SDK)
       - "8233:8233"   # Temporal Web UI
     environment:
-      - DB=sqlite
-      - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/dynamicconfig.yaml
-    volumes:
-      - temporal_data:/tmp/temporal
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=temporal-postgresql
+    depends_on:
+      temporal-postgresql:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "temporal", "operator", "cluster", "health", "--address", "localhost:7233"]
+      # Use container's own IP (not 127.0.0.1) — auto-setup binds to eth0, not lo
+      test: ["CMD-SHELL", "temporal operator cluster health --address $(hostname -i | awk '{print $1}'):7233"]
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 30s
+      start_period: 60s
 
   opa:
-    image: openpolicyagent/opa:latest
+    # latest-debug tag includes busybox (wget/sh) for the healthcheck.
+    image: openpolicyagent/opa:latest-debug
     restart: unless-stopped
     ports:
       - "8181:8181"   # OPA REST API
@@ -461,6 +485,120 @@ services:
       - "8080:8080"
 
 # ---------------------------------------------------------------------------
+# Group I — Signal Processing Modules
+# ---------------------------------------------------------------------------
+  sensory-input:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-i-signal-processing/sensory-input/Dockerfile
+    ports:
+      - "8101:8101"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  attention-filtering:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-i-signal-processing/attention-filtering/Dockerfile
+    ports:
+      - "8102:8102"
+    depends_on:
+      sensory-input:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+      - SENSORY_INPUT_A2A_URL=http://sensory-input:8101
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8102/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  perception:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-i-signal-processing/perception/Dockerfile
+    ports:
+      - "8103:8103"
+    depends_on:
+      sensory-input:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+      - SENSORY_INPUT_A2A_URL=http://sensory-input:8101
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# ---------------------------------------------------------------------------
+# Group IV — Adaptive Systems Modules
+# ---------------------------------------------------------------------------
+  metacognition:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-iv-adaptive-systems/metacognition/Dockerfile
+    ports:
+      - "8171:8171"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8171/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  learning-adaptation:
+    profiles: [modules]
+    build:
+      context: .
+      dockerfile: modules/group-iv-adaptive-systems/learning-adaptation/Dockerfile
+    ports:
+      - "8170:8170"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      - CHROMADB_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama:11434
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8170/.well-known/agent-card.json')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+# ---------------------------------------------------------------------------
 # Phase 8 — Grafana Tempo (optional profile: observability-full)
 # Start with: docker compose --profile observability-full up -d tempo
 # Distributed trace backend for OTel spans exported by gateway + modules
@@ -476,6 +614,38 @@ services:
     ports:
       - "3200:3200"   # Tempo HTTP API + Grafana datasource
       - "4320:4317"   # OTLP gRPC (offset to avoid conflict with otel-collector:4317)
+
+# ---------------------------------------------------------------------------
+# Phase 9 — OPA Policy Server (optional profile: security)
+# Start with: docker compose --profile security up -d opa-security
+# Single shared OPA server in audit mode (OPA_ENFORCE=false)
+# NOTE: Port 8182 used here to avoid conflict with the Phase 6 opa service (8181).
+#       When the Phase 6 opa service is retired, this service should be moved to 8181.
+# ---------------------------------------------------------------------------
+  opa-security:
+    image: openpolicyagent/opa:latest-debug
+    profiles: ["security"]
+    restart: unless-stopped
+    command:
+      - run
+      - --server
+      - --log-level=info
+      - --watch
+      - /policies
+      - /data
+    ports:
+      - "8182:8181"
+    volumes:
+      - ./security/policies:/policies:ro
+      - ./security/data:/data:ro
+    environment:
+      - OPA_ENFORCE=false
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8181/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 # ---------------------------------------------------------------------------
 # Named Volumes

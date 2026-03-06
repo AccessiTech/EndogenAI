@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: reasoning
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: reasoning
+  ports:
+  - name: a2a
+    port: 8214
+    targetPort: 8214
+  - name: mcp
+    port: 8314
+    targetPort: 8314

@@ -20,6 +20,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import type { ContextBroker, MCPContext } from '@accessitech/mcp';
+import { createRootTraceparent } from '@accessitech/mcp';
 import type {
   TaskOrchestrator,
   A2AMessage,
@@ -78,6 +79,7 @@ export class MCPToA2ABridge {
       version: this.config.contextVersion,
       timestamp: new Date().toISOString(),
       source: this.config.source,
+      traceContext: { traceparent: createRootTraceparent() },
       contentType: this.config.contentType,
       payload: {
         taskId: task.id,

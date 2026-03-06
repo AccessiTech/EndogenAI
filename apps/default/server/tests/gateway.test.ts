@@ -180,28 +180,23 @@ describe('GET /api/agents', () => {
     expect(res.headers.get('WWW-Authenticate')).toBeTruthy()
   })
 
-  it('returns 200 with { agents, total } when authed', async () => {
-    delete process.env.AGENT_CARD_URLS
+  it('returns 200 with { agents, timestamp } when authed and MODULE_URLS is empty', async () => {
+    delete process.env.MODULE_URLS
     const res = await app().fetch(authedRequest('/api/agents'))
     expect(res.status).toBe(200)
-    const body = await res.json() as { agents: unknown[]; total: number }
+    const body = await res.json() as { agents: unknown[]; timestamp: string }
     expect(Array.isArray(body.agents)).toBe(true)
-    expect(typeof body.total).toBe('number')
-    expect(body.total).toBe(body.agents.length)
-    // Gateway's own card must always be present
-    expect(body.agents.length).toBeGreaterThanOrEqual(1)
+    expect(typeof body.timestamp).toBe('string')
+    expect(body.agents).toHaveLength(0)
   })
 
-  it('includes cards from AGENT_CARD_URLS when they are reachable', async () => {
-    // Point at a URL that will fail quickly — the route should still succeed and
-    // omit the unreachable card rather than returning an error.
-    process.env.AGENT_CARD_URLS = 'http://127.0.0.1:19999/.well-known/agent-card.json'
+  it('gracefully omits unreachable MODULE_URLS entries', async () => {
+    process.env.MODULE_URLS = 'http://127.0.0.1:19999'
     const res = await app().fetch(authedRequest('/api/agents'))
     expect(res.status).toBe(200)
-    const body = await res.json() as { agents: unknown[]; total: number }
-    // Should still contain at least the gateway's own card.
-    expect(body.total).toBeGreaterThanOrEqual(1)
-    delete process.env.AGENT_CARD_URLS
+    const body = await res.json() as { agents: unknown[]; timestamp: string }
+    expect(Array.isArray(body.agents)).toBe(true)
+    delete process.env.MODULE_URLS
   })
 })
 

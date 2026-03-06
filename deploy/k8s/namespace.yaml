@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: endogenai-modules
+  labels:
+    app.kubernetes.io/part-of: endogenai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: endogenai-infra
+  labels:
+    app.kubernetes.io/part-of: endogenai

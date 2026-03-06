@@ -11,6 +11,7 @@ from working_memory.consolidation import ConsolidationDispatcher
 from working_memory.loader import ContextLoader
 from working_memory.models import ContextPayload
 from working_memory.store import WorkingMemoryStore
+from working_memory.subscriptions import notify_all
 
 logger: structlog.BoundLogger = structlog.get_logger(__name__)
 
@@ -44,6 +45,7 @@ class MCPTools:
                 evicted = self._store.write(item)
                 if evicted is not None:
                     await self._dispatcher.dispatch(evicted)
+                notify_all("brain://group-ii/working-memory/context/current")
                 return {"item_id": item.id}
 
             case "working_memory.update_item":
@@ -56,6 +58,7 @@ class MCPTools:
                 evicted = self._store.evict(params["item_id"])
                 if evicted is not None:
                     await self._dispatcher.dispatch(evicted)
+                notify_all("brain://group-ii/working-memory/context/current")
                 return {"status": "ok"}
 
             case "working_memory.list_active":

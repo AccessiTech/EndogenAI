@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validateMCPContext } from './validate.js';
 import { CapabilityRegistry } from './registry.js';
 import { StateSynchronizer } from './sync.js';
+import { childTraceContext } from './tracing.js';
 import type { MCPContext, MCPContextHandler } from './types.js';
 
 export class ContextBroker {
@@ -90,7 +91,7 @@ export class ContextBroker {
       timestamp: new Date().toISOString(),
       source,
       destination: original.source,
-      traceContext: original.traceContext,
+      traceContext: childTraceContext(original.traceContext),
       contentType,
       payload,
       correlationId: original.id,

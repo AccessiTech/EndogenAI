@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: short-term-memory
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: short-term-memory
+  ports:
+  - name: a2a
+    port: 8211
+    targetPort: 8211
+  - name: mcp
+    port: 8311
+    targetPort: 8311

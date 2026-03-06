@@ -1,15 +1,18 @@
 FROM python:3.11-slim
 
-WORKDIR /app
-
 RUN pip install uv
 
-# Copy shared packages (path dependencies) — paths relative to repo-root build context
-COPY shared/vector-store/python /shared/vector-store/python
-COPY shared/a2a/python /shared/a2a/python
+WORKDIR /repo
 
-COPY pyproject.toml .
-COPY src/ src/
+# Shared local dependencies — paths relative to repo-root build context
+COPY shared/vector-store/python/ shared/vector-store/python/
+COPY shared/a2a/python/ shared/a2a/python/
+
+# Module source (preserves pyproject.toml, src/, channels.config.json, etc.)
+COPY modules/group-iii-executive-output/motor-output/ \
+     modules/group-iii-executive-output/motor-output/
+
+WORKDIR /repo/modules/group-iii-executive-output/motor-output
 
 RUN uv sync --no-dev
 

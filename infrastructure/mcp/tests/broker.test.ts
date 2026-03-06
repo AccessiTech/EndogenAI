@@ -15,6 +15,7 @@ function makeContext(overrides: Partial<MCPContext> = {}): MCPContext {
     version: '0.1.0',
     timestamp: new Date().toISOString(),
     source: { moduleId: 'test-source', layer: 'sensory-input' },
+    traceContext: { traceparent: '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' },
     contentType: 'signal/text',
     payload: { text: 'hello' },
     priority: 5,
@@ -95,6 +96,12 @@ describe('ContextBroker', () => {
     expect(reply.destination).toEqual(original.source);
     expect(reply.sessionId).toBe('sess-1');
     expect(reply.taskId).toBe('task-1');
+    // traceContext must be present and inherit the parent traceId (child-span propagation)
+    expect(reply.traceContext).toBeDefined();
+    expect(reply.traceContext.traceparent).toMatch(/^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$/);
+    expect(reply.traceContext.traceparent.split('-')[1]).toBe(
+      original.traceContext.traceparent.split('-')[1],
+    );
   });
 
   it('multiple handlers can subscribe to the same module', async () => {

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: perception
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: perception
+  ports:
+  - name: a2a
+    port: 8202
+    targetPort: 8202
+  - name: mcp
+    port: 8302
+    targetPort: 8302

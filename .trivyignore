@@ -1,0 +1,4 @@
+# .trivyignore — Accepted Trivy vulnerability waivers
+# Format: CVE-YYYY-NNNNN  # rationale — reviewer — date
+#
+# No waivers yet. Add entries here when accepting a known CVE with documented rationale.

@@ -1,16 +1,19 @@
 FROM python:3.11-slim
 
-WORKDIR /app
-
 # Install uv
 RUN pip install --no-cache-dir uv
 
-# Copy shared packages first (for path dependencies)
-COPY shared/vector-store/python /shared/vector-store/python
-COPY shared/a2a/python /shared/a2a/python
+WORKDIR /repo
 
-# Copy module source
-COPY modules/group-iii-executive-output/agent-runtime /app
+# Shared local dependencies — paths relative to repo-root build context
+COPY shared/vector-store/python/ shared/vector-store/python/
+COPY shared/a2a/python/ shared/a2a/python/
+
+# Module source (preserves pyproject.toml, src/, agent-card.json, etc.)
+COPY modules/group-iii-executive-output/agent-runtime/ \
+     modules/group-iii-executive-output/agent-runtime/
+
+WORKDIR /repo/modules/group-iii-executive-output/agent-runtime
 
 # Install dependencies
 RUN uv sync --no-dev

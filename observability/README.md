@@ -51,6 +51,66 @@ All modules emit telemetry via the OpenTelemetry SDK and the shared utilities de
 See [`shared/utils/logging.md`](../shared/utils/logging.md), [`shared/utils/tracing.md`](../shared/utils/tracing.md),
 and [`shared/utils/validation.md`](../shared/utils/validation.md) for specifications.
 
+<!-- Phase 8 addition — 2026-03-04 -->
+## Phase 8.4 — Gateway OTel Instrumentation
+
+The Hono API gateway (`apps/default/server`) wires full OpenTelemetry instrumentation in Phase 8.4.
+
+### NodeSDK initialisation (`src/telemetry.ts`)
+
+```typescript
+// src/telemetry.ts — imported as the FIRST import in src/index.ts
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { W3CTraceContextPropagator } from '@opentelemetry/core';
+
+const sdk = new NodeSDK({
+  traceExporter: new OTLPTraceExporter({
+    url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? 'http://localhost:4318/v1/traces',
+  }),
+  textMapPropagator: new W3CTraceContextPropagator(),
+  resource: { attributes: { 'service.name': 'hono-gateway', 'service.namespace': 'brain' } },
+});
+sdk.start();
+```
+
+`NodeSDK` must be imported **before** Hono and all application code to guarantee auto-instrumentation hooks fire.
+
+### Manual Hono tracing middleware
+
+A custom tracing middleware (`src/middleware/tracing.ts`) wraps every request:
+
+1. Extracts the incoming `traceparent` header (W3C TraceContext)
+2. Creates a child span per request with `http.method`, `http.route`, `http.status_code` attributes
+3. Injects the active `traceId` into `MCPContext` envelopes forwarded by `mcp-client.ts`
+4. Sets span status on response (OK / ERROR)
+
+This propagates a single `traceId` from browser → gateway → MCP backbone → module, making traces visible in
+Grafana Tempo and correlating with `structlog` records in Group I–IV Python modules.
+
+### Structured logging with `pino`
+
+Every gateway log record includes `trace_id` and `span_id` injected from the active OTel span:
+
+```typescript
+// src/logger.ts
+import pino from 'pino';
+import { trace } from '@opentelemetry/api';
+
+export const logger = pino({
+  mixin() {
+    const span = trace.getActiveSpan();
+    const ctx = span?.spanContext();
+    return ctx
+      ? { trace_id: ctx.traceId, span_id: ctx.spanId }
+      : {};
+  },
+});
+```
+
+Metric naming: gateway metrics emitted via OTLP receive a `brain_` prefix from the OTel Collector Prometheus
+exporter (`namespace: brain`). Prometheus metric names are therefore `brain_hono_gateway_*`.
+
 ## Phase 8.4 Dashboards (provisioned)
 
 Dashboard JSON files in `grafana/dashboards/` are auto-provisioned into Grafana via

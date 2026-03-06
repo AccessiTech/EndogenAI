@@ -1,0 +1,116 @@
+{
+  "modules": {
+    "attention-filtering": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8102"
+    },
+    "perception": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8103"
+    },
+    "sensory-input": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8101"
+    },
+    "affective": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8205"
+    },
+    "episodic-memory": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8204"
+    },
+    "long-term-memory": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8203"
+    },
+    "short-term-memory": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8202"
+    },
+    "working-memory": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8201"
+    },
+    "reasoning": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8206"
+    },
+    "agent-runtime": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8162"
+    },
+    "executive-agent": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8161"
+    },
+    "motor-output": {
+      "capabilities": [
+        "mcp-context",
+        "a2a-task"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8163"
+    },
+    "learning-adaptation": {
+      "capabilities": [
+        "a2a",
+        "mcp"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8170"
+    },
+    "metacognition": {
+      "capabilities": [
+        "a2a",
+        "mcp"
+      ],
+      "consumers": [],
+      "url": "http://localhost:8171"
+    }
+  }
+}

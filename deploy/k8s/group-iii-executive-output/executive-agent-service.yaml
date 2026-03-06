@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: executive-agent
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: executive-agent
+  ports:
+  - name: a2a
+    port: 8220
+    targetPort: 8220
+  - name: mcp
+    port: 8320
+    targetPort: 8320

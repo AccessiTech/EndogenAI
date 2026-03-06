@@ -81,7 +81,7 @@ export const gateway = {
     }),
 
   listAgents: (token: string | null) =>
-    apiFetch<AgentEntry[]>('/api/agents', token),
+    apiFetch<{ agents: AgentCard[]; timestamp: string }>('/api/agents', token),
 
   fetchAgentCard: async (token: string | null, agentUrl: string): Promise<AgentCard> => {
     const headers: Record<string, string> = {}

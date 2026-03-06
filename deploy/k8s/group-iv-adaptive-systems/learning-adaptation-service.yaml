@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: learning-adaptation
+  namespace: endogenai-modules
+spec:
+  selector:
+    app: learning-adaptation
+  ports:
+  - name: a2a
+    port: 8230
+    targetPort: 8230
+  - name: mcp
+    port: 8330
+    targetPort: 8330

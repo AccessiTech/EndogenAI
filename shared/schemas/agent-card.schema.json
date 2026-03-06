@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://endogenai.local/schemas/agent-card",
+  "title": "Agent Card",
+  "description": "Well-known agent identity and capability declaration. Every EndogenAI module exposes an agent-card.json at /.well-known/agent-card.json that conforms to this schema. Derives shape endogenously from all 14 modules in modules/.",
+  "type": "object",
+  "required": ["name", "version", "description", "capabilities"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique kebab-case module identifier."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of this module (e.g. '0.1.0')."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this module's purpose, cognitive role, and neuroanatomical analogue."
+    },
+    "capabilities": {
+      "description": "Module capability declaration. Groups I–III use an array of capability labels (e.g. ['mcp-context', 'a2a-task']); Group IV uses an object of boolean protocol flags (e.g. {a2a: true, mcp: true, streaming: false}). Both forms are accepted.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Array form: list of capability label strings (e.g. 'mcp-context', 'a2a-task')."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "a2a": {
+              "type": "boolean",
+              "description": "Whether this module supports A2A task delegation."
+            },
+            "mcp": {
+              "type": "boolean",
+              "description": "Whether this module supports MCP context exchange."
+            },
+            "streaming": {
+              "type": "boolean",
+              "description": "Whether this module supports streaming responses."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Object form: boolean capability flags keyed by protocol name."
+        }
+      ]
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Primary base URL for this module. Used by Group IV modules in place of an endpoints object."
+    },
+    "endpoints": {
+      "type": "object",
+      "description": "Per-protocol endpoint URLs. Used by Groups I–III modules.",
+      "properties": {
+        "a2a": {
+          "type": "string",
+          "format": "uri",
+          "description": "A2A JSON-RPC 2.0 endpoint URL."
+        },
+        "mcp": {
+          "type": "string",
+          "format": "uri",
+          "description": "MCP Streamable HTTP endpoint URL."
+        }
+      },
+      "additionalProperties": false
+    },
+    "wellKnown": {
+      "type": "string",
+      "description": "URL path at which this module's agent-card.json is served (e.g. '/.well-known/agent-card.json')."
+    },
+    "schema": {
+      "type": "string",
+      "description": "Relative workspace path to the primary JSON Schema governing this module's input/output payload (e.g. 'shared/types/memory-item.schema.json')."
+    },
+    "modalities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Input modalities supported by this module (e.g. 'text', 'image', 'audio', 'sensor', 'api-event')."
+    },
+    "vectorCollection": {
+      "type": "string",
+      "description": "ChromaDB collection name used by this module for vector storage (e.g. 'brain.perception')."
+    },
+    "neuroanatomy": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Relative workspace paths to neuroanatomy reference documents relevant to this module."
+    },
+    "neuroanatomicalAnalogue": {
+      "type": "string",
+      "description": "Free-text description of the brain structure(s) this module is analogous to (Group IV form)."
+    },
+    "neuroanatomical-basis": {
+      "type": "string",
+      "description": "Detailed neuroanatomical basis for this module's channel or dispatch implementation (Group III motor-output form)."
+    },
+    "maps-to-modules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Neuroanatomical module names that this implementation maps to (e.g. 'motor-cortex', 'supplementary-motor-area')."
+    },
+    "skills": {
+      "type": "array",
+      "description": "Enumeration of callable skills exposed by this module.",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique dot-namespaced skill identifier (e.g. 'executive_agent.push_goal')."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable skill name."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this skill does."
+          },
+          "capabilities": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Additional capability labels scoped to this specific skill."
+          }
+        }
+      }
+    },
+    "a2a": {
+      "type": "object",
+      "description": "A2A protocol configuration block (Group IV form). Contains endpoint URL and task routing declarations.",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "A2A JSON-RPC 2.0 tasks endpoint URL."
+        },
+        "tasks": {
+          "type": "object",
+          "description": "Inbound and outbound A2A task routing declarations.",
+          "properties": {
+            "inbound": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Task method names this module accepts."
+            },
+            "outbound": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Task method names this module emits to other modules."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "mcp": {
+      "type": "object",
+      "description": "MCP protocol configuration block (Group IV form). Contains endpoint URL and resource declarations.",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "MCP Streamable HTTP endpoint URL."
+        },
+        "resources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "MCP resource URIs exposed by this module (e.g. 'confidence/current')."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

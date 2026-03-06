@@ -15,6 +15,8 @@ scripts/
   validate_frontmatter.py          # Frontmatter validator (pre-commit hook)
   fetch_source.py                  # Source manifest fetcher
   fix_agent_tools.py               # Agent tool ID canonicalisation
+  rename_brain_to_frankenbrain.py  # Rename brAIn => frankenbrAIn across all text files
+  tests/                           # Tests for root-level scripts
 
   docs/
     scan_missing_docs.py           # Documentation gap scanner
@@ -97,6 +99,45 @@ toolset names (`search`, `read`, `edit`, etc.) as defined in `.github/agents/AGE
 ```bash
 uv run python scripts/fix_agent_tools.py              # dry-run by default
 uv run python scripts/fix_agent_tools.py --apply      # write changes
+```
+
+---
+
+## scripts/rename_brain_to_frankenbrain.py
+
+**Purpose**: Rename all occurrences of `brAIn` to `frankenbrAIn` throughout the EndogenAI
+repository. Processes every text file that is not binary, not in a generated/dependency
+directory (`.git`, `node_modules`, `.venv`, `dist`, `__pycache__`, `.mypy_cache`,
+`.ruff_cache`, `coverage`), and not an auto-generated lockfile (`pnpm-lock.yaml`,
+`uv.lock`).
+
+**API**:
+
+| Name | Kind | Description |
+|------|------|-------------|
+| `REPO_ROOT` | `str` | Absolute path to the repository root (derived from the script's own location). |
+| `SKIP_DIRS` | `set[str]` | Directory names that are pruned from the `os.walk` traversal. |
+| `SKIP_FILES` | `set[str]` | Filenames that are skipped unconditionally (lockfiles). |
+| `OLD` | `str` | The string being replaced (`"brAIn"`). |
+| `NEW` | `str` | The replacement string (`"frankenbrAIn"`). |
+| `is_binary(path)` | `(str) -> bool` | Returns `True` if the file contains a null byte in its first 8,192 bytes, or if the file cannot be read. |
+| `process_file(path, dry_run)` | `(str, bool) -> bool` | Reads a file, replaces `OLD` with `NEW`, writes it back (unless `dry_run`). Returns `True` when the file was (or would be) changed. |
+| `main()` | `() -> None` | CLI entry-point. Walks `REPO_ROOT`, calls `process_file` on each eligible file, and prints a summary. |
+
+**Usage**:
+
+```bash
+# Preview changes without writing
+uv run python scripts/rename_brain_to_frankenbrain.py --dry-run
+
+# Apply changes
+uv run python scripts/rename_brain_to_frankenbrain.py
+```
+
+**Tests**:
+
+```bash
+uv run pytest scripts/tests/test_rename_brain_to_frankenbrain.py -v
 ```
 
 ---
@@ -246,11 +287,14 @@ uv run python scripts/schema/validate_all_schemas.py
 
 ## Running Script Tests
 
-Each script sub-directory has a `tests/` folder with `pytest` tests:
+Each script sub-directory (and the root `scripts/tests/` folder) has a `tests/` folder with `pytest` tests:
 
 ```bash
 # Test all scripts at once
-uv run pytest scripts/docs/tests/ scripts/testing/tests/ scripts/schema/tests/ -v
+uv run pytest scripts/tests/ scripts/docs/tests/ scripts/testing/tests/ scripts/schema/tests/ -v
+
+# Test root-level scripts only
+uv run pytest scripts/tests/ -v
 
 # Test a specific sub-directory
 uv run pytest scripts/testing/tests/ -v
