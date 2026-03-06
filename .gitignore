@@ -260,6 +260,12 @@ shared/gen/
 # =============================================================================
 raw_data_dumps/
 
+# Fetched research source content (raw HTML/text fetched by scripts/fetch_source.py).
+# Regenerate on demand: uv run python scripts/fetch_source.py <url>
+# Manifest index files (docs/research/sources/*.md) ARE tracked — only
+# per-topic subdirectories (docs/research/sources/*/) are excluded.
+docs/research/sources/*/
+
 
 *.tmp
 .tmp.md
