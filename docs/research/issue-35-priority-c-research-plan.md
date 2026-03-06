@@ -46,21 +46,23 @@ Priority C depends on Priorities A and B being stable (done ✅). It is unblocke
 
 ## 2. Research Domain A — Local Compute for VS Code Copilot
 
-**Goal**: Document exactly what can be run locally on macOS (your M3/M4 machines) for
-VS Code Copilot, including Sheela's M4 as a networked inference server.
+**Goal**: Document exactly what can be run locally on macOS (M1 Mac first; Sheela's M4
+deferred to a later pass) for VS Code Copilot.
 
 ### Sub-questions
 
-1. **Local LLM inference for Copilot completions**: Can VS Code Copilot be pointed at a
-   local Ollama or LM Studio endpoint for completions and chat? What is the setup?
-2. **Sheela's M4 as a shared inference node**: What is the minimum viable setup to expose
-   an Ollama instance on Sheela's Mac as a LAN endpoint accessible from your Mac in
-   VS Code Copilot?
-3. **Which model sizes run well on M4?**: What quantisation levels (Q4_K_M, Q8, etc.)
-   for Claude-equivalent models (Qwen 2.5, Llama 3.3, Mistral) are practical on 16–32 GB
-   M4 unified memory for coding tasks?
-4. **Network topology**: Tailscale vs. LAN vs. mDNS — what is the lowest-friction setup
-   for two Macs sharing an Ollama endpoint?
+1. **Local LLM inference for Copilot completions**: Does VS Code Copilot support a custom
+   local LLM endpoint directly (config / API), or does it require an MCP tool wrapper?
+   This is the primary blocking question — research first before proceeding with setup steps.
+2. **Which model sizes run well on M1?**: What quantisation levels (Q4_K_M, Q8, etc.)
+   for Claude-equivalent models (Qwen 2.5, Llama 3.3, Mistral, Phi-4) are practical on
+   M1 unified memory for coding tasks? Include context-specific recommendations:
+   - Code completion / inline suggestions
+   - Chat / long-context reasoning
+   - Embeddings (e.g. `nomic-embed-text` already in use)
+   - Agent tool-calling / structured JSON output
+3. **Sheela's M4 (deferred)**: Network topology and LAN sharing — to be addressed in a
+   follow-up pass once M1 setup is validated.
 
 ### Approach
 
@@ -74,10 +76,10 @@ VS Code Copilot, including Sheela's M4 as a networked inference server.
 ### Deliverable
 
 `docs/research/local-compute-findings.md` — covering:
-- Step-by-step local inference setup (Ollama on M4)
-- Network sharing setup (Sheela's Mac → your Mac)
-- Recommended model sizes / quantisations for coding tasks
-- VS Code Copilot configuration to point at local endpoint
+- Answer to Q1: direct local endpoint support vs. MCP wrapper approach
+- Step-by-step local inference setup (Ollama on M1)
+- Context-specific model recommendations (completion / chat / embeddings / tool-calling)
+- VS Code Copilot configuration or MCP wiring to point at local endpoint
 
 ---
 
@@ -119,17 +121,17 @@ deployment; identify best practices for this project's architecture.
 
 ## 4. Research Domain C — Free-Tier & Model Fallback Strategy
 
-**Goal**: Document a practical model-tiering strategy for this project — reducing Claude
-Sonnet 4.6 token spend by routing lower-stakes tasks to free-tier or cheaper models.
+**Goal**: Document a practical model-tiering strategy — reducing Claude Sonnet 4.6 token
+spend by routing lower-stakes tasks to free-tier, cheaper cloud models, or local models.
 
 ### Sub-questions
 
 1. What models are available on the VS Code Copilot Auto tier (free or lower-cost)?
-2. What does the Auto model actually route to — is the routing transparent and
-   configurable?
-3. Which agent tasks are suitable for free-tier models vs. require Claude Sonnet 4.6?
-4. How do we encode model-tier preferences in agent files without hardcoding a model
-   that may change?
+2. What does the Auto model actually route to — is the routing transparent and configurable?
+3. Which agent tasks are suitable for free-tier / local models vs. require Claude Sonnet 4.6?
+4. Cross-reference with Domain A findings: which local models (by context type) can substitute
+   for cloud calls at acceptable quality? (e.g. Phi-4 for structured output, Qwen 2.5 for
+   coding completions, `nomic-embed-text` for embeddings — all already local)
 
 ### Approach
 
@@ -142,9 +144,9 @@ Sonnet 4.6 token spend by routing lower-stakes tasks to free-tier or cheaper mod
 
 `docs/research/model-fallback-strategy.md` — covering:
 - VS Code Copilot Auto model capabilities and routing (as of 2026-03)
-- Recommended task-to-tier mapping (table)
-- Draft guidance text for `AGENTS.md` "Model Selection" section (for human review
-  before merging)
+- Recommended task-to-tier mapping table (cloud tiers + local model options per context)
+- Draft `## Model Selection` section for root `AGENTS.md` — **prose only**, no new
+  frontmatter field (decision: simpler first, iterate if needed)
 - Decision log: what to hardcode vs. leave to auto-routing
 
 ---
@@ -275,11 +277,11 @@ Domain E (manifest fetch) = ~0.5 session. Recommend sequencing E first.
 
 ---
 
-## 10. Open Questions
+## 10. Open Questions — Resolved 2026-03-05
 
-| Question | Owner | Blocking? |
-|----------|-------|-----------|
-| Does VS Code Copilot support a custom local LLM endpoint directly, or only via an MCP tool? | Research | Yes — affects Domain A scope |
-| Is Sheela's Mac on the same LAN or would Tailscale be needed? | Human | Affects Domain A networking sub-question |
-| Should model-tier recommendations be encoded in agent `.agent.md` files as a new field, or only in `AGENTS.md` prose? | Human | Affects Domain C deliverable format |
-| Issue #32 has Google Share links (non-canonical). Should we web-search for canonical URLs first, or have the agent attempt to follow them? | Human | Affects Domain E workflow |
+| Question | Decision |
+|----------|----------|
+| Does VS Code Copilot support a custom local LLM endpoint directly, or only via an MCP tool? | **Research first** — Domain A researcher leads with this question |
+| Is Sheela's Mac on the same LAN? Tailscale needed? | **Same LAN confirmed; Sheela's M4 deferred** — M1 Mac is Domain A primary target |
+| Model-tier preferences: new frontmatter field or prose in `AGENTS.md`? | **Prose only** — simpler first, iterate to frontmatter field if needed |
+| Issue #32 Google Share links (non-canonical): web-search or attempt direct follow? | **Web-search at will** — canonical URL resolution before `fetch_source.py` runs |
