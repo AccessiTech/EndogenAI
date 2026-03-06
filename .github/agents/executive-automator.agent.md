@@ -1,15 +1,19 @@
 ---
 name: Executive Automator
-description: Design and implement non-agent automation — file watchers, pre-commit hooks, CI tasks, and VS Code task definitions. First escalation point for anything that should run without an agent. Cross-references issue #33 (async terminal processes).
+description: Design and implement non-agent automation — file watchers, pre-commit hooks, CI tasks, VS Code task definitions; first escalation point for event-driven automation (see issue #33).
 tools:
   - search
   - read
   - edit
-  - write
   - execute
   - terminal
   - usages
   - changes
+  - agent
+agents:
+  - Review
+  - GitHub
+  - Executive Scripter
 handoffs:
   - label: Review Automation
     agent: Review

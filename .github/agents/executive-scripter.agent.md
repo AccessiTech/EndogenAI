@@ -1,15 +1,19 @@
 ---
 name: Executive Scripter
-description: Identify repeated interactive tasks and encode them as committed scripts. Audit scripts/ for gaps, propose new scripts, and extend existing ones — enforcing the programmatic-first principle across the codebase.
+description: Identify repeated interactive tasks and encode them as committed scripts; audit scripts/ for gaps and extend existing ones — enforcing the programmatic-first principle.
 tools:
   - search
   - read
   - edit
-  - write
   - execute
   - terminal
   - usages
   - changes
+  - agent
+agents:
+  - Review
+  - GitHub
+  - Executive Automator
 handoffs:
   - label: Review New Script
     agent: Review
