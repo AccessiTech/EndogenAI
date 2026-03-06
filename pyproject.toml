@@ -19,6 +19,18 @@ dev = [
   "pre-commit>=3.8.0",
   "types-PyYAML>=6.0.0",
 ]
+# Workspace automation tools — scripts that run in the developer environment
+# (file watchers, setup wizards, CI helpers). Install with: uv sync --group dev-tools
+# Note: uv sync (no flags) installs all groups, so this is available by default.
+dev-tools = [
+  "watchdog>=4.0.0",
+]
+
+# Ensure all dependency groups are installed by default with `uv sync`.
+# dev-tools contains workspace-automation scripts (watchdog, setup wizard, etc.)
+# that auto-start on folder open via .vscode/tasks.json.
+[tool.uv]
+default-groups = ["dev", "dev-tools"]
 
 # ---------------------------------------------------------------------------
 # Ruff — linter + formatter (replaces flake8, isort, black)

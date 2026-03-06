@@ -5,6 +5,16 @@
 
 ---
 
+## Programmatic-First
+
+> The **programmatic-first** constraint from [root AGENTS.md](../AGENTS.md#programmatic-first-principle) applies here without exception.
+
+Before performing any multi-step documentation task interactively, check `scripts/docs/` for an existing script.
+Frontmatter validation, accuracy checks, and completeness sweeps are all encoded as scripts — extend them, don't repeat steps by hand.
+Escalate scripting gaps to the `Executive Scripter`; automation design (watchers, hooks) to the `Executive Automator`.
+
+---
+
 ## Purpose
 
 This file governs all AI coding agent activity inside the `docs/` directory:

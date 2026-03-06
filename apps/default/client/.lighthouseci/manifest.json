@@ -1,0 +1,38 @@
+[
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_29.report.html",
+    "jsonPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_29.report.json",
+    "summary": {
+      "performance": 1,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_41.report.html",
+    "jsonPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_41.report.json",
+    "summary": {
+      "performance": 1,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_18.report.html",
+    "jsonPath": "/Users/conor/Sites/EndogenAI/apps/default/client/.lighthouseci/localhost--2026_03_04_22_24_18.report.json",
+    "summary": {
+      "performance": 1,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  }
+]

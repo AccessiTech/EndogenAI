@@ -15,6 +15,8 @@ scripts/
   validate_frontmatter.py          # Frontmatter validator (pre-commit hook)
   fetch_source.py                  # Source manifest fetcher
   fix_agent_tools.py               # Agent tool ID canonicalisation
+  prune_scratchpad.py              # Scratchpad session file manager (--init, --annotate, --force)
+  watch_scratchpad.py              # File watcher — auto-annotates .tmp/*.md on change (uses watchdog)
 
   docs/
     scan_missing_docs.py           # Documentation gap scanner
@@ -241,6 +243,53 @@ internally consistent.
 ```bash
 uv run python scripts/schema/validate_all_schemas.py
 ```
+
+---
+
+## scripts/prune_scratchpad.py
+
+**Purpose**: Manage cross-agent scratchpad session files in `.tmp/<branch>/<date>.md`.
+Initialises today's session file, annotates H2 headings with line ranges, and prunes
+completed sections to one-line archive stubs when needed.
+
+**Usage**:
+
+```bash
+# Initialise today's session file (creates .tmp/<branch>/<date>.md if absent)
+uv run python scripts/prune_scratchpad.py --init
+
+# Annotate H2 headings with line ranges [Lstart–Lend] (idempotent; run after writes)
+uv run python scripts/prune_scratchpad.py --annotate
+uv run python scripts/prune_scratchpad.py --annotate --file .tmp/my-branch/2026-03-05.md
+
+# Prune completed sections (only when file exceeds 200 lines, or use --force)
+uv run python scripts/prune_scratchpad.py --force
+```
+
+---
+
+## scripts/watch_scratchpad.py
+
+**Purpose**: File watcher (uses Python `watchdog`) that auto-annotates `.tmp/*.md`
+session files on every change. Keeps H2 heading line-range annotations current without
+any manual agent step. Includes a cooldown guard to prevent the annotator's own writes
+from re-triggering a loop.
+
+**Usage**:
+
+```bash
+# Start the watcher (Ctrl-C to stop)
+uv run python scripts/watch_scratchpad.py
+
+# Watch a custom directory
+uv run python scripts/watch_scratchpad.py --tmp-dir .tmp
+```
+
+Also available as a VS Code background task (**Watch Scratchpad** in `.vscode/tasks.json`)
+that auto-starts when the workspace opens.
+
+**Requirement**: `watchdog>=4.0` — included in root `pyproject.toml` dev dependencies.
+Install with `uv sync`.
 
 ---
 

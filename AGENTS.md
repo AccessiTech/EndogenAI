@@ -10,6 +10,8 @@ Guidance for AI coding agents working in this repository.
   in [`README.md — File Directory`](readme.md#file-directory).
 - **Endogenous-first**: scaffold from existing system knowledge (schemas, specs, seed docs) — do not author from
   scratch in isolation.
+- **Programmatic-first**: prefer encoding repeated or automatable tasks as scripts over interactive agent steps.
+  If you have done a task twice interactively, the third time is a script. See [Programmatic-First Principle](#programmatic-first-principle).
 - **Local compute first**: default to Ollama embeddings (`nomic-embed-text`) and local vector stores (ChromaDB); cloud
   services are opt-in only.
 - **Polyglot with convention**: Python for ML/cognitive modules; TypeScript for MCP/A2A infrastructure and application
@@ -19,6 +21,47 @@ Guidance for AI coding agents working in this repository.
   before the implementation.
 - **Test-driven**: all new functionality must be covered by unit tests; adapter/protocol changes require integration
   tests.
+
+---
+
+## Programmatic-First Principle
+
+**Every repeated or automatable task must be encoded as a script before it is performed a third time interactively.**
+
+This is a guiding constraint for the entire agent fleet, not an optional preference. More layers of encoding produce
+more value-adherence among agents, leading to more deterministic sessions and development cycles.
+
+### Decision criteria
+
+| Situation | Action |
+|-----------|--------|
+| Task performed once interactively | Note it; consider scripting |
+| Task performed twice interactively | Script it before the third time |
+| Task is a validation or format check | Script it immediately; CI should enforce it too |
+| Task involves reading many files to build context | Pre-compute and cache — encode as a script |
+| Task generates boilerplate from a template | Generator script is more reliable than prompting |
+| Task could break something if done wrong | Script it with a `--dry-run` guard |
+| Task is one-off and genuinely non-recurring | Interactive is acceptable — document the assumption |
+
+### What this means for agents
+
+- **Check `scripts/` first** before performing a multi-step task interactively.
+- **Extend, don't duplicate** — if a script partially covers your need, extend it.
+- **Propose new scripts proactively** — if you perform an investigation or transformation that required significant
+  context to execute, encapsulate it as a script and commit it so future sessions start with that knowledge encoded.
+- **Automation ≠ agent** — file watchers, pre-commit hooks, and CI tasks are preferred over agent-initiated repetition.
+  The `Executive Automator` agent is the first escalation point for automation design.
+  The `Executive Scripter` agent is the first escalation point for scripting gaps.
+- **Document at the top** — every script must open with a docstring or comment block describing its purpose, inputs,
+  outputs, and usage example.
+
+### Scratchpad watcher — canonical example
+
+The scratchpad auto-annotator (`scripts/watch_scratchpad.py`) exemplifies this principle:
+- A repeated manual task (annotating H2 headings with line numbers after every write) is encoded as a file watcher.
+- Agents do not run it — it runs automatically whenever a `.tmp/*.md` file changes.
+- The result (line-range annotations in heading text) is durable even if links break.
+- Run `uv run python scripts/watch_scratchpad.py` or start the VS Code task **Watch Scratchpad**.
 
 ---
 
@@ -490,6 +533,8 @@ Copilot chat agents dropdown automatically.
 | **GitHub** | terminal + read | Git/PR workflows — branching, committing, opening and merging PRs |
 | **Executive Debugger** | full tools | Diagnose and fix runtime or test failures |
 | **Executive Planner** | read + edit | Reconcile `docs/Workplan.md` against codebase; recommend next agent |
+| **Executive Scripter** | full tools | Identify repeated interactive tasks and encode them as committed scripts; audit `scripts/` for gaps; enforce programmatic-first constraint |
+| **Executive Automator** | full tools | Design and implement non-agent automation — file watchers, pre-commit hooks, CI tasks, VS Code task definitions; first escalation point for event-driven automation |
 | **Agent Scaffold Executive** | full tools | Orchestrate new agent creation — brief Scaffold Agent, validate, update catalog |
 | **Review Agent** | read-only | Specialist review of `.agent.md` and `AGENTS.md` files against authoring rules |
 | **Update Agent** | read + create | Update existing agent files for compliance with current authoring rules |

@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Watch Scratchpad",
+      "detail": "Auto-starts on folder open. Watches .tmp/<branch>/*.md and stamps H2 headings with line-range annotations via prune_scratchpad.py --annotate. Requires dev-tools deps: uv sync --group dev-tools. See scripts/watch_scratchpad.py.",
+      "type": "shell",
+      "command": "uv run python scripts/watch_scratchpad.py",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "label": "Scratchpad Watcher"
+      },
+      "problemMatcher": [],
+      "group": "none"
+    }
+  ]
+}
